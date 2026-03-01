@@ -39,10 +39,10 @@ public class AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository
                 .findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Email không hợp lệ, vui lòng nhập lại."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Email hoặc mật khẩu không hợp lệ, vui lòng nhập lại."));
 
         if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new ServiceException(HttpStatus.NOT_ACCEPTABLE, "Mật khẩu không hợp lệ, vui lòng nhập lại.");
+            throw new ServiceException(HttpStatus.NOT_FOUND, "Email hoặc mật khẩu không hợp lệ, vui lòng nhập lại.");
         }
 
         String refreshToken = buildRefreshToken(user);

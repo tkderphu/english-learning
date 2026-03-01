@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import site.viosmash.english.entity.User;
 import site.viosmash.english.service.JwtService;
 import site.viosmash.english.util.enums.JwtClaims;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -37,15 +38,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(System.currentTimeMillis() <= tokenExpiredAt) {
 
             User user = new User();
-            user.setId((Integer) jwtService.extractClaim(JwtClaims.SUB, token));
-            user.setEmail((String)jwtService.extractClaim(JwtClaims.PREFERRED_NAME, token));
-            user.setRole((Integer)jwtService.extractClaim(JwtClaims.ROLE_TYPE, token));
+            Object sub = jwtService.extractClaim(JwtClaims.SUB, token);
+            Object email = jwtService.extractClaim(JwtClaims.PREFERRED_NAME, token);
+            Object role = jwtService.extractClaim(JwtClaims.ROLE_TYPE, token);
+
+            if(sub != null) {
+                Integer id = (sub instanceof Integer) ? (Integer) sub : ((Long) sub).intValue();
+                user.setId(id);
+            }
+            if(email != null) user.setEmail(email.toString());
+            if(role != null) {
+                Integer r = (role instanceof Integer) ? (Integer) role : ((Long) role).intValue();
+                user.setRole(r);
+            }
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, Collections.emptyList()
             );
 
             authentication.setDetails(new WebAuthenticationDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);
     }

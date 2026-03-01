@@ -46,6 +46,22 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> {
+
+                    request.requestMatchers(
+                            "/v3/api-docs/**",
+                            "/v3/api-docs",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/index.html",
+                            "/swagger-ui.html/**",
+                            "/api/auth/**",
+                            "/api/user/v1"
+                    ).permitAll();
+
+                    // Require authentication for API endpoints
+                    request.requestMatchers("/api/**").authenticated();
+
+                    // Permit other requests (static, health, etc.)
                     request.anyRequest().permitAll();
                 });
         return httpSecurity.build();
