@@ -13,6 +13,7 @@ import site.viosmash.english.entity.User;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.UserRepository;
 import site.viosmash.english.repository.UserSessionRepository;
+import site.viosmash.english.util.Util;
 import site.viosmash.english.util.enums.RoleType;
 import site.viosmash.english.util.enums.Status;
 
@@ -25,6 +26,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final UserSessionRepository userSessionRepository;
+
+    private final Util util;
 
     public User create(UserCreateRequest req) {
 
@@ -56,12 +59,21 @@ public class UserService {
         return userRepository.findAllByKeyword(pageable, keyword, role  , status);
     }
 
-    public Page<UserSessionResponse> getListSession(Pageable pageable, String keyword) {
+    public Page<UserSessionResponse> getListSession(Pageable pageable, String keyword, Integer status) {
+
+        User currentUser = util.getCurrentUser();
+
+        Integer userId = currentUser.getId();
+
+        if (currentUser.getRole() == RoleType.ADMIN.getValue()) {
+           userId = null;
+        }
+
         if(keyword != null) {
             keyword = "%" + keyword.toLowerCase() + "%";
         } else {
             keyword = "%%";
         }
-        return userSessionRepository.findAllByKeyword(pageable, keyword);
+        return userSessionRepository.findAllByKeyword(pageable, keyword, userId, status);
     }
 }

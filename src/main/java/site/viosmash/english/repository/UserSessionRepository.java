@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import site.viosmash.english.dto.response.UserSessionResponse;
 import site.viosmash.english.entity.UserSession;
 
@@ -24,5 +25,5 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Intege
             AND (:userId IS NULL OR us.userId = :userId)
             AND (:status IS NULL OR us.status = :status)
     """)
-    Page<UserSessionResponse> findAllByKeyword(Pageable pageable, String keyword);
+    Page<UserSessionResponse> findAllByKeyword(Pageable pageable, @Param("keyword") String keyword, @Param("userId") Integer userId, @Param("status") Integer status);
 }

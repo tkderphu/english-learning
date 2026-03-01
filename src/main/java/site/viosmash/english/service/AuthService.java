@@ -1,25 +1,22 @@
 package site.viosmash.english.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
 import site.viosmash.english.dto.request.LoginRequest;
 import site.viosmash.english.dto.response.AuthResponse;
-import site.viosmash.english.dto.response.UserResponse;
 import site.viosmash.english.entity.User;
 import site.viosmash.english.entity.UserSession;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.UserRepository;
 import site.viosmash.english.repository.UserSessionRepository;
 import site.viosmash.english.util.enums.JwtClaims;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +39,9 @@ public class AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository
                 .findByEmail(loginRequest.getEmail())
-                .orElseThrow(
-                        () -> new ServiceException(HttpStatus.NOT_FOUND, "Email không hợp lệ, vui lòng nhập lại."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Email không hợp lệ, vui lòng nhập lại."));
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new ServiceException(HttpStatus.NOT_ACCEPTABLE, "Mật khẩu không hợp lệ, vui lòng nhập lại.");
         }
 
@@ -84,22 +80,5 @@ public class AuthService {
         claimsProperties.put(JwtClaims.REFRESH_TOKEN, refreshToken);
         claimsProperties.put(JwtClaims.ROLE_TYPE, user.getRole());
         return this.jwtService.generateToken(claimsProperties);
-    }
-
-    public UserResponse getMe() {
-        // Lấy User đã được filter set vào SecurityContext
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        // Fetch lại từ DB để có đầy đủ thông tin mới nhất
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."));
-
-        return new UserResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getAvatar(),
-                user.getRole(),
-                user.getStatus());
     }
 }
