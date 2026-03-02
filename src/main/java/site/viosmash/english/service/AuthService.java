@@ -54,8 +54,9 @@ public class AuthService {
         session.setStatus(1);
 
         this.userSessionRepository.save(session);
-
-        return new AuthResponse(accessToken, refreshToken, user);
+        // exipresAt cho phép buôc ng dùng login nếu 30 ngày ko dùng app.
+        Long expiresAt = System.currentTimeMillis()+ 30L *24*60*60*1000;
+        return new AuthResponse(accessToken, refreshToken,expiresAt, user);
     }
 
     private String buildRefreshToken(User user) {

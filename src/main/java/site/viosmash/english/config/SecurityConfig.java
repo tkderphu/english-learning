@@ -1,6 +1,7 @@
 package site.viosmash.english.config;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import lombok.RequiredArgsConstructor;
 import site.viosmash.english.filter.JwtAuthenticationFilter;
-
-import java.util.List;
-
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -55,8 +55,7 @@ public class SecurityConfig {
                             "/swagger-ui/index.html",
                             "/swagger-ui.html/**",
                             "/api/auth/**",
-                            "/api/user/v1"
-                    ).permitAll();
+                            "/api/user/v1").permitAll();
 
                     // Require authentication for API endpoints
                     request.requestMatchers("/api/**").authenticated();
@@ -71,7 +70,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

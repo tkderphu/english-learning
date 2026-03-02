@@ -9,10 +9,8 @@ import site.viosmash.english.entity.User;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponse {
-
     private String accessToken;
-
     private String refreshToken;
-
+    private Long expiresAt;
     private User user;
 }
