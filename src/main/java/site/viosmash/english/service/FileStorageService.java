@@ -51,9 +51,12 @@ public class FileStorageService {
 
             FileEntity saved = fileRepository.save(fe);
 
-            String downloadUrl = String.format("%s/api/file/v1/download/%d", baseUrl, saved.getId());
+            // Public URL using static resource mapping (see WebMvcConfig)
+            // We expose files under the /uploads/{filename} path regardless of whether storagePath is
+            // relative or absolute. This keeps URLs stable for clients.
+            String publicUrl = String.format("%s/api/assets/%s", baseUrl, saved.getFileName());
 
-            return new FileResponse(saved.getId(), saved.getFileName(), saved.getOriginalName(), saved.getContentType(), saved.getSize(), saved.getPath(), downloadUrl);
+            return new FileResponse(saved.getId(), saved.getFileName(), saved.getOriginalName(), saved.getContentType(), saved.getSize(), saved.getPath(), publicUrl);
         } catch (IOException e) {
             throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store file: " + e.getMessage());
         }
