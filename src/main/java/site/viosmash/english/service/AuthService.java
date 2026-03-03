@@ -55,7 +55,7 @@ public class AuthService {
 
         this.userSessionRepository.save(session);
 
-        return new AuthResponse(accessToken, refreshToken, user);
+        return new AuthResponse(accessToken, refreshToken, (Long) jwtService.extractClaim(JwtClaims.EXPIRED, accessToken), user);
     }
 
     private String buildRefreshToken(User user) {
