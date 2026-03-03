@@ -19,8 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import site.viosmash.english.filter.JwtAuthenticationFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -55,7 +57,8 @@ public class SecurityConfig {
                             "/swagger-ui/index.html",
                             "/swagger-ui.html/**",
                             "/api/auth/**",
-                            "/api/user/v1"
+                "/api/user/v1",
+                "/uploads/**"
                     ).permitAll();
 
                     // Require authentication for API endpoints
