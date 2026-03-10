@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 public class BookProgress extends BaseEntity {
 
     @Column(name = "user_id")
-    private int userId;
+    private Integer userId;
 
     @Column(name = "book_id")
-    private int bookId;
+    private Integer bookId;
 
     @Column(name = "progress_percent")
     private double progressPercent;

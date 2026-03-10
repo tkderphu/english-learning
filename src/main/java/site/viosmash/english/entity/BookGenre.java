@@ -15,8 +15,8 @@ public class BookGenre {
     private int id;
 
     @Column(name = "genre_id")
-    private int genreId;
+    private Integer genreId;
 
     @Column(name = "book_id")
-    private int bookId;
+    private Integer bookId;
 }
