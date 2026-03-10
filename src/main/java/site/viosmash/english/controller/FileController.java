@@ -1,6 +1,9 @@
 package site.viosmash.english.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.PathResource;
@@ -24,6 +27,10 @@ public class FileController {
     private final FileStorageService fileStorageService;
 
     @Operation(summary = "Upload a file")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "File uploaded", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+    })
     @PostMapping("/v1/upload")
     public ResponseEntity<BaseResponse<?>> upload(@RequestParam("file") MultipartFile file) {
         FileResponse res = fileStorageService.store(file);
@@ -31,6 +38,10 @@ public class FileController {
     }
 
     @Operation(summary = "Delete a file by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Deleted", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
+    })
     @DeleteMapping("/v1/{id}")
     public ResponseEntity<BaseResponse<?>> delete(@PathVariable Integer id) {
         fileStorageService.delete(id);
@@ -38,6 +49,10 @@ public class FileController {
     }
 
     @Operation(summary = "Download file by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "File content returned", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
+    })
     @GetMapping("/v1/download/{id}")
     public ResponseEntity<Resource> download(@PathVariable Integer id) {
         var path = fileStorageService.loadPath(id);

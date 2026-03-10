@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
 public class Chapter extends BaseEntity {
 
     @Column(name = "book_id")
-    private int bookId;
+    private Integer bookId;
 
     private String title;
 

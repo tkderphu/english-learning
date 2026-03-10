@@ -1,0 +1,77 @@
+package site.viosmash.english.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import site.viosmash.english.dto.request.BookCreateRequest;
+import site.viosmash.english.dto.response.BookResponse;
+import site.viosmash.english.entity.Book;
+import site.viosmash.english.exception.ServiceException;
+import site.viosmash.english.repository.*;
+import site.viosmash.english.util.Util;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class BookService {
+
+    private final BookRepository bookRepository;
+    private final AuthorBookRepository authorBookRepository;
+    private final BookGenreRepository bookGenreRepository;
+    private final Util util;
+
+    public Page<BookResponse> getList(int page, int limit, String keyword) {
+        String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return bookRepository.findAllByKeyword(pageable, keyword, null, null, null);
+    }
+
+    public BookResponse create(BookCreateRequest req) {
+        Book b = new Book();
+        b.setTitle(req.getTitle());
+        b.setLanguage(req.getLanguage());
+        b.setCoverUrl(req.getCoverUrl());
+        b.setStatus(1);
+        try {
+            b = bookRepository.save(b);
+            int bookId = b.getId();
+            if (req.getAuthorIds() != null) {
+                req.getAuthorIds().forEach(aid -> {
+                    var ab = new site.viosmash.english.entity.AuthorBook();
+                    ab.setAuthorId(aid);
+                    ab.setBookId(bookId);
+                    authorBookRepository.save(ab);
+                });
+            }
+            if (req.getGenreIds() != null) {
+                req.getGenreIds().forEach(gid -> {
+                    var bg = new site.viosmash.english.entity.BookGenre();
+                    bg.setBookId(bookId);
+                    bg.setGenreId(gid);
+                    bookGenreRepository.save(bg);
+                });
+            }
+        } catch (Exception ex) {
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create book");
+        }
+        return new BookResponse(b.getId(), b.getTitle(), b.getLanguage(), b.getCoverUrl(), "", b.getStatus());
+    }
+
+    public Page<BookResponse> getHistory(int page, int limit) {
+        Integer userId = util.getCurrentUser().getId();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null);
+    }
+
+    public List<BookResponse> recommend() {
+        Integer userId = util.getCurrentUser().getId();
+        Pageable pageable = PageRequest.of(0, 10);
+        return bookRepository.findAllByKeyword(pageable, null, userId, null, 1).getContent();
+    }
+}

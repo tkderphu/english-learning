@@ -24,8 +24,8 @@ public class UserProfile {
     private int dailyGoalMinutes;
 
     @Column(name = "level_id")
-    private int levelId;
+    private Integer levelId;
 
     @Column(name = "user_id")
-    private int userId;
+    private Integer userId;
 }

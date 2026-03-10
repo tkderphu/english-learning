@@ -1,6 +1,9 @@
 package site.viosmash.english.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,24 +29,31 @@ public class AuthController {
     private final ForgotPasswordService forgotPasswordService;
 
     @Operation(summary = "Login and receive JWT token")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login success", content = @Content),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content)
+    })
     @PostMapping("/v1/login")
     public ResponseEntity<?> login(@jakarta.validation.Valid @RequestBody LoginRequest req) {
         return ResponseEntity.ok(BaseResponse.success(authService.login(req)));
     }
 
     @PostMapping("/v1/forgot-password/request-otp")
+    @Operation(summary = "Request OTP for forgot password")
     public ResponseEntity<?> requestOtp(@RequestBody ForgotPasswordRequest req) {
         forgotPasswordService.requestOtp(req.getEmail());
         return ResponseEntity.ok(BaseResponse.success("OTP đã được gửi nếu email tồn tại"));
     }
 
     @PostMapping("/v1/forgot-password/verify-otp")
+    @Operation(summary = "Verify OTP for forgot password")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest req) {
         forgotPasswordService.verifyOtp(req.getEmail(), req.getOtp());
         return ResponseEntity.ok(BaseResponse.success("OTP hợp lệ"));
     }
 
     @PostMapping("/v1/forgot-password/reset")
+    @Operation(summary = "Reset password using OTP")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
         forgotPasswordService.resetPassword(req.getEmail(), req.getOtp(), req.getNewPassword());
         return ResponseEntity.ok(BaseResponse.success("Mật khẩu đã được cập nhật"));

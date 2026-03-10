@@ -15,8 +15,8 @@ public class AuthorBook {
     private int id;
 
     @Column(name = "author_id")
-    private int authorId;
+    private Integer authorId;
 
     @Column(name = "book_id")
-    private int bookId;
+    private Integer bookId;
 }
