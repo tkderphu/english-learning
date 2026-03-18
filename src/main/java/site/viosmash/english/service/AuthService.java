@@ -62,7 +62,7 @@ public class AuthService {
         String idToken = UUID.randomUUID().toString();
         Map<String, Object> claimsProperties = new HashMap<>();
         claimsProperties.put(JwtClaims.ID_TOKEN, idToken);
-        claimsProperties.put(JwtClaims.EXPIRED, System.currentTimeMillis() + refreshToken * 60 * 1000);
+        claimsProperties.put(JwtClaims.EXPIRED, System.currentTimeMillis() + refreshToken * 60 * 1000L);
         claimsProperties.put(JwtClaims.SUB, user.getId());
         return this.jwtService.generateToken(claimsProperties);
     }
@@ -74,7 +74,7 @@ public class AuthService {
         Map<String, Object> claimsProperties = new HashMap<>();
         claimsProperties.put(JwtClaims.ID_TOKEN, idToken);
         claimsProperties.put(JwtClaims.EMAIL, user.getEmail());
-        claimsProperties.put(JwtClaims.EXPIRED, System.currentTimeMillis() + accessToken * 60 * 1000);
+        claimsProperties.put(JwtClaims.EXPIRED, System.currentTimeMillis() + accessToken * 60 * 1000L);
         claimsProperties.put(JwtClaims.SUB, user.getId());
         claimsProperties.put(JwtClaims.PREFERRED_NAME, user.getFullName());
         claimsProperties.put(JwtClaims.REFRESH_TOKEN, refreshToken);
