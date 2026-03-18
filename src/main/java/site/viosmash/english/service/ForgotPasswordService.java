@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import site.viosmash.english.entity.PasswordResetOtp;
 import site.viosmash.english.entity.User;
 import site.viosmash.english.exception.ServiceException;
@@ -29,6 +30,7 @@ public class ForgotPasswordService {
     @Value("${app.otp.ttl.minutes:5}")
     private int otpTtlMinutes;
 
+    @Transactional
     public void requestOtp(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Email không tồn tại"));
