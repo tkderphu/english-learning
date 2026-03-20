@@ -27,7 +27,7 @@ public class FileStorageService {
     @Value("${file.storage.path:uploads}")
     private String storagePath;
 
-    @Value("${app.server.base-url:http://localhost:7000}")
+    @Value("${app.server.base-url:http://192.168.1.52:7000}")
     private String baseUrl;
 
     public FileResponse store(MultipartFile file) {
