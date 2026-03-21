@@ -6,14 +6,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import site.viosmash.english.dto.request.AuthorCreateRequest;
-import site.viosmash.english.dto.response.BaseResponse;
-import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.dto.response.AuthorResponse;
+import site.viosmash.english.dto.response.BaseResponse;
 import site.viosmash.english.service.AuthorService;
-import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/author")
