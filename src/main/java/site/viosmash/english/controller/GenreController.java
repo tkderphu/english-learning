@@ -29,7 +29,7 @@ public class GenreController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<?>> page(
+    public ResponseEntity<BaseResponse<Page<GenreResponse>>> getList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String keyword
