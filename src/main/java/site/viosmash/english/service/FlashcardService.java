@@ -26,6 +26,7 @@ public class FlashcardService {
                         flashcard.getId(),
                         flashcard.getWord(),
                         flashcard.getPhonetic(),
+                        flashcard.getPartOfSpeech(),
                         flashcard.getMeaning(),
                         flashcard.getExampleSentence(),
                         flashcard.getVisualCueUrl()

@@ -21,6 +21,9 @@ public class Flashcard extends BaseEntity {
 
     private String phonetic;
 
+    @Column(name = "part_of_speech")
+    private String partOfSpeech;
+
     @Column(columnDefinition = "TEXT")
     private String meaning;
 
