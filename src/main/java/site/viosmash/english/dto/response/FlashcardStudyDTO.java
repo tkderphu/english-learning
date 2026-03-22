@@ -4,6 +4,7 @@ public record FlashcardStudyDTO(
         Integer id,
         String word,
         String phonetic,
+        String partOfSpeech,
         String meaning,
         String exampleSentence,
         String visualCueUrl
