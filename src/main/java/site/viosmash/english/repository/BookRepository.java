@@ -12,9 +12,8 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """
         SELECT b.id, b.title, b.language, b.cover_url,
-               COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
-               COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
-               b.status
+               COALESCE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), '') as genres,
+               COALESCE(GROUP_CONCAT(DISTINCT a.name SEPARATOR ', '), '') as authors
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
@@ -59,9 +58,8 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """
         SELECT b.id, b.title, b.language, b.cover_url,
-               COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
-               COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
-               b.status
+               COALESCE(GROUP_CONCAT(DISTINCT g.name SEPARATOR ', '), '') as genres,
+               COALESCE(GROUP_CONCAT(DISTINCT a.name SEPARATOR ', '), '') as authors
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
