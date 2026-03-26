@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.LevelCreateRequest;
 import site.viosmash.english.dto.response.LevelResponse;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.entity.Level;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.LevelRepository;
+import site.viosmash.english.util.Util;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +19,11 @@ public class LevelService {
 
     private final LevelRepository levelRepository;
 
-    public Page<LevelResponse> page(int page, int limit, String keyword) {
+    private final Util util;
+
+    public PageResponse<LevelResponse> page(int page, int limit, String keyword) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
-        return levelRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw);
+        return util.convert(levelRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw));
     }
 
     public LevelResponse create(LevelCreateRequest req) {

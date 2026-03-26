@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.UserCreateRequest;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.dto.response.UserResponse;
 import site.viosmash.english.dto.response.UserSessionResponse;
 import site.viosmash.english.entity.User;
@@ -50,16 +51,16 @@ public class UserService {
         return user;
     }
 
-    public Page<UserResponse> getList(Pageable pageable, String keyword, Integer role, Integer status) {
+    public PageResponse<UserResponse> getList(Pageable pageable, String keyword, Integer role, Integer status) {
         if(keyword != null) {
             keyword = "%" + keyword.toLowerCase() + "%";
         } else {
             keyword = "%%";
         }
-        return userRepository.findAllByKeyword(pageable, keyword, role  , status);
+        return util.convert(userRepository.findAllByKeyword(pageable, keyword, role  , status));
     }
 
-    public Page<UserSessionResponse> getListSession(Pageable pageable, String keyword, Integer status) {
+    public PageResponse<UserSessionResponse> getListSession(Pageable pageable, String keyword, Integer status) {
 
         User currentUser = util.getCurrentUser();
 
@@ -74,6 +75,6 @@ public class UserService {
         } else {
             keyword = "%%";
         }
-        return userSessionRepository.findAllByKeyword(pageable, keyword, userId, status);
+        return util.convert(userSessionRepository.findAllByKeyword(pageable, keyword, userId, status));
     }
 }
