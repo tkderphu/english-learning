@@ -75,7 +75,14 @@ public class BookService {
     public List<BookResponse> recommend() {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(0, 10);
-        return bookRepository.findAllByKeyword(pageable, null, userId, null, 1, null).getContent();
+
+        List<BookResponse> recommended = bookRepository.findAllByKeyword(pageable, null, userId, null, 1, null).getContent();
+
+        // Nếu không có gợi ý theo sở thích, lấy danh sách sách mới nhất làm mặc định
+        if (recommended.isEmpty()) {
+            recommended = bookRepository.findAllByKeyword(pageable, null, null, null, null, null).getContent();
+        }
+       return recommended;
     }
 
     public void favorite(int bookId, boolean isFavorite) {
