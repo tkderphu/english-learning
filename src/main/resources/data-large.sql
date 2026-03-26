@@ -1,6 +1,3 @@
--- Combined seed data for the `english` database
--- This file merges the original data.sql, data-large.sql and data-user-genre.sql into one
-
 use english;
 
 INSERT INTO author (id, name, avatar, nationality, biography, created_user, created_at, modified_by, modified_at, status) VALUES
@@ -203,21 +200,3 @@ INSERT INTO book_genre (id, genre_id, book_id) VALUES
 (13, ((12 - 1) % 15) + 1, 12),
 (14, ((13 - 1) % 15) + 1, 13),
 (15, ((14 - 1) % 15) + 1, 14);
-
-
-INSERT INTO user_genre (user_id, genre_id) VALUES
-(1, 1), -- Fantasy
-(1, 2), -- Adventure
-(1, 4), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 13), -- Mystery
-(1, 6), -- Sci-Fi
-(1, 8), -- Children
-(1, 12), -- Education
-(1, 15), -- Biography
-(1, 11), -- Self-Help
-(1, 9), -- Young Adult
-(1, 14); -- Travel

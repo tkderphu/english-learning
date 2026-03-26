@@ -67,41 +67,58 @@ Project-specific patterns and conventions:
 
 Build / run / test workflows (how devs run stuff):
 - Build and run with Maven wrappers present: use `mvnw.cmd` on Windows or `./mvnw` on *nix. Typical commands:
-  - Build: `mvnw.cmd clean package` (Windows)
-  - Run tests only: `mvnw.cmd test`
-  - Run locally: `mvnw.cmd spring-boot:run` or run produced jar `java -jar target/english-0.0.1-SNAPSHOT.jar`.
-- The application uses `application.properties` (MySQL configuration). For local dev, ensure MySQL is running or change datasource to an in-memory DB for quick iteration.
+  ```instructions
+  ## Copilot / AI agent instructions — english (backend)
 
-Important files to inspect when editing or adding features:
-- `controller/*` — follow patterns of `AuthController` and `UserController` (OpenAPI annotations, `@RequiredArgsConstructor`).
-- `service/*` — business logic, use constructor injection (Lombok `@RequiredArgsConstructor`). Throw `ServiceException` for business errors.
-- `repository/*` — prefer Spring Data interfaces with JPQL projections for paginated queries.
-- `dto/response/BaseResponse.java` and `dto/request` — conform to request/response DTO shapes; controllers should return `BaseResponse` wrapped responses.
-- `config/SecurityConfig.java`, `filter/JwtAuthenticationFilter.java`, `service/JwtService.java` — any endpoint that needs authentication must be added to security config if necessary.
+  Short: single-module Spring Boot REST backend. The goal: give an AI agent the minimal, actionable knowledge to be productive.
 
-Integration points and external dependencies:
-- MySQL database configured in `application.properties` — migrations are not present; JPA uses `hibernate.ddl-auto=update`.
-- SMTP mail sender is used by `MailService` and configured in `application.properties` — credentials in this repo are placeholder and should be updated in secrets.
-- JWT configuration keys are in `application.properties` (secret and token durations).
+  Quick facts
+  - Main class: `site.viosmash.english.EnglishApplication` (single Maven module).
+  - Layering: `controller` (REST) -> `service` (business) -> `repository` (Spring Data JPA) -> `entity` (JPA models). `dto`, `config`, `filter`, `util` exist for cross-cutting concerns.
 
-Adding a new REST feature (practical checklist):
-1. Add DTOs under `dto/request` and `dto/response`.
-2. Add JPA `entity` (extend `BaseEntity` if it needs auditing fields). Choose id type to match other entities.
-3. Add `repository` interface extending `JpaRepository` and prefer JPQL projection for listing endpoints.
-4. Add `service` class with `@Service` + `@RequiredArgsConstructor`. Throw `ServiceException` for error cases.
-5. Add `controller` class with `@RestController`, `@RequestMapping("/api/<name>")` and OpenAPI `@Tag` and `@Operation` annotations. Return `ResponseEntity<BaseResponse<?>>`.
-6. Add configuration property to `application.properties` if new behavior requires it. Use `@Value("${...:default}")` to provide sensible defaults.
+  Must-know conventions (follow exactly)
+  - Controllers return ResponseEntity<BaseResponse<?>>. Use `dto/response/BaseResponse.java` and `BaseResponse.success(...)` for payloads.
+  - Signal business errors by throwing `exception.ServiceException(HttpStatus, String)`; `exception.GlobalExceptionHandler` maps them to HTTP responses.
+  - Repositories prefer JPQL projection DTOs: look for `UserRepository.findAllByKeyword` for the pattern `select new ...Dto(...)` — use this for pageable list endpoints.
+  - Use constructor injection with Lombok `@RequiredArgsConstructor` in services/controllers.
+  - Entities usually extend `entity.BaseEntity` (auditing fields + int `status`). Check individual entity id types (most `int`, `User` uses String) before copying code.
+  - Auditing enabled via `@EnableJpaAuditing` in `config.SecurityConfig`; `SpringSecurityAuditorAware` supplies createdBy/modifiedBy.
 
-File-storage quick example:
-- New endpoints should follow `FileController` at `/api/file/v1/upload` (POST, `MultipartFile`) and `/api/file/v1/{id}` (DELETE). Implementation persists file to `file.storage.path` (configurable) and stores metadata in `entity/FileEntity.java` + `repository/FileRepository.java`.
+  Security & auth
+  - JWT auth implemented in `service.JwtService`, enforced by `filter.JwtAuthenticationFilter` and configured in `config.SecurityConfig`.
+  - If you add endpoints that require auth, update security rules in `SecurityConfig.java` (find the permit/antMatchers block).
 
-Testing and verification tips:
-- Unit: project currently uses standard Maven test setup; add unit tests under `test/java/...` and name test classes `*Tests.java`.
-- Smoke test: after a build, run the jar and call endpoints with curl or Postman. Example upload (Windows cmd):
-  curl -v -F "file=@C:\\path\\to\\file.png" http://localhost:7000/api/file/v1/upload
+  Integration points
+  - Database: MySQL configured in `src/main/resources/application.properties`. No migrations in repo — JPA uses `hibernate.ddl-auto=update`.
+  - Mail: `service.MailService` uses SMTP props in `application.properties` (treat credentials as secrets).
+  - File uploads: `controller.FileController` + `service.FileService` write files to `file.storage.path` (property) and persist metadata in `entity/FileEntity` / `repository/FileRepository`.
 
-When to ask the maintainer:
-- If adding persistent DB schema changes that require migration scripts.
-- If you need access to secrets (SMTP, production DB) or want to change security rules.
+  Developer workflows (Windows cmd)
+  - Build: `mvnw.cmd clean package`
+  - Run tests: `mvnw.cmd test`
+  - Run app: `mvnw.cmd spring-boot:run` or `java -jar target/english-0.0.1-SNAPSHOT.jar` after packaging
 
-If anything in these instructions is unclear or incomplete, point to the area you'd like expanded (security rules, DTO conventions, example unit tests) and I'll update this file.
+  Adding a new REST feature (minimal checklist)
+  1. Add request/response DTOs under `dto/request` and `dto/response`.
+  2. Add JPA `entity` (extend `BaseEntity` if you want auditing) and `repository` (extend `JpaRepository`). For list endpoints prefer JPQL projection DTOs.
+  3. Add `@Service` (throw `ServiceException` for domain errors; use `@RequiredArgsConstructor`).
+  4. Add `@RestController` with `@RequestMapping("/api/<name>")`. Use OpenAPI annotations (existing controllers do) and return `ResponseEntity<BaseResponse<?>>`.
+  5. Add properties to `application.properties` if needed and read them with `@Value("${...:default}")`.
+
+  Quick verification
+  - Unit tests: `test/java/...` (tests named `*Tests.java`). Run `mvnw.cmd test`.
+  - Smoke: build jar and call an endpoint. Example (Windows cmd): curl -v -F "file=@C:\\path\\to\\file.png" http://localhost:7000/api/file/v1/upload
+
+  When to ask a maintainer
+  - Any DB schema migrations or production secret changes (DB, SMTP, JWT secret).
+  - Changes to global security rules or auditor behavior.
+
+  Key files to inspect (examples)
+  - `controller/AuthController.java`, `service/AuthService` (auth flows)
+  - `controller/UserController.java` (controller pattern + OpenAPI)
+  - `service/JwtService.java`, `filter/JwtAuthenticationFilter.java`, `config/SecurityConfig.java` (security)
+  - `entity/BaseEntity.java`, `config/SpringSecurityAuditorAware.java` (auditing)
+  - `dto/response/BaseResponse.java`, `exception/ServiceException.java`, `exception/GlobalExceptionHandler.java` (error handling)
+
+  If anything's unclear or you want a short unit-test template / example projection query, tell me which section to expand.
+  ```

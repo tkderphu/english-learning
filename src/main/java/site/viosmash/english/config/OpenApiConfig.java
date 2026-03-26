@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ public class OpenApiConfig {
                         .version("v1")
                         .description("API documentation for the English application"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .addServersItem(new Server().url("https://english.kimchimar3.store"))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
@@ -30,13 +32,5 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
                         ));
-    }
-
-    @Bean
-    public GroupedOpenApi apiGroup() {
-        return GroupedOpenApi.builder()
-                .group("api")
-                .pathsToMatch("/api/**")
-                .build();
     }
 }

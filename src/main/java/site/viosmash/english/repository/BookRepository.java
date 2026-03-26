@@ -36,9 +36,6 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
-        FROM book b
-            LEFT JOIN author_book ab on ab.book_id = b.id
-            LEFT JOIN author a on a.id = ab.author_id
             LEFT JOIN book_progress bp ON bp.book_id = b.id
             LEFT JOIN user u ON u.id = bp.user_id
             LEFT JOIN book_genre bg ON bg.book_id = b.id

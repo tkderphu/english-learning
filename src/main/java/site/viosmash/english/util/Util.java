@@ -15,6 +15,6 @@ public class Util {
     }
 
     public <T> PageResponse<T> convert(Page<T> page) {
-        return PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), page.getContent());
+        return PageResponse.of(page.getNumber() + 1, page.getSize(), page.getTotalPages(), page.getContent());
     }
 }
