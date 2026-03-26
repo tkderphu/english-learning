@@ -29,13 +29,12 @@ public class GenreController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<Page<GenreResponse>>> getList(
+    public ResponseEntity<BaseResponse<?>> getList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String keyword
     ) {
-        Page<GenreResponse> p = genreService.page(page, limit, keyword);
-        return ResponseEntity.ok(BaseResponse.success(p));
+        return ResponseEntity.ok(BaseResponse.success(genreService.page(page, limit, keyword)));
     }
 
     @Operation(summary = "Create a genre")

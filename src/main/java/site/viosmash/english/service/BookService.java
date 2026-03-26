@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.response.BookResponse;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.entity.Book;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
@@ -28,10 +29,10 @@ public class BookService {
     private final BookProgressRepository bookProgressRepository;
     private final Util util;
 
-    public Page<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
+    public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return bookRepository.findAllByKeyword(pageable, keyword, null, null, null, null);
+        return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, null, genreId));
     }
 
     public int create(BookCreateRequest req) {
@@ -65,10 +66,10 @@ public class BookService {
         return b.getId();
     }
 
-    public Page<BookResponse> getHistory(int page, int limit) {
+    public PageResponse<BookResponse> getHistory(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null, null);
+        return util.convert(bookRepository.findAllByKeyword(pageable, null, userId, 1, null, null));
     }
 
     public List<BookResponse> recommend() {
@@ -91,7 +92,6 @@ public class BookService {
         bp.setUserId(userId);
         bp.setBookId(bookId);
         bp.setProgressPercent(0.0);
-        bp.setLastRead(java.time.LocalDateTime.now());
         bp.setIsFavorite(isFavorite ? 1 : 0);
         bookProgressRepository.save(bp);
     }

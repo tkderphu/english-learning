@@ -1,5 +1,6 @@
 package site.viosmash.english.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,6 +8,7 @@ import java.util.function.Function;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse<T>{
 
     private String message;

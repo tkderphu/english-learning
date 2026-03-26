@@ -31,7 +31,7 @@ public class BookController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<Page<BookResponse>>> getList(
+    public ResponseEntity<BaseResponse<?>> getList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String keyword
@@ -45,7 +45,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/genre/{id}")
-    public ResponseEntity<BaseResponse<Page<BookResponse>>> getListByGenre(
+    public ResponseEntity<BaseResponse<?>> getListByGenre(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @PathVariable("id") Integer genreId
@@ -70,7 +70,7 @@ public class BookController {
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
     @GetMapping("/v1/history")
-    public ResponseEntity<BaseResponse<Page<BookResponse>>>history(
+    public ResponseEntity<BaseResponse<?>>history(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
     ) {

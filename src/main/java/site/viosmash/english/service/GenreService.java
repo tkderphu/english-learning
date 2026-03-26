@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.GenreCreateRequest;
 import site.viosmash.english.dto.response.GenreResponse;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.entity.Genre;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.GenreRepository;
+import site.viosmash.english.util.Util;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +19,11 @@ public class GenreService {
 
     private final GenreRepository genreRepository;
 
-    public Page<GenreResponse> page(int page, int limit, String keyword) {
+    private final Util util;
+
+    public PageResponse<GenreResponse> page(int page, int limit, String keyword) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
-        return genreRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw);
+        return util.convert(genreRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw));
     }
 
     public GenreResponse create(GenreCreateRequest req) {
