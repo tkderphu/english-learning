@@ -23,9 +23,12 @@ public class BookProgress extends BaseEntity {
     @Column(name = "progress_percent")
     private double progressPercent;
 
-    @Column(name = "last_read")
-    private LocalDateTime lastRead;
+    @Column(name = "last_read_time")
+    private LocalDateTime lastReadTime;
 
     @Column(name = "is_favorite")
     private Integer isFavorite;
+
+    @Column(name="last_read_page_number")
+    private Integer lastReadPageNumber;
 }
