@@ -32,7 +32,7 @@ public class BookService {
     public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, null, genreId));
+        return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, genreId));
     }
 
     public int create(BookCreateRequest req) {
@@ -69,13 +69,13 @@ public class BookService {
     public PageResponse<BookResponse> getHistory(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return util.convert(bookRepository.findAllByKeyword(pageable, null, userId, 1, null, null));
+        return util.convert(bookRepository.findHistory(pageable, userId));
     }
 
     public List<BookResponse> recommend() {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(0, 10);
-        return bookRepository.findAllByKeyword(pageable, null, userId, null, 1, null).getContent();
+        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null).getContent();
     }
 
     public void favorite(int bookId, boolean isFavorite) {
