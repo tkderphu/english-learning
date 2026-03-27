@@ -23,18 +23,14 @@ public class GenreController {
 
     private final GenreService genreService;
 
-    @Operation(summary = "Get paginated genres")
+    @Operation(summary = "Get list genres")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Paged genres", content = @Content),
+        @ApiResponse(responseCode = "200", description = "list genres", content = @Content),
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<?>> getList(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(required = false) String keyword
-    ) {
-        return ResponseEntity.ok(BaseResponse.success(genreService.page(page, limit, keyword)));
+    public ResponseEntity<BaseResponse<?>> getList() {
+        return ResponseEntity.ok(BaseResponse.success(genreService.getList()));
     }
 
     @Operation(summary = "Create a genre")

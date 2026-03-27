@@ -13,6 +13,8 @@ import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.GenreRepository;
 import site.viosmash.english.util.Util;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GenreService {
@@ -21,9 +23,8 @@ public class GenreService {
 
     private final Util util;
 
-    public PageResponse<GenreResponse> page(int page, int limit, String keyword) {
-        String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
-        return util.convert(genreRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw));
+    public List<GenreResponse> getList() {
+        return genreRepository.findAllGenre();
     }
 
     public GenreResponse create(GenreCreateRequest req) {

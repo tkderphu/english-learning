@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -20,6 +21,10 @@ public class BookResponse {
     private int status;
     private List<ChapterResponse> chapters;
 
+    private int lastReadNumberPage;
+    private double progressPercent;
+    private LocalDateTime lastReadTime;
+    private  boolean isFavorite;
 
     public BookResponse(int id, String title, String language, String coverUrl, String genresName, String authors, int status) {
         this.id = id;
@@ -29,5 +34,18 @@ public class BookResponse {
         this.genresName = genresName;
         this.authors = authors;
         this.status = status;
+    }
+
+    public BookResponse(int id, String title, String language, String coverUrl, String genresName, String authors, int lastReadNumberPage, double progressPercent, LocalDateTime lastReadTime, boolean isFavorite) {
+        this.id = id;
+        this.title = title;
+        this.language = language;
+        this.coverUrl = coverUrl;
+        this.genresName = genresName;
+        this.authors = authors;
+        this.lastReadNumberPage = lastReadNumberPage;
+        this.progressPercent = progressPercent;
+        this.lastReadTime = lastReadTime;
+        this.isFavorite = isFavorite;
     }
 }

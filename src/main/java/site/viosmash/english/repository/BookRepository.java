@@ -8,13 +8,15 @@ import org.springframework.data.repository.query.Param;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.entity.Book;
 
+import java.util.List;
+
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """
         SELECT b.id, b.title, b.language, b.cover_url,
                COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
                COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
-               b.status
+               bp.progress_percent, b.status
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
@@ -36,8 +38,6 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
-            LEFT JOIN book_progress bp ON bp.book_id = b.id
-            LEFT JOIN user u ON u.id = bp.user_id
             LEFT JOIN book_genre bg ON bg.book_id = b.id
             LEFT JOIN genre g ON g.id = bg.genre_id
             LEFT JOIN user_genre ug ON ug.genre_id = g.id
@@ -58,7 +58,25 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         SELECT b.id, b.title, b.language, b.cover_url,
                COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
                COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
-               b.status
+               bp.progress_percent
+        FROM book b
+            LEFT JOIN author_book ab on ab.book_id = b.id
+            LEFT JOIN author a on a.id = ab.author_id
+            LEFT JOIN book_progress bp ON bp.book_id = b.id
+            LEFT JOIN user u ON u.id = bp.user_id
+            LEFT JOIN book_genre bg ON bg.book_id = b.id
+            LEFT JOIN genre g ON g.id = bg.genre_id
+        WHERE u.id = :userId
+        GROUP BY b.id
+        """)
+    List<BookResponse> findHistory(@Param("userId") Integer userId);
+
+
+    @Query(value = """
+        SELECT b.id, b.title, b.language, b.cover_url,
+               COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
+               COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
+               bp.progress_percent, b.status
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
