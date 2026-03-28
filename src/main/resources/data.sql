@@ -1,223 +1,357 @@
--- Combined seed data for the `english` database
--- This file merges the original data.sql, data-large.sql and data-user-genre.sql into one
+-- MySQL dump 10.13  Distrib 8.0.13, for Win64 (x86_64)
+--
+-- Host: localhost    Database: english
+-- ------------------------------------------------------
+-- Server version	8.0.13
 
-use english;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+ SET NAMES utf8 ;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-INSERT INTO author (id, name, avatar, nationality, biography, created_user, created_at, modified_by, modified_at, status) VALUES
-(4, 'Ava Thompson', 'https://example.com/avatars/ava_thompson.jpg', 'US', 'Contemporary writer of short stories and essays', 'system', NOW(), NULL, NULL, 1),
-(5, 'Liam Johnson', 'https://example.com/avatars/liam_johnson.jpg', 'US', 'Academic and language educator', 'system', NOW(), NULL, NULL, 1),
-(6, 'Olivia Martinez', 'https://example.com/avatars/olivia_martinez.jpg', 'ES', 'Translator and novelist', 'system', NOW(), NULL, NULL, 1),
-(7, 'Noah Brown', 'https://example.com/avatars/noah_brown.jpg', 'AU', 'Children books author and storyteller', 'system', NOW(), NULL, NULL, 1),
-(8, 'Emma Wilson', 'https://example.com/avatars/emma_wilson.jpg', 'CA', 'Writer focusing on travel and culture', 'system', NOW(), NULL, NULL, 1),
-(9, 'Oliver Davis', 'https://example.com/avatars/oliver_davis.jpg', 'UK', 'Poet and essayist', 'system', NOW(), NULL, NULL, 1),
-(10, 'Sophia Garcia', 'https://example.com/avatars/sophia_garcia.jpg', 'MX', 'Young adult fiction author', 'system', NOW(), NULL, NULL, 1),
-(11, 'William Miller', 'https://example.com/avatars/william_miller.jpg', 'US', 'Historian and textbook author', 'system', NOW(), NULL, NULL, 1),
-(12, 'Isabella Rodriguez', 'https://example.com/avatars/isabella_rodriguez.jpg', 'ES', 'Language learning content creator', 'system', NOW(), NULL, NULL, 1),
-(13, 'James Martinez', 'https://example.com/avatars/james_martinez.jpg', 'US', 'Short fiction and dialogue-focused writer', 'system', NOW(), NULL, NULL, 1),
-(14, 'Mia Hernandez', 'https://example.com/avatars/mia_hernandez.jpg', 'CO', 'Educational book author', 'system', NOW(), NULL, NULL, 1),
-(15, 'Benjamin Lopez', 'https://example.com/avatars/benjamin_lopez.jpg', 'AR', 'Novelist and playwright', 'system', NOW(), NULL, NULL, 1),
-(16, 'Charlotte Gonzalez', 'https://example.com/avatars/charlotte_gonzalez.jpg', 'US', 'Cultural commentator and blogger', 'system', NOW(), NULL, NULL, 1),
-(17, 'Elijah Perez', 'https://example.com/avatars/elijah_perez.jpg', 'US', 'Sci-fi short story author', 'system', NOW(), NULL, NULL, 1),
-(18, 'Amelia Sanchez', 'https://example.com/avatars/amelia_sanchez.jpg', 'ES', 'Children educational content', 'system', NOW(), NULL, NULL, 1),
-(19, 'Lucas Ramirez', 'https://example.com/avatars/lucas_ramirez.jpg', 'CL', 'Travelogue and essays', 'system', NOW(), NULL, NULL, 1),
-(20, 'Harper Torres', 'https://example.com/avatars/harper_torres.jpg', 'US', 'Language pedagogy researcher', 'system', NOW(), NULL, NULL, 1),
-(21, 'Henry Nguyen', 'https://example.com/avatars/henry_nguyen.jpg', 'VN', 'Bilingual educator and author', 'system', NOW(), NULL, NULL, 1),
-(22, 'Evelyn Kim', 'https://example.com/avatars/evelyn_kim.jpg', 'KR', 'Modern fiction and translations', 'system', NOW(), NULL, NULL, 1),
-(23, 'Alexander Lee', 'https://example.com/avatars/alexander_lee.jpg', 'US', 'Non-fiction on communication', 'system', NOW(), NULL, NULL, 1),
-(24, 'Sofia Patel', 'https://example.com/avatars/sofia_patel.jpg', 'IN', 'Young readers author', 'system', NOW(), NULL, NULL, 1),
-(25, 'Daniel Wright', 'https://example.com/avatars/daniel_wright.jpg', 'UK', 'Mystery novelist', 'system', NOW(), NULL, NULL, 1),
-(26, 'Grace Scott', 'https://example.com/avatars/grace_scott.jpg', 'US', 'Creative writing instructor', 'system', NOW(), NULL, NULL, 1),
-(27, 'Michael Green', 'https://example.com/avatars/michael_green.jpg', 'US', 'Essayist and critic', 'system', NOW(), NULL, NULL, 1),
-(28, 'Chloe Adams', 'https://example.com/avatars/chloe_adams.jpg', 'AU', 'Romance and contemporary fiction', 'system', NOW(), NULL, NULL, 1),
-(29, 'Jack Baker', 'https://example.com/avatars/jack_baker.jpg', 'UK', 'Adventure stories for young adults', 'system', NOW(), NULL, NULL, 1),
-(30, 'Zoe Carter', 'https://example.com/avatars/zoe_carter.jpg', 'US', 'Educational technologist and writer', 'system', NOW(), NULL, NULL, 1),
-(31, 'Ryan Mitchell', 'https://example.com/avatars/ryan_mitchell.jpg', 'US', 'Language learning researcher', 'system', NOW(), NULL, NULL, 1);
+--
+-- Table structure for table `author`
+--
 
-INSERT INTO genre (id, name, thumbnail, description, created_user, created_at, modified_by, modified_at, status) VALUES
-(4, 'Mystery', 'https://example.com/genres/mystery.jpg', 'Suspense and mystery fiction', 'system', NOW(), NULL, NULL, 1),
-(5, 'Romance', 'https://example.com/genres/romance.jpg', 'Romantic fiction and relationships', 'system', NOW(), NULL, NULL, 1),
-(6, 'Sci-Fi', 'https://example.com/genres/scifi.jpg', 'Science fiction and futuristic stories', 'system', NOW(), NULL, NULL, 1),
-(7, 'Non-Fiction', 'https://example.com/genres/nonfiction.jpg', 'Informative and factual works', 'system', NOW(), NULL, NULL, 1),
-(8, 'Children', 'https://example.com/genres/children.jpg', 'Books for children and early readers', 'system', NOW(), NULL, NULL, 1),
-(9, 'Young Adult', 'https://example.com/genres/ya.jpg', 'Young adult fiction', 'system', NOW(), NULL, NULL, 1),
-(10, 'Historical', 'https://example.com/genres/historical.jpg', 'Historical fiction and narratives', 'system', NOW(), NULL, NULL, 1),
-(11, 'Self-Help', 'https://example.com/genres/selfhelp.jpg', 'Personal development and guides', 'system', NOW(), NULL, NULL, 1),
-(12, 'Education', 'https://example.com/genres/education.jpg', 'Textbooks and language learning materials', 'system', NOW(), NULL, NULL, 1),
-(13, 'Poetry', 'https://example.com/genres/poetry.jpg', 'Collections of poems', 'system', NOW(), NULL, NULL, 1),
-(14, 'Travel', 'https://example.com/genres/travel.jpg', 'Travel writing and guides', 'system', NOW(), NULL, NULL, 1),
-(15, 'Biography', 'https://example.com/genres/biography.jpg', 'Life stories and memoirs', 'system', NOW(), NULL, NULL, 1);
+DROP TABLE IF EXISTS `author`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `author` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  `biography` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `nationality` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO level (id, name, description, number_course, created_user, created_at, modified_by, modified_at, status) VALUES
-(1, 'Beginner', 'For learners starting out', 1, 'system', NOW(), NULL, NULL, 1),
-(2, 'Elementary', 'Basic vocabulary and grammar', 2, 'system', NOW(), NULL, NULL, 1),
-(3, 'Pre-Intermediate', 'Everyday English and simple conversations', 3, 'system', NOW(), NULL, NULL, 1),
-(4, 'Intermediate', 'Improving fluency and comprehension', 4, 'system', NOW(), NULL, NULL, 1),
-(5, 'Upper-Intermediate', 'Complex grammar and reading', 5, 'system', NOW(), NULL, NULL, 1),
-(6, 'Advanced', 'Near-native proficiency and nuance', 6, 'system', NOW(), NULL, NULL, 1);
+--
+-- Dumping data for table `author`
+--
 
-INSERT INTO book (id, title, language, cover_url, created_user, created_at, modified_by, modified_at, status) VALUES
+LOCK TABLES `author` WRITE;
+/*!40000 ALTER TABLE `author` DISABLE KEYS */;
+INSERT INTO `author` VALUES (4,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/ava_thompson.jpg','Contemporary writer of short stories and essays','Ava Thompson','US'),(5,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/liam_johnson.jpg','Academic and language educator','Liam Johnson','US'),(6,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/olivia_martinez.jpg','Translator and novelist','Olivia Martinez','ES'),(7,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/noah_brown.jpg','Children books author and storyteller','Noah Brown','AU'),(8,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/emma_wilson.jpg','Writer focusing on travel and culture','Emma Wilson','CA'),(9,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/oliver_davis.jpg','Poet and essayist','Oliver Davis','UK'),(10,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/sophia_garcia.jpg','Young adult fiction author','Sophia Garcia','MX'),(11,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/william_miller.jpg','Historian and textbook author','William Miller','US'),(12,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/isabella_rodriguez.jpg','Language learning content creator','Isabella Rodriguez','ES'),(13,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/james_martinez.jpg','Short fiction and dialogue-focused writer','James Martinez','US'),(14,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/mia_hernandez.jpg','Educational book author','Mia Hernandez','CO'),(15,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/benjamin_lopez.jpg','Novelist and playwright','Benjamin Lopez','AR'),(16,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/charlotte_gonzalez.jpg','Cultural commentator and blogger','Charlotte Gonzalez','US'),(17,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/elijah_perez.jpg','Sci-fi short story author','Elijah Perez','US'),(18,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/amelia_sanchez.jpg','Children educational content','Amelia Sanchez','ES'),(19,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/lucas_ramirez.jpg','Travelogue and essays','Lucas Ramirez','CL'),(20,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/harper_torres.jpg','Language pedagogy researcher','Harper Torres','US'),(21,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/henry_nguyen.jpg','Bilingual educator and author','Henry Nguyen','VN'),(22,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/evelyn_kim.jpg','Modern fiction and translations','Evelyn Kim','KR'),(23,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/alexander_lee.jpg','Non-fiction on communication','Alexander Lee','US'),(24,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/sofia_patel.jpg','Young readers author','Sofia Patel','IN'),(25,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/daniel_wright.jpg','Mystery novelist','Daniel Wright','UK'),(26,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/grace_scott.jpg','Creative writing instructor','Grace Scott','US'),(27,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/michael_green.jpg','Essayist and critic','Michael Green','US'),(28,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/chloe_adams.jpg','Romance and contemporary fiction','Chloe Adams','AU'),(29,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/jack_baker.jpg','Adventure stories for young adults','Jack Baker','UK'),(30,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/zoe_carter.jpg','Educational technologist and writer','Zoe Carter','US'),(31,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/ryan_mitchell.jpg','Language learning researcher','Ryan Mitchell','US');
+/*!40000 ALTER TABLE `author` ENABLE KEYS */;
+UNLOCK TABLES;
 
-(5, 'Everyday English: Conversations 1', 'en', 'https://example.com/covers/everyday1.jpg', 'system', NOW(), NULL, NULL, 1),
-(6, 'Everyday English: Conversations 2', 'en', 'https://example.com/covers/everyday2.jpg', 'system', NOW(), NULL, NULL, 1),
-(7, 'Stories for Beginners A', 'en', 'https://example.com/covers/stories_a.jpg', 'system', NOW(), NULL, NULL, 1),
-(8, 'Stories for Beginners B', 'en', 'https://example.com/covers/stories_b.jpg', 'system', NOW(), NULL, NULL, 1),
-(9, 'Travel English Guide', 'en', 'https://example.com/covers/travel_english.jpg', 'system', NOW(), NULL, NULL, 1),
-(10, 'Business English Basics', 'en', 'https://example.com/covers/business_basics.jpg', 'system', NOW(), NULL, NULL, 1),
-(11, 'Food & Dining Phrases', 'en', 'https://example.com/covers/food.jpg', 'system', NOW(), NULL, NULL, 1),
-(12, 'English for Work', 'en', 'https://example.com/covers/work.jpg', 'system', NOW(), NULL, NULL, 1),
-(13, 'Kids: Animal Stories', 'en', 'https://example.com/covers/animals.jpg', 'system', NOW(), NULL, NULL, 1),
-(14, 'Advanced Readings', 'en', 'https://example.com/covers/advanced_readings.jpg', 'system', NOW(), NULL, NULL, 1),
-(15, 'Pronunciation Practice', 'en', 'https://example.com/covers/pronunciation.jpg', 'system', NOW(), NULL, NULL, 1),
-(16, 'Grammar in Use: Exercises', 'en', 'https://example.com/covers/grammar.jpg', 'system', NOW(), NULL, NULL, 1),
-(17, 'Idioms and Expressions', 'en', 'https://example.com/covers/idioms.jpg', 'system', NOW(), NULL, NULL, 1),
-(18, 'Short Stories: Volume 1', 'en', 'https://example.com/covers/short1.jpg', 'system', NOW(), NULL, NULL, 1),
-(19, 'Short Stories: Volume 2', 'en', 'https://example.com/covers/short2.jpg', 'system', NOW(), NULL, NULL, 1),
-(20, 'Exam Practice: Listening', 'en', 'https://example.com/covers/listening.jpg', 'system', NOW(), NULL, NULL, 1),
-(21, 'Exam Practice: Reading', 'en', 'https://example.com/covers/reading.jpg', 'system', NOW(), NULL, NULL, 1),
-(22, 'Travel Stories', 'en', 'https://example.com/covers/travel_stories.jpg', 'system', NOW(), NULL, NULL, 1),
-(23, 'Culture Notes', 'en', 'https://example.com/covers/culture.jpg', 'system', NOW(), NULL, NULL, 1),
-(24, 'History for Learners', 'en', 'https://example.com/covers/history.jpg', 'system', NOW(), NULL, NULL, 1),
-(25, 'Science for Teens', 'en', 'https://example.com/covers/science.jpg', 'system', NOW(), NULL, NULL, 1),
-(26, 'Famous Biographies', 'en', 'https://example.com/covers/biographies.jpg', 'system', NOW(), NULL, NULL, 1),
-(27, 'Poems & Short Pieces', 'en', 'https://example.com/covers/poems.jpg', 'system', NOW(), NULL, NULL, 1),
-(28, 'English Through Movies', 'en', 'https://example.com/covers/movies.jpg', 'system', NOW(), NULL, NULL, 1),
-(29, 'Travel Phrases: Quick Guide', 'en', 'https://example.com/covers/travel_quick.jpg', 'system', NOW(), NULL, NULL, 1),
-(30, 'Conversation Starters', 'en', 'https://example.com/covers/conversation.jpg', 'system', NOW(), NULL, NULL, 1),
-(31, 'Everyday Idioms', 'en', 'https://example.com/covers/everyday_idioms.jpg', 'system', NOW(), NULL, NULL, 1),
-(32, 'Grammar Quick Reference', 'en', 'https://example.com/covers/grammar_ref.jpg', 'system', NOW(), NULL, NULL, 1),
-(33, 'Pronunciation for Beginners', 'en', 'https://example.com/covers/pron_beg.jpg', 'system', NOW(), NULL, NULL, 1),
-(34, 'English for Tech', 'en', 'https://example.com/covers/tech.jpg', 'system', NOW(), NULL, NULL, 1),
-(35, 'Food Stories', 'en', 'https://example.com/covers/food_stories.jpg', 'system', NOW(), NULL, NULL, 1),
-(36, 'Health & Safety', 'en', 'https://example.com/covers/health.jpg', 'system', NOW(), NULL, NULL, 1),
-(37, 'Business Communication', 'en', 'https://example.com/covers/business_comm.jpg', 'system', NOW(), NULL, NULL, 1),
-(38, 'Sports & Leisure', 'en', 'https://example.com/covers/sports.jpg', 'system', NOW(), NULL, NULL, 1),
-(39, 'Creative Writing Exercises', 'en', 'https://example.com/covers/creative.jpg', 'system', NOW(), NULL, NULL, 1),
-(40, 'Kids: Bedtime Stories', 'en', 'https://example.com/covers/bedtime.jpg', 'system', NOW(), NULL, NULL, 1),
-(41, 'Travel Diaries', 'en', 'https://example.com/covers/diaries.jpg', 'system', NOW(), NULL, NULL, 1),
-(42, 'Advanced Listening', 'en', 'https://example.com/covers/adv_listen.jpg', 'system', NOW(), NULL, NULL, 1),
-(43, 'Advanced Speaking', 'en', 'https://example.com/covers/adv_speak.jpg', 'system', NOW(), NULL, NULL, 1),
-(44, 'Pronunciation Drills', 'en', 'https://example.com/covers/drills.jpg', 'system', NOW(), NULL, NULL, 1),
-(45, 'Short Dialogues', 'en', 'https://example.com/covers/dialogues.jpg', 'system', NOW(), NULL, NULL, 1),
-(46, 'English News Reader', 'en', 'https://example.com/covers/news.jpg', 'system', NOW(), NULL, NULL, 1),
-(47, 'Music Lyrics Study', 'en', 'https://example.com/covers/music.jpg', 'system', NOW(), NULL, NULL, 1),
-(48, 'Language Games', 'en', 'https://example.com/covers/games.jpg', 'system', NOW(), NULL, NULL, 1),
-(49, 'Pronunciation: Vowels', 'en', 'https://example.com/covers/vowels.jpg', 'system', NOW(), NULL, NULL, 1),
-(50, 'Pronunciation: Consonants', 'en', 'https://example.com/covers/consonants.jpg', 'system', NOW(), NULL, NULL, 1),
-(51, 'Fables & Morals', 'en', 'https://example.com/covers/fables.jpg', 'system', NOW(), NULL, NULL, 1),
-(52, 'Practical English', 'en', 'https://example.com/covers/practical.jpg', 'system', NOW(), NULL, NULL, 1),
-(53, 'Exam Writing Practice', 'en', 'https://example.com/covers/exam_writing.jpg', 'system', NOW(), NULL, NULL, 1),
-(54, 'Exam Speaking Practice', 'en', 'https://example.com/covers/exam_speaking.jpg', 'system', NOW(), NULL, NULL, 1),
-(55, 'Travel Stories II', 'en', 'https://example.com/covers/travel2.jpg', 'system', NOW(), NULL, NULL, 1),
-(56, 'Connecting Ideas', 'en', 'https://example.com/covers/connecting.jpg', 'system', NOW(), NULL, NULL, 1),
-(57, 'Pronouns & Articles', 'en', 'https://example.com/covers/pronouns.jpg', 'system', NOW(), NULL, NULL, 1),
-(58, 'Tenses in Context', 'en', 'https://example.com/covers/tenses.jpg', 'system', NOW(), NULL, NULL, 1),
-(59, 'Everyday Conversations III', 'en', 'https://example.com/covers/everyday3.jpg', 'system', NOW(), NULL, NULL, 1),
-(60, 'Intermediate Readings', 'en', 'https://example.com/covers/intermediate_readings.jpg', 'system', NOW(), NULL, NULL, 1),
-(61, 'Beginner Stories II', 'en', 'https://example.com/covers/beg2.jpg', 'system', NOW(), NULL, NULL, 1),
-(62, 'Workplace Emails', 'en', 'https://example.com/covers/emails.jpg', 'system', NOW(), NULL, NULL, 1),
-(63, 'Customer Service Dialogues', 'en', 'https://example.com/covers/customer.jpg', 'system', NOW(), NULL, NULL, 1),
-(64, 'Healthy Living', 'en', 'https://example.com/covers/healthy.jpg', 'system', NOW(), NULL, NULL, 1),
-(65, 'Social English', 'en', 'https://example.com/covers/social.jpg', 'system', NOW(), NULL, NULL, 1),
-(66, 'English through Comics', 'en', 'https://example.com/covers/comics.jpg', 'system', NOW(), NULL, NULL, 1),
-(67, 'Daily News Simplified', 'en', 'https://example.com/covers/dailynews.jpg', 'system', NOW(), NULL, NULL, 1),
-(68, 'Interview Prep', 'en', 'https://example.com/covers/interview_prep.jpg', 'system', NOW(), NULL, NULL, 1),
-(69, 'Job Vocabulary', 'en', 'https://example.com/covers/job_vocab.jpg', 'system', NOW(), NULL, NULL, 1),
-(70, 'Idioms Explained', 'en', 'https://example.com/covers/idioms_explained.jpg', 'system', NOW(), NULL, NULL, 1),
-(71, 'Storytelling Techniques', 'en', 'https://example.com/covers/storytelling.jpg', 'system', NOW(), NULL, NULL, 1),
-(72, 'Creative Dialogues', 'en', 'https://example.com/covers/creative_dialogues.jpg', 'system', NOW(), NULL, NULL, 1),
-(73, 'Listening: Short Clips', 'en', 'https://example.com/covers/clips.jpg', 'system', NOW(), NULL, NULL, 1),
-(74, 'Listening: Interviews', 'en', 'https://example.com/covers/interviews.jpg', 'system', NOW(), NULL, NULL, 1),
-(75, 'Reading: Articles', 'en', 'https://example.com/covers/articles.jpg', 'system', NOW(), NULL, NULL, 1),
-(76, 'Reading: Essays', 'en', 'https://example.com/covers/essays.jpg', 'system', NOW(), NULL, NULL, 1),
-(77, 'Language Tips', 'en', 'https://example.com/covers/tips.jpg', 'system', NOW(), NULL, NULL, 1),
-(78, 'Mini Dialogues', 'en', 'https://example.com/covers/mini_dialogues.jpg', 'system', NOW(), NULL, NULL, 1),
-(79, 'English through Recipes', 'en', 'https://example.com/covers/recipes.jpg', 'system', NOW(), NULL, NULL, 1),
-(80, 'Short Reports', 'en', 'https://example.com/covers/reports.jpg', 'system', NOW(), NULL, NULL, 1),
-(81, 'Pronunciation: Stress', 'en', 'https://example.com/covers/stress.jpg', 'system', NOW(), NULL, NULL, 1),
-(82, 'Useful Connectors', 'en', 'https://example.com/covers/connectors.jpg', 'system', NOW(), NULL, NULL, 1),
-(83, 'Phrasal Verbs Guide', 'en', 'https://example.com/covers/phrasal.jpg', 'system', NOW(), NULL, NULL, 1),
-(84, 'Comparatives & Superlatives', 'en', 'https://example.com/covers/comparatives.jpg', 'system', NOW(), NULL, NULL, 1),
-(85, 'Listening: News Clips', 'en', 'https://example.com/covers/news_clips.jpg', 'system', NOW(), NULL, NULL, 1),
-(86, 'Short Plays', 'en', 'https://example.com/covers/plays.jpg', 'system', NOW(), NULL, NULL, 1),
-(87, 'Conversation Patterns', 'en', 'https://example.com/covers/patterns.jpg', 'system', NOW(), NULL, NULL, 1),
-(88, 'Language for Kids II', 'en', 'https://example.com/covers/kids2.jpg', 'system', NOW(), NULL, NULL, 1),
-(89, 'Travel English: Dialogues', 'en', 'https://example.com/covers/travel_dialogues.jpg', 'system', NOW(), NULL, NULL, 1),
-(90, 'Business Case Studies', 'en', 'https://example.com/covers/case_studies.jpg', 'system', NOW(), NULL, NULL, 1),
-(91, 'Pronunciation: Intonation', 'en', 'https://example.com/covers/intonation.jpg', 'system', NOW(), NULL, NULL, 1),
-(92, 'Reading for Exams', 'en', 'https://example.com/covers/reading_exams.jpg', 'system', NOW(), NULL, NULL, 1),
-(93, 'Speaking: Roleplays', 'en', 'https://example.com/covers/roleplays.jpg', 'system', NOW(), NULL, NULL, 1),
-(94, 'Story Collections', 'en', 'https://example.com/covers/collections.jpg', 'system', NOW(), NULL, NULL, 1),
-(95, 'Everyday Conversations IV', 'en', 'https://example.com/covers/everyday4.jpg', 'system', NOW(), NULL, NULL, 1),
-(96, 'Grammar Exercises II', 'en', 'https://example.com/covers/grammar2.jpg', 'system', NOW(), NULL, NULL, 1),
-(97, 'Sight Words', 'en', 'https://example.com/covers/sight_words.jpg', 'system', NOW(), NULL, NULL, 1),
-(98, 'Advanced Vocabulary', 'en', 'https://example.com/covers/advanced_vocab.jpg', 'system', NOW(), NULL, NULL, 1),
-(99, 'Listening: Lectures', 'en', 'https://example.com/covers/lectures.jpg', 'system', NOW(), NULL, NULL, 1),
-(100, 'Reading: Short Stories III', 'en', 'https://example.com/covers/short3.jpg', 'system', NOW(), NULL, NULL, 1),
-(101, 'Conversation: Holidays', 'en', 'https://example.com/covers/holidays.jpg', 'system', NOW(), NULL, NULL, 1),
-(102, 'Exam: Multiple Choice Practice', 'en', 'https://example.com/covers/mcq.jpg', 'system', NOW(), NULL, NULL, 1),
-(103, 'Workplace Dialogues II', 'en', 'https://example.com/covers/work2.jpg', 'system', NOW(), NULL, NULL, 1),
-(104, 'Daily Short Reads', 'en', 'https://example.com/covers/daily_reads.jpg', 'system', NOW(), NULL, NULL, 1),
-(105, 'Kids: Learning ABC', 'en', 'https://example.com/covers/abc.jpg', 'system', NOW(), NULL, NULL, 1),
-(106, 'Pronunciation: Clusters', 'en', 'https://example.com/covers/clusters.jpg', 'system', NOW(), NULL, NULL, 1),
-(107, 'Topical Dialogues', 'en', 'https://example.com/covers/topical.jpg', 'system', NOW(), NULL, NULL, 1),
-(108, 'Reading: Media Pieces', 'en', 'https://example.com/covers/media_pieces.jpg', 'system', NOW(), NULL, NULL, 1),
-(109, 'Language for Daily Tasks', 'en', 'https://example.com/covers/daily_tasks.jpg', 'system', NOW(), NULL, NULL, 1),
-(110, 'Grammar: Conditionals', 'en', 'https://example.com/covers/conditionals.jpg', 'system', NOW(), NULL, NULL, 1),
-(111, 'Listening: Conversations', 'en', 'https://example.com/covers/conversations_listen.jpg', 'system', NOW(), NULL, NULL, 1),
-(112, 'Reading: Reports', 'en', 'https://example.com/covers/reports2.jpg', 'system', NOW(), NULL, NULL, 1),
-(113, 'Storytelling: Tips', 'en', 'https://example.com/covers/tips_story.jpg', 'system', NOW(), NULL, NULL, 1),
-(114, 'Short Articles', 'en', 'https://example.com/covers/short_articles.jpg', 'system', NOW(), NULL, NULL, 1),
-(115, 'Exam: Listening II', 'en', 'https://example.com/covers/exam_listen2.jpg', 'system', NOW(), NULL, NULL, 1),
-(116, 'Story Compilations', 'en', 'https://example.com/covers/compilations.jpg', 'system', NOW(), NULL, NULL, 1),
-(117, 'Everyday Phrases', 'en', 'https://example.com/covers/everyday_phrases.jpg', 'system', NOW(), NULL, NULL, 1),
-(118, 'Business Emails II', 'en', 'https://example.com/covers/emails2.jpg', 'system', NOW(), NULL, NULL, 1),
-(119, 'Conversation: Emergencies', 'en', 'https://example.com/covers/emergencies.jpg', 'system', NOW(), NULL, NULL, 1),
-(120, 'Reading: Biographies II', 'en', 'https://example.com/covers/biographies2.jpg', 'system', NOW(), NULL, NULL, 1),
-(121, 'Kids: Nature', 'en', 'https://example.com/covers/nature_kids.jpg', 'system', NOW(), NULL, NULL, 1),
-(122, 'Pronunciation Mastery', 'en', 'https://example.com/covers/mastery.jpg', 'system', NOW(), NULL, NULL, 1),
-(123, 'Phrasal Verbs II', 'en', 'https://example.com/covers/phrasal2.jpg', 'system', NOW(), NULL, NULL, 1),
-(124, 'Conversation: Technology', 'en', 'https://example.com/covers/tech_conv.jpg', 'system', NOW(), NULL, NULL, 1);
+--
+-- Table structure for table `author_book`
+--
 
-INSERT INTO author_book (id, author_id, book_id) VALUES
+DROP TABLE IF EXISTS `author_book`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `author_book` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `author_id` int(11) DEFAULT NULL,
+  `book_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-(5, ((5 - 1) % 31) + 1, 5),
-(6, (((5*7) - 1) % 31) + 1, 5),
-(7, ((6 - 1) % 31) + 1, 6),
-(8, (((6*7) - 1) % 31) + 1, 6),
-(9, ((7 - 1) % 31) + 1, 7),
-(10, (((7*7) - 1) % 31) + 1, 7),
-(11, ((8 - 1) % 31) + 1, 8),
-(12, (((8*7) - 1) % 31) + 1, 8),
-(13, ((9 - 1) % 31) + 1, 9),
-(14, (((9*7) - 1) % 31) + 1, 9);
+--
+-- Dumping data for table `author_book`
+--
 
+LOCK TABLES `author_book` WRITE;
+/*!40000 ALTER TABLE `author_book` DISABLE KEYS */;
+INSERT INTO `author_book` VALUES (5,5,5),(6,4,5),(7,6,6),(8,11,6),(9,7,7),(10,18,7),(11,8,8),(12,25,8),(13,9,9),(14,1,9),(15,5,11),(16,9,12),(17,10,13),(18,11,14),(19,5,125),(20,7,125),(21,5,16),(22,8,16);
+/*!40000 ALTER TABLE `author_book` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO book_genre (id, genre_id, book_id) VALUES
-(6, ((5 - 1) % 15) + 1, 5),
-(7, ((6 - 1) % 15) + 1, 6),
-(8, ((7 - 1) % 15) + 1, 7),
-(9, ((8 - 1) % 15) + 1, 8),
-(10, ((9 - 1) % 15) + 1, 9),
-(11, ((10 - 1) % 15) + 1, 10),
-(12, ((11 - 1) % 15) + 1, 11),
-(13, ((12 - 1) % 15) + 1, 12),
-(14, ((13 - 1) % 15) + 1, 13),
-(15, ((14 - 1) % 15) + 1, 14);
+--
+-- Table structure for table `book`
+--
 
+DROP TABLE IF EXISTS `book`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `book` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `cover_url` varchar(255) DEFAULT NULL,
+  `language` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO user_genre (user_id, genre_id) VALUES
-(1, 1), -- Fantasy
-(1, 2), -- Adventure
-(1, 4), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 3), -- Mystery
-(1, 13), -- Mystery
-(1, 6), -- Sci-Fi
-(1, 8), -- Children
-(1, 12), -- Education
-(1, 15), -- Biography
-(1, 11), -- Self-Help
-(1, 9), -- Young Adult
-(1, 14); -- Travel
+--
+-- Dumping data for table `book`
+--
+
+LOCK TABLES `book` WRITE;
+/*!40000 ALTER TABLE `book` DISABLE KEYS */;
+INSERT INTO `book` VALUES (5,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Everyday English: Conversations 1'),(6,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Everyday English: Conversations 2'),(7,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Stories for Beginners A'),(8,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Stories for Beginners B'),(9,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Travel English Guide'),(10,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Business English Basics'),(11,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Food & Dining Phrases'),(12,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','English for Work'),(13,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Kids: Animal Stories'),(14,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Advanced Readings'),(15,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Pronunciation Practice'),(16,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Grammar in Use: Exercises'),(17,'2026-03-26 19:53:00.000000','system',NULL,NULL,1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','Idioms and Expressions'),(125,'2026-03-27 01:02:01.530680','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)','2026-03-27 01:02:01.530680','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)',1,'https://tse3.mm.bing.net/th/id/OIP.Z9tH0d8B_BUyYWObWVeNKgHaL0?rs=1&pid=ImgDetMain&o=7&rm=3','en','7 viên ngọc rồng');
+/*!40000 ALTER TABLE `book` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `book_genre`
+--
+
+DROP TABLE IF EXISTS `book_genre`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `book_genre` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `book_id` int(11) DEFAULT NULL,
+  `genre_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `book_genre`
+--
+
+LOCK TABLES `book_genre` WRITE;
+/*!40000 ALTER TABLE `book_genre` DISABLE KEYS */;
+INSERT INTO `book_genre` VALUES (6,5,5),(7,6,6),(8,7,7),(9,8,8),(10,9,9),(11,10,10),(12,11,11),(13,12,12),(14,13,13),(15,14,14),(16,125,9),(17,125,4),(18,16,6),(19,16,9);
+/*!40000 ALTER TABLE `book_genre` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `book_progress`
+--
+
+DROP TABLE IF EXISTS `book_progress`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `book_progress` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `book_id` int(11) DEFAULT NULL,
+  `is_favorite` int(11) DEFAULT NULL,
+  `last_read` datetime(6) DEFAULT NULL,
+  `progress_percent` double DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `last_read_page_number` int(11) DEFAULT NULL,
+  `last_read_time` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `book_progress`
+--
+
+LOCK TABLES `book_progress` WRITE;
+/*!40000 ALTER TABLE `book_progress` DISABLE KEYS */;
+INSERT INTO `book_progress` VALUES (1,'2026-03-26 12:57:19.258453','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)','2026-03-26 12:57:19.258453','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)',0,16,1,NULL,10,1,NULL,NULL),(2,NULL,NULL,NULL,NULL,1,125,0,NULL,20,1,NULL,NULL);
+/*!40000 ALTER TABLE `book_progress` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `genre`
+--
+
+DROP TABLE IF EXISTS `genre`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `genre` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `thumbnail` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `genre`
+--
+
+LOCK TABLES `genre` WRITE;
+/*!40000 ALTER TABLE `genre` DISABLE KEYS */;
+INSERT INTO `genre` VALUES (4,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Suspense and mystery fiction','Mystery','https://www.shutterstock.com/image-vector/hand-drawn-criminal-investigation-icons-600nw-2700024747.jpg'),(5,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Romantic fiction and relationships','Romance','https://example.com/genres/romance.jpg'),(6,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Science fiction and futuristic stories','Sci-Fi','https://example.com/genres/scifi.jpg'),(7,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Informative and factual works','Non-Fiction','https://example.com/genres/nonfiction.jpg'),(8,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Books for children and early readers','Children','https://example.com/genres/children.jpg'),(9,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Young adult fiction','Young Adult','https://example.com/genres/ya.jpg'),(10,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Historical fiction and narratives','Historical','https://example.com/genres/historical.jpg'),(11,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Personal development and guides','Self-Help','https://example.com/genres/selfhelp.jpg'),(12,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Textbooks and language learning materials','Education','https://example.com/genres/education.jpg'),(13,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Collections of poems','Poetry','https://example.com/genres/poetry.jpg'),(14,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Travel writing and guides','Travel','https://example.com/genres/travel.jpg'),(15,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,'Life stories and memoirs','Biography','https://example.com/genres/biography.jpg');
+/*!40000 ALTER TABLE `genre` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `full_name` varchar(255) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UKob8kqyqqgmefl0aco34akdtpe` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (1,'2026-03-26 12:51:49.996860','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)','2026-03-26 12:51:49.996860','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)',1,NULL,'admin@gmail.com','admin 20024','$2a$10$5H8hgCQY6hcjsllVPAnire6OD9r5Zve4Ze56/jI7DJj.v0TBgP6Ue',2);
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_genre`
+--
+
+DROP TABLE IF EXISTS `user_genre`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user_genre` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `genre_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_genre`
+--
+
+LOCK TABLES `user_genre` WRITE;
+/*!40000 ALTER TABLE `user_genre` DISABLE KEYS */;
+INSERT INTO `user_genre` VALUES (1,1,1),(2,2,1),(3,4,1),(4,3,1),(5,3,1),(6,3,1),(7,3,1),(8,13,1),(9,6,1),(10,8,1),(11,12,1),(12,15,1),(13,11,1),(14,9,1),(15,14,1);
+/*!40000 ALTER TABLE `user_genre` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_profile`
+--
+
+DROP TABLE IF EXISTS `user_profile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user_profile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `daily_goal_minutes` int(11) DEFAULT NULL,
+  `job_title` varchar(255) DEFAULT NULL,
+  `learning_goal` varchar(255) DEFAULT NULL,
+  `level_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_profile`
+--
+
+LOCK TABLES `user_profile` WRITE;
+/*!40000 ALTER TABLE `user_profile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_profile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_session`
+--
+
+DROP TABLE IF EXISTS `user_session`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user_session` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `created_user` varchar(255) DEFAULT NULL,
+  `modified_at` datetime(6) DEFAULT NULL,
+  `modified_by` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `refresh_token` varchar(255) DEFAULT NULL,
+  `remote_ip` varchar(255) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK7fxbfjuyejj8uk6hld0odiub3` (`refresh_token`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_session`
+--
+
+LOCK TABLES `user_session` WRITE;
+/*!40000 ALTER TABLE `user_session` DISABLE KEYS */;
+INSERT INTO `user_session` VALUES (1,'2026-03-26 12:54:08.036125','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)','2026-03-26 12:54:08.036125','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)',1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0NDk2NDgwMDQsImlkX3Rva2VuIjoiOTQ2NDQ3NGMtNjExNy00YTJmLTk4Y2YtMjgyMmE3N2RjMGVjIn0.9oI_ckfC99d37T6cgCnCLUS2U3cMX7j_VW-TCXf85jM38oBaF9sNyEhj1pbP2qF3',NULL,NULL,1),(2,'2026-03-27 00:11:29.568862',NULL,'2026-03-27 00:11:29.568862',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTAyODk0NjEsImlkX3Rva2VuIjoiNWZiYzUwYTMtMWQ5Ni00ODhjLTgzNDAtZjk0Y2U3NzM1NGUyIn0.PyXANbAEm9WnN53zfEjYGoF8dFTZDby94zVj6Kk6bYWW8-N_9W6TJZ6U2UoCHVsG',NULL,NULL,1),(3,'2026-03-27 00:11:58.545434',NULL,'2026-03-27 00:11:58.545434',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTAzMTg1MzksImlkX3Rva2VuIjoiYjI0ZDYzOWEtYTBmMi00ZmM3LWFjMjMtNjRhYTUwMjg5YjY4In0.kgeWWiXkUr-SIr5fvrTZ2pvS4Bpv0Z7hi_rrt3FjHhlc4-zyQyBaHF-YeQRI5DWo',NULL,NULL,1),(4,'2026-03-27 00:17:35.069325',NULL,'2026-03-27 00:17:35.069325',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTA2NTUwMTMsImlkX3Rva2VuIjoiNDY1NzQ5YzYtYzk4My00ZDlkLWFhMzUtZWI0YWUxZDg0NzgxIn0.lN_s4TQa25c9hL67jglFyhdhWHQMuCaAwcMzbT7X9_AcXHVT1RSfysBpJ3gLkKTV',NULL,NULL,1),(5,'2026-03-27 00:28:44.523190',NULL,'2026-03-27 00:28:44.523190',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTEzMjQ1MjMsImlkX3Rva2VuIjoiNTFmYTlkNjgtZjFlMC00NTVhLWJhMWUtMGM2Mjk5NDQwMDljIn0.jlO55QAUcftUDQz7pmUxP4Uw-iSwDDi47c9BmUVqHDLMPd_vWbqkb9kqQxdadus4',NULL,NULL,1),(6,'2026-03-27 00:28:46.639027',NULL,'2026-03-27 00:28:46.639027',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTEzMjY2MzksImlkX3Rva2VuIjoiMjlkZTEwYzctMjBlMC00ZDY0LWEzZWUtNmE3Mzk1OGZkMTIyIn0.h8McAkX0AwMkCioCYQ4GWJyhC2SKusbVC_v2mM_VwC8x8m6AQT-m-UqS0hQNzHgz',NULL,NULL,1),(7,'2026-03-27 00:29:36.626915',NULL,'2026-03-27 00:29:36.626915',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTEzNzY2MTYsImlkX3Rva2VuIjoiYmY4ZTBlYTYtZDM3ZS00MGJlLTljNTQtNjQzN2Q0ODIzMmExIn0.7p1REmEiltVC4ZepnjpjkkSMWaYY56RCfuePMIu1AJm8OujnyZQF7_3j0NGlF7sZ',NULL,NULL,1),(8,'2026-03-27 00:30:14.474556',NULL,'2026-03-27 00:30:14.474556',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTE0MTQ0NzQsImlkX3Rva2VuIjoiMjhmYTdmNDMtMTY0Zi00ZmIwLTllNjMtYmQ1MzhiZjI0YjlkIn0.XB5lOomztNais2n0leG5NbeijrJDhrFZg21NUFQ9fLGZFLnt544X4FyGAlrZI25e',NULL,NULL,1),(9,'2026-03-27 00:53:38.488150',NULL,'2026-03-27 00:53:38.488150',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA0OTI4MTg0ODQsImlkX3Rva2VuIjoiMWFlNTE3N2EtMWMxNi00ZjFkLWI0NGMtZmFjYWQ4ZmE5NzA3In0.nHJYkuwHoB28IwPYsqI375HEda-0nLE7lPWI92d8J5R7CMyCcR2-aoHCDwL6DT10',NULL,NULL,1),(10,'2026-03-27 15:22:58.036058',NULL,'2026-03-27 15:22:58.036058',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA1NDQ5Nzc5NTYsImlkX3Rva2VuIjoiMjViMDMyYzEtNjNkMy00MTNjLTgyODMtYTM0YmIxZGI1ZTdjIn0.PBb60uun1h-0pc4MTRZQh57Vuib7jR1_tPV6tKRro-3yJXmbHDYa1waQ4FLJPalw',NULL,NULL,1),(11,'2026-03-27 15:28:53.205504',NULL,'2026-03-27 15:28:53.205504',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA1NDUzMzMwODgsImlkX3Rva2VuIjoiMjYwZjVkZjItYTFhOC00MjkxLTkxZTQtYjM3YjljMzljYjMyIn0.E8o7H6Ka7FuLfGoWOaM3pTo6sNs1e3V3Lb2b7EeewbtSzHqF34M6sDD6bBeN4exh',NULL,NULL,1),(12,'2026-03-27 15:58:06.131290',NULL,'2026-03-27 15:58:06.131290',NULL,1,'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOjEsImV4cGlyZWQiOjE4MDA1NDcwODYwODEsImlkX3Rva2VuIjoiNzUyYTc3YjktZjllYi00ZTkwLTgzMDgtOTAwYjBhODQyNmZiIn0.iWgWBEFo81D2hpdETfLv3ApoDbzLvdDu-w7YFLjzcJ6dyxHRoDqVeDJmMgidkrup',NULL,NULL,1);
+/*!40000 ALTER TABLE `user_session` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_topic`
+--
+
+DROP TABLE IF EXISTS `user_topic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user_topic` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `topic_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_topic`
+--
+
+LOCK TABLES `user_topic` WRITE;
+/*!40000 ALTER TABLE `user_topic` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_topic` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping events for database 'english'
+--
+
+--
+-- Dumping routines for database 'english'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-03-28 20:35:27
