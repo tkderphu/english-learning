@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 @Entity
 @Accessors(chain = true)
 public class Audio extends BaseEntity {
+
     private int duration;
 
     private String format;
@@ -22,5 +23,5 @@ public class Audio extends BaseEntity {
     private double fileSize;
 
     @Column(name = "file_url")
-    private double fileUrl;
+    private String fileUrl;
 }

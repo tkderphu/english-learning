@@ -19,4 +19,6 @@ public class Page extends BaseEntity{
 
     @Column(name = "audio_id")
     private Integer audioId;
+
+    private String content;
 }
