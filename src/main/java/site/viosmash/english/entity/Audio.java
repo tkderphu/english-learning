@@ -4,12 +4,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
 @Table(name = "audio")
 @Entity
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 public class Audio extends BaseEntity {
     private int duration;
 
@@ -22,5 +24,6 @@ public class Audio extends BaseEntity {
     private double fileSize;
 
     @Column(name = "file_url")
-    private double fileUrl;
+    private String fileUrl;
 }
+
