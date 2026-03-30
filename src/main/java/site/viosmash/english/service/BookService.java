@@ -8,14 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
-import site.viosmash.english.dto.response.BookResponse;
-import site.viosmash.english.dto.response.PageResponse;
+import site.viosmash.english.dto.response.*;
+import site.viosmash.english.entity.Audio;
 import site.viosmash.english.entity.Book;
+import site.viosmash.english.entity.Sentence;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,9 @@ public class BookService {
     private final BookGenreRepository bookGenreRepository;
     private final ChapterRepository chapterRepository;
     private final BookProgressRepository bookProgressRepository;
+    private final PageRepository pageRepository;
+    private final SentenceRepository sentenceRepository;
+    private final AudioRepository audioRepository;
     private final Util util;
 
     public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
@@ -100,5 +105,58 @@ public class BookService {
         BookResponse bookResponse = bookRepository.findOneById(id);
         bookResponse.setChapters(chapterRepository.findAllByBookId(id));
         return bookResponse;
+    }
+
+    public List<BookPageResponse> getPagesByBook(int bookId, List<Integer> pageNumbers) {
+        List<site.viosmash.english.entity.Page> pages = pageRepository.findByBookIdAndNumbers(bookId, pageNumbers);
+        if (pages.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> pageIds = pages.stream().map(site.viosmash.english.entity.Page::getId).toList();
+        List<Integer> audioIds = pages.stream()
+                .map(site.viosmash.english.entity.Page::getAudioId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Integer, Audio> audioMap = audioRepository.findAllById(audioIds).stream()
+                .collect(Collectors.toMap(Audio::getId, Function.identity()));
+
+        Map<Integer, List<Sentence>> sentenceMap = sentenceRepository.findByPageIdIn(pageIds).stream()
+                .collect(Collectors.groupingBy(Sentence::getPageId));
+
+        return pages.stream().map(page -> {
+            AudioResponse audioResponse = null;
+            if (page.getAudioId() != null) {
+                Audio audio = audioMap.get(page.getAudioId());
+                if (audio != null) {
+                    audioResponse = new AudioResponse(
+                            audio.getId(),
+                            audio.getDuration(),
+                            audio.getFormat(),
+                            (int) audio.getSampleRate(),
+                            (int) audio.getFileSize(),
+                            audio.getFileUrl(),
+                            page.getId()
+                    );
+                }
+            }
+
+            List<SentenceResponse> sentenceResponses = sentenceMap
+                    .getOrDefault(page.getId(), Collections.emptyList())
+                    .stream()
+                    .map(s -> new SentenceResponse(
+                            page.getId(),
+                            s.getId(),
+                            s.getContent(),
+                            s.getTranscription1(),
+                            (int) s.getStartTime(),
+                            (int) s.getEndTime()
+                    ))
+                    .toList();
+
+            return new BookPageResponse(page.getId(), page.getNumber(), audioResponse, sentenceResponses);
+        }).toList();
     }
 }

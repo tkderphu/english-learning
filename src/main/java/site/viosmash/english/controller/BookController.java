@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.FavoriteRequest;
 import site.viosmash.english.dto.response.BaseResponse;
+import site.viosmash.english.dto.response.BookPageResponse;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.service.BookService;
 
@@ -106,5 +107,18 @@ public class BookController {
     @GetMapping("/v1/{id}")
     public ResponseEntity<BaseResponse<BookResponse>> getDetail(@PathVariable("id") int id) {
         return ResponseEntity.ok(BaseResponse.success(bookService.getDetail(id)));
+    }
+
+    @Operation(summary = "Get pages by book id and page numbers")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of pages", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
+    })
+    @GetMapping("/v1/{bookId}/pages")
+    public ResponseEntity<BaseResponse<List<BookPageResponse>>> getPagesByBook(
+            @PathVariable("bookId") int bookId,
+            @RequestParam("pageNumbers") List<Integer> pageNumbers
+    ) {
+        return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, pageNumbers)));
     }
 }
