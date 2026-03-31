@@ -6,10 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.AuthorCreateRequest;
 import site.viosmash.english.dto.response.AuthorResponse;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.entity.Author;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.AuthorRepository;
 import org.springframework.http.HttpStatus;
+import site.viosmash.english.util.Util;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +19,11 @@ public class AuthorService {
 
     private final AuthorRepository authorRepository;
 
-    public Page<AuthorResponse> page(int page, int limit, String keyword) {
+    private final Util util;
+
+    public PageResponse<AuthorResponse> page(int page, int limit, String keyword) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
-        return authorRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw);
+        return util.convert(authorRepository.findAllByKeyword(PageRequest.of(page - 1, limit), kw));
     }
 
     public AuthorResponse create(AuthorCreateRequest req) {

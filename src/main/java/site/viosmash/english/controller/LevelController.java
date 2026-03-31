@@ -34,8 +34,7 @@ public class LevelController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String keyword
     ) {
-        Page<LevelResponse> p = levelService.page(page, limit, keyword);
-        return ResponseEntity.ok(BaseResponse.success(p));
+        return ResponseEntity.ok(BaseResponse.success(levelService.page(page, limit, keyword)));
     }
 
     @Operation(summary = "Create a level")

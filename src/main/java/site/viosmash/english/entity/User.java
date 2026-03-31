@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
-@Table(name = "users")
+@Table(name = "user")
 @Entity
 @Accessors(chain = true)
 public class User extends BaseEntity {
