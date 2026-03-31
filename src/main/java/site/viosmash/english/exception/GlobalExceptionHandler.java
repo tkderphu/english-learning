@@ -14,8 +14,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import site.viosmash.english.dto.response.BaseResponse;
 
@@ -28,7 +31,8 @@ public class GlobalExceptionHandler {
         HttpStatus status = ex.getCode() != null ? ex.getCode() : HttpStatus.BAD_REQUEST;
         String message = ex.getMessage() != null ? ex.getMessage() : "";
         log.warn("ServiceException: {}", message);
-        return ResponseEntity.status(status).body(BaseResponse.error(message, status.value()));
+        HttpStatus safeStatus = Objects.requireNonNull(status);
+        return ResponseEntity.status(safeStatus).body(BaseResponse.error(message, safeStatus.value()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -91,6 +95,32 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage() != null ? ex.getMessage() : "Authentication failed";
         log.warn("AuthenticationException: {}", message);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(BaseResponse.error(message, HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<BaseResponse<?>> handleMultipartException(MultipartException ex) {
+        // Usually means Swagger/curl called voice endpoint without multipart/form-data.
+        String message = "Voice endpoint requires multipart/form-data with field name 'audio' (file).";
+        log.warn("MultipartException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BaseResponse.error(message, HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(WebClientResponseException.TooManyRequests.class)
+    public ResponseEntity<BaseResponse<?>> handleOpenAiRateLimit(WebClientResponseException.TooManyRequests ex) {
+        String message = "OpenAI rate limit exceeded. Please wait a moment and retry.";
+        log.warn("OpenAI 429 Too Many Requests: {}", ex.getResponseBodyAsString());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(BaseResponse.error(message, HttpStatus.TOO_MANY_REQUESTS.value()));
+    }
+
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<BaseResponse<?>> handleWebClientResponse(WebClientResponseException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        HttpStatus resolvedStatus = status != null ? status : HttpStatus.BAD_GATEWAY;
+        String message = "Upstream API error: " + ex.getStatusCode().value();
+        log.warn("WebClientResponseException status={} body={}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
+        return ResponseEntity.status(resolvedStatus)
+                .body(BaseResponse.error(message, resolvedStatus.value()));
     }
 
     @ExceptionHandler(Exception.class)
