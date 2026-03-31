@@ -6,14 +6,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import site.viosmash.english.dto.request.AuthorCreateRequest;
+import site.viosmash.english.dto.response.AuthorResponse;
 import site.viosmash.english.dto.response.BaseResponse;
 import site.viosmash.english.dto.response.PageResponse;
-import site.viosmash.english.dto.response.AuthorResponse;
 import site.viosmash.english.service.AuthorService;
-import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/author")
@@ -29,12 +29,12 @@ public class AuthorController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<Page<AuthorResponse>>> page(
+    public ResponseEntity<BaseResponse<?>> page(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String keyword
     ) {
-        Page<AuthorResponse> p = authorService.page(page, limit, keyword);
+        PageResponse<AuthorResponse> p = authorService.page(page, limit, keyword);
         return ResponseEntity.ok(BaseResponse.success(p));
     }
 

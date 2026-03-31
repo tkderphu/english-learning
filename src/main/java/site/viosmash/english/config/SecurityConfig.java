@@ -57,8 +57,8 @@ public class SecurityConfig {
                             "/swagger-ui/index.html",
                             "/swagger-ui.html/**",
                             "/api/auth/**",
-                "/api/user/v1",
-                "/uploads/**"
+                            "/api/user/v1",
+                            "/api/assets/**"
                     ).permitAll();
 
                     // Require authentication for API endpoints
@@ -74,7 +74,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

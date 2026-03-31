@@ -8,24 +8,25 @@ import org.springframework.data.repository.query.Param;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.entity.Book;
 
+import java.util.List;
+
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """
         SELECT b.id, b.title, b.language, b.cover_url,
+               COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
                COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
                b.status
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
-            LEFT JOIN book_progress bp ON bp.book_id = b.id
-            LEFT JOIN user u ON u.id = bp.user_id
             LEFT JOIN book_genre bg ON bg.book_id = b.id
             LEFT JOIN genre g ON g.id = bg.genre_id
             LEFT JOIN user_genre ug ON ug.genre_id = g.id
             LEFT JOIN user us ON us.id = ug.user_id
         WHERE (:keyword IS NULL OR LOWER(b.title) LIKE :keyword)
-            AND (:isHistory IS NULL OR :userId IS NULL OR u.id = :userId)
             AND (:isRecommend IS NULL OR us.id = :userId)
+            AND (:genreId IS NULL OR g.id = :genreId)
         GROUP BY b.id
         ORDER BY b.id
         """,
@@ -34,6 +35,64 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
+            LEFT JOIN book_genre bg ON bg.book_id = b.id
+            LEFT JOIN genre g ON g.id = bg.genre_id
+            LEFT JOIN user_genre ug ON ug.genre_id = g.id
+            LEFT JOIN user us ON us.id = ug.user_id
+        WHERE (:keyword IS NULL OR LOWER(b.title) LIKE :keyword)
+            AND (:isRecommend IS NULL OR us.id = :userId)
+            AND (:genreId IS NULL OR g.id = :genreId)
+        GROUP BY b.id
+        """, nativeQuery = true)
+    Page<BookResponse> findAllByKeyword(Pageable pageable, @Param("keyword") String keyword,
+                                        @Param("userId") Integer userId,
+                                        @Param("isRecommend") Integer isRecommend,
+                                        @Param("genreId") Integer genreId);
+
+
+    @Query(value = """
+        SELECT b.id, b.title, b.language, b.cover_url,
+               COALESCE(
+                  (
+                      SELECT
+                        GROUP_CONCAT(g.name SEPARATOR ', ')
+                      FROM genre g
+                        JOIN book_genre bg ON g.id = bg.genre_id
+                      WHERE bg.book_id = b.id
+                  ), '') as genres,
+               COALESCE(
+                  (
+                      SELECT
+                        GROUP_CONCAT(a.name SEPARATOR ', ')
+                      FROM author_book ab
+                         JOIN author a on a.id = ab.author_id
+                      WHERE ab.book_id = b.id
+                  ), '') as authors,
+               bp.last_read_page_number, bp.progress_percent, bp.last_read_time,
+               bp.is_favorite
+        FROM book b
+            LEFT JOIN book_progress bp ON bp.book_id = b.id
+            LEFT JOIN user u ON u.id = bp.user_id
+        WHERE u.id = :userId
+        GROUP BY b.id
+        """,
+    nativeQuery = true,
+    countQuery = """
+        SELECT COUNT(DISTINCT b.id)
+        FROM book b
+            LEFT JOIN book_progress bp ON bp.book_id = b.id
+            LEFT JOIN user u ON u.id = bp.user_id
+        WHERE u.id = :userId
+        GROUP BY b.id
+    """)
+    Page<BookResponse> findHistory(Pageable pageable, @Param("userId") Integer userId);
+
+
+    @Query(value = """
+        SELECT b.id, b.title, b.language, b.cover_url,
+               COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), '') as genres,
+               COALESCE(GROUP_CONCAT(a.name SEPARATOR ', '), '') as authors,
+               bp.progress_percent, b.status
         FROM book b
             LEFT JOIN author_book ab on ab.book_id = b.id
             LEFT JOIN author a on a.id = ab.author_id
@@ -43,14 +102,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
             LEFT JOIN genre g ON g.id = bg.genre_id
             LEFT JOIN user_genre ug ON ug.genre_id = g.id
             LEFT JOIN user us ON us.id = ug.user_id
-        WHERE (:keyword IS NULL OR LOWER(b.title) LIKE :keyword)
-            AND (:isHistory IS NULL OR :userId IS NULL OR u.id = :userId)
-            AND (:isRecommend IS NULL OR us.id = :userId)
-        GROUP BY b.id
-        """, nativeQuery = true)
-    Page<BookResponse> findAllByKeyword(Pageable pageable, @Param("keyword") String keyword,
-                                        @Param("userId") Integer userId, @Param("isHistory") Integer isHistory,
-                                        @Param("isRecommend") Integer isRecommend);
-
-
+        WHERE b.id = :id
+    """, nativeQuery = true)
+    BookResponse findOneById(@Param("id") int id);
 }

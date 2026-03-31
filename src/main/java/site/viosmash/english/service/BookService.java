@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.response.BookResponse;
+import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.entity.Book;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
@@ -24,15 +25,17 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorBookRepository authorBookRepository;
     private final BookGenreRepository bookGenreRepository;
+    private final ChapterRepository chapterRepository;
+    private final BookProgressRepository bookProgressRepository;
     private final Util util;
 
-    public Page<BookResponse> getList(int page, int limit, String keyword) {
+    public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return bookRepository.findAllByKeyword(pageable, keyword, null, null, null);
+        return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, genreId));
     }
 
-    public BookResponse create(BookCreateRequest req) {
+    public int create(BookCreateRequest req) {
         Book b = new Book();
         b.setTitle(req.getTitle());
         b.setLanguage(req.getLanguage());
@@ -60,18 +63,42 @@ public class BookService {
         } catch (Exception ex) {
             throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create book");
         }
-        return new BookResponse(b.getId(), b.getTitle(), b.getLanguage(), b.getCoverUrl(), "", b.getStatus());
+        return b.getId();
     }
 
-    public Page<BookResponse> getHistory(int page, int limit) {
+    public PageResponse<BookResponse> getHistory(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null);
+        return util.convert(bookRepository.findHistory(pageable, userId));
     }
 
     public List<BookResponse> recommend() {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(0, 10);
-        return bookRepository.findAllByKeyword(pageable, null, userId, null, 1).getContent();
+        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null).getContent();
+    }
+
+    public void favorite(int bookId, boolean isFavorite) {
+        Integer userId = util.getCurrentUser().getId();
+        var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
+        if (opt.isPresent()) {
+            var bp = opt.get();
+            bp.setIsFavorite(isFavorite ? 1 : 0);
+            bookProgressRepository.save(bp);
+            return;
+        }
+
+        var bp = new site.viosmash.english.entity.BookProgress();
+        bp.setUserId(userId);
+        bp.setBookId(bookId);
+        bp.setProgressPercent(0.0);
+        bp.setIsFavorite(isFavorite ? 1 : 0);
+        bookProgressRepository.save(bp);
+    }
+
+    public BookResponse getDetail(int id) {
+        BookResponse bookResponse = bookRepository.findOneById(id);
+        bookResponse.setChapters(chapterRepository.findAllByBookId(id));
+        return bookResponse;
     }
 }

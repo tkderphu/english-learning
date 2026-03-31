@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import site.viosmash.english.dto.response.GenreResponse;
 import site.viosmash.english.entity.Genre;
 
+import java.util.List;
+
 public interface GenreRepository extends JpaRepository<Genre, Integer> {
 
     @Query("""
@@ -14,7 +16,6 @@ public interface GenreRepository extends JpaRepository<Genre, Integer> {
             g.id, g.name, g.thumbnail, g.description, g.status
          )
          FROM Genre g
-         WHERE (:keyword IS NULL OR LOWER(g.name) LIKE :keyword)
     """)
-    Page<GenreResponse> findAllByKeyword(Pageable pageable, String keyword);
+    List<GenreResponse> findAllGenre();
 }
