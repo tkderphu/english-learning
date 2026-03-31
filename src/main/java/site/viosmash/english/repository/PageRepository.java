@@ -11,7 +11,6 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
 
     @Query("SELECT p FROM Page p WHERE p.chapterId IN " +
            "(SELECT c.id FROM Chapter c WHERE c.bookId = :bookId) " +
-           "AND p.number IN :pageNumbers")
-    List<Page> findByBookIdAndNumbers(@Param("bookId") int bookId,
-                                     @Param("pageNumbers") List<Integer> pageNumbers);
+           "ORDER BY p.number ASC")
+    List<Page> findByBookId(@Param("bookId") int bookId, org.springframework.data.domain.Pageable pageable);
 }
