@@ -107,8 +107,9 @@ public class BookService {
         return bookResponse;
     }
 
-    public List<BookPageResponse> getPagesByBook(int bookId, List<Integer> pageNumbers) {
-        List<site.viosmash.english.entity.Page> pages = pageRepository.findByBookIdAndNumbers(bookId, pageNumbers);
+    public List<BookPageResponse> getPagesByBook(int bookId, int offset, int limit) {
+        Pageable pageable = new site.viosmash.english.util.OffsetPageRequest(offset, limit);
+        List<site.viosmash.english.entity.Page> pages = pageRepository.findByBookId(bookId, pageable);
         if (pages.isEmpty()) {
             return Collections.emptyList();
         }

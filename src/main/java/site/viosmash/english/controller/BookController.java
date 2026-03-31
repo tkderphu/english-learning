@@ -109,7 +109,7 @@ public class BookController {
         return ResponseEntity.ok(BaseResponse.success(bookService.getDetail(id)));
     }
 
-    @Operation(summary = "Get pages by book id and page numbers")
+    @Operation(summary = "Get pages by book id with offset and limit")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "List of pages", content = @Content),
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
@@ -117,8 +117,9 @@ public class BookController {
     @GetMapping("/v1/{bookId}/pages")
     public ResponseEntity<BaseResponse<List<BookPageResponse>>> getPagesByBook(
             @PathVariable("bookId") int bookId,
-            @RequestParam("pageNumbers") List<Integer> pageNumbers
+            @RequestParam("offset") int offset,
+            @RequestParam("limit") int limit
     ) {
-        return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, pageNumbers)));
+        return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, offset, limit)));
     }
 }
