@@ -79,7 +79,7 @@ public class BookService {
 
     public List<BookResponse> recommend() {
         Integer userId = util.getCurrentUser().getId();
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 20);
         return bookRepository.findAllByKeyword(pageable, null, userId, 1, null).getContent();
     }
 
