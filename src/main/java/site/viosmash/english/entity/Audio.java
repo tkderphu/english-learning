@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class Audio extends BaseEntity {
 
-    private int duration;
+    private double duration;
 
     private String format;
 

@@ -1,6 +1,7 @@
 package site.viosmash.english.dto.request;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -9,5 +10,9 @@ public class PageRequest {
 
     private Integer chapterId;
 
-    private List<String> content;
+    private String content;
+
+    private int audioId;
+
+    private int number;
 }

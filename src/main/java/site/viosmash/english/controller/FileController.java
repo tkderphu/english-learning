@@ -26,11 +26,7 @@ public class FileController {
 
     private final FileStorageService fileStorageService;
 
-    @Operation(summary = "Upload a file")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "File uploaded", content = @Content),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
-    })
+
     @PostMapping("/v1/upload")
     public ResponseEntity<BaseResponse<?>> upload(@RequestParam("file") MultipartFile file) {
         FileResponse res = fileStorageService.store(file);
