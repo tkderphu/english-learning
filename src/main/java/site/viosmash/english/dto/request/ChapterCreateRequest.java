@@ -10,6 +10,4 @@ public class ChapterCreateRequest {
     private String title;
 
     private String description;
-
-    private String content;
 }

@@ -29,20 +29,6 @@ public class ChapterService {
         chapter.setDescription(request.getDescription());
         chapter.setBookId(request.getBookId());
         this.chapterRepository.save(chapter);
-
-        String[] words = request.getContent().split("\\s+");
-
-        List<String> pageContent = new ArrayList<>();
-        for(int i = 0; i < words.length; i += 600) {
-            String[] contentWords = Arrays.copyOfRange(words, i, i + 600);
-            pageContent.add(Arrays.stream(contentWords).collect(Collectors.joining(" ")));
-        }
-
-        PageRequest pageRequest = new PageRequest();
-        pageRequest.setChapterId(chapter.getId());
-        pageRequest.setContent(pageContent);
-        pageService.create(pageRequest);
-
         return chapter.getId();
     }
 

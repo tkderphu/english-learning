@@ -30,7 +30,6 @@ public class ChapterController {
     })
     @PostMapping("/v1")
     public ResponseEntity<BaseResponse<?>> create(@RequestBody ChapterCreateRequest req) {
-        chapterService.create(req);
-        return ResponseEntity.ok(BaseResponse.success(null));
+        return ResponseEntity.ok(BaseResponse.success(chapterService.create(req)));
     }
 }
