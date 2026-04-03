@@ -4,15 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.viosmash.english.dto.request.ChapterCreateRequest;
-import site.viosmash.english.dto.request.PageRequest;
 import site.viosmash.english.entity.Chapter;
 import site.viosmash.english.repository.ChapterRepository;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
