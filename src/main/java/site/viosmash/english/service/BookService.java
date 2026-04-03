@@ -8,14 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
-import site.viosmash.english.dto.response.BookResponse;
-import site.viosmash.english.dto.response.PageResponse;
+import site.viosmash.english.dto.response.*;
+import site.viosmash.english.entity.Audio;
 import site.viosmash.english.entity.Book;
+import site.viosmash.english.entity.Sentence;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,9 @@ public class BookService {
     private final BookGenreRepository bookGenreRepository;
     private final ChapterRepository chapterRepository;
     private final BookProgressRepository bookProgressRepository;
+    private final PageRepository pageRepository;
+    private final SentenceRepository sentenceRepository;
+    private final AudioRepository audioRepository;
     private final Util util;
 
     public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
@@ -74,7 +79,7 @@ public class BookService {
 
     public List<BookResponse> recommend() {
         Integer userId = util.getCurrentUser().getId();
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 20);
         return bookRepository.findAllByKeyword(pageable, null, userId, 1, null).getContent();
     }
 
@@ -100,5 +105,19 @@ public class BookService {
         BookResponse bookResponse = bookRepository.findOneById(id);
         bookResponse.setChapters(chapterRepository.findAllByBookId(id));
         return bookResponse;
+    }
+
+    public List<BookPageResponse> getPagesByBook(int bookId, int offset, int limit) {
+        Pageable pageable = new site.viosmash.english.util.OffsetPageRequest(offset, limit);
+        List<BookPageResponse> pages = pageRepository.findByBookId(pageable, bookId);
+        if (pages.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (BookPageResponse page : pages) {
+            page.setSentence(sentenceRepository.findAllByPageId(page.getId()));
+        }
+
+        return pages;
     }
 }

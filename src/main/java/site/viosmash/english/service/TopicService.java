@@ -3,12 +3,10 @@ package site.viosmash.english.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.TopicCreateRequest;
 import site.viosmash.english.dto.response.TopicResponse;
 import site.viosmash.english.entity.Topic;
-import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.TopicRepository;
 
 @Service

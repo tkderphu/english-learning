@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.entity.Book;
 
-import java.util.List;
-
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """
@@ -71,19 +69,15 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                bp.last_read_page_number, bp.progress_percent, bp.last_read_time,
                bp.is_favorite
         FROM book b
-            LEFT JOIN book_progress bp ON bp.book_id = b.id
-            LEFT JOIN user u ON u.id = bp.user_id
-        WHERE u.id = :userId
-        GROUP BY b.id
+            JOIN book_progress bp ON bp.book_id = b.id
+        WHERE bp.user_id = :userId
         """,
     nativeQuery = true,
     countQuery = """
-        SELECT COUNT(DISTINCT b.id)
+        SELECT COUNT(b.id)
         FROM book b
-            LEFT JOIN book_progress bp ON bp.book_id = b.id
-            LEFT JOIN user u ON u.id = bp.user_id
-        WHERE u.id = :userId
-        GROUP BY b.id
+            JOIN book_progress bp ON bp.book_id = b.id
+        WHERE bp.user_id = :userId
     """)
     Page<BookResponse> findHistory(Pageable pageable, @Param("userId") Integer userId);
 
@@ -106,11 +100,8 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                          JOIN author a on a.id = ab.author_id
                       WHERE ab.book_id = b.id
                   ), '') as authors,
-               bp.last_read_page_number, bp.progress_percent, bp.last_read_time,
-               bp.is_favorite
+               b.status
         FROM book b
-            LEFT JOIN book_progress bp ON bp.book_id = b.id
-            LEFT JOIN user u ON u.id = bp.user_id
         WHERE b.id = :id
     """, nativeQuery = true)
     BookResponse findOneById(@Param("id") int id);
