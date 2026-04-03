@@ -1,5 +1,9 @@
 use english;
 
+-- Sửa lỗi cột file_url bị gán nhầm kiểu DOUBLE sang VARCHAR để lưu URL
+ALTER TABLE `audio` MODIFY COLUMN `file_url` VARCHAR(500);
+
+
 INSERT INTO `author` VALUES (4,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/ava_thompson.jpg','Contemporary writer of short stories and essays','Ava Thompson','US'),(5,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/liam_johnson.jpg','Academic and language educator','Liam Johnson','US'),(6,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/olivia_martinez.jpg','Translator and novelist','Olivia Martinez','ES'),(7,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/noah_brown.jpg','Children books author and storyteller','Noah Brown','AU'),(8,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/emma_wilson.jpg','Writer focusing on travel and culture','Emma Wilson','CA'),(9,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/oliver_davis.jpg','Poet and essayist','Oliver Davis','UK'),(10,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/sophia_garcia.jpg','Young adult fiction author','Sophia Garcia','MX'),(11,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/william_miller.jpg','Historian and textbook author','William Miller','US'),(12,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/isabella_rodriguez.jpg','Language learning content creator','Isabella Rodriguez','ES'),(13,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/james_martinez.jpg','Short fiction and dialogue-focused writer','James Martinez','US'),(14,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/mia_hernandez.jpg','Educational book author','Mia Hernandez','CO'),(15,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/benjamin_lopez.jpg','Novelist and playwright','Benjamin Lopez','AR'),(16,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/charlotte_gonzalez.jpg','Cultural commentator and blogger','Charlotte Gonzalez','US'),(17,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/elijah_perez.jpg','Sci-fi short story author','Elijah Perez','US'),(18,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/amelia_sanchez.jpg','Children educational content','Amelia Sanchez','ES'),(19,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/lucas_ramirez.jpg','Travelogue and essays','Lucas Ramirez','CL'),(20,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/harper_torres.jpg','Language pedagogy researcher','Harper Torres','US'),(21,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/henry_nguyen.jpg','Bilingual educator and author','Henry Nguyen','VN'),(22,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/evelyn_kim.jpg','Modern fiction and translations','Evelyn Kim','KR'),(23,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/alexander_lee.jpg','Non-fiction on communication','Alexander Lee','US'),(24,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/sofia_patel.jpg','Young readers author','Sofia Patel','IN'),(25,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/daniel_wright.jpg','Mystery novelist','Daniel Wright','UK'),(26,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/grace_scott.jpg','Creative writing instructor','Grace Scott','US'),(27,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/michael_green.jpg','Essayist and critic','Michael Green','US'),(28,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/chloe_adams.jpg','Romance and contemporary fiction','Chloe Adams','AU'),(29,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/jack_baker.jpg','Adventure stories for young adults','Jack Baker','UK'),(30,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/zoe_carter.jpg','Educational technologist and writer','Zoe Carter','US'),(31,'2026-03-26 19:52:23.000000','system',NULL,NULL,1,'https://example.com/avatars/ryan_mitchell.jpg','Language learning researcher','Ryan Mitchell','US');
 
 INSERT INTO `author_book` VALUES (5,5,5),(6,4,5),(7,6,6),(8,11,6),(9,7,7),(10,18,7),(11,8,8),(12,25,8),(13,9,9),(14,1,9),(15,5,11),(16,9,12),(17,10,13),(18,11,14),(19,5,125),(20,7,125),(21,5,16),(22,8,16);
@@ -15,3 +19,73 @@ INSERT INTO `genre` VALUES (4,'2026-03-26 19:52:43.000000','system',NULL,NULL,1,
 INSERT INTO `user` VALUES (1,'2026-03-26 12:51:49.996860','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)','2026-03-26 12:51:49.996860','User(email=admin 20024, password=null, fullName=null, avatar=null, role=2)',1,NULL,'admin@gmail.com','admin 20024','$2a$10$5H8hgCQY6hcjsllVPAnire6OD9r5Zve4Ze56/jI7DJj.v0TBgP6Ue',2);
 
 INSERT INTO `user_genre` VALUES (1,1,1),(2,2,1),(3,4,1),(4,3,1),(5,3,1),(6,3,1),(7,3,1),(8,13,1),(9,6,1),(10,8,1),(11,12,1),(12,15,1),(13,11,1),(14,9,1),(15,14,1);
+ 
+INSERT INTO `audio` (id, created_at, created_user, modified_at, modified_by, status, duration, format, sample_rate, file_size, file_url) VALUES
+(1, '2026-03-29 13:00:00.000000', 'system', NULL, NULL, 1, 120, 'mp3', 44100.0, 2.5, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(2, '2026-03-29 13:05:00.000000', 'system', NULL, NULL, 1, 150, 'mp3', 44100.0, 3.1, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(3, '2026-03-29 13:10:00.000000', 'system', NULL, NULL, 1, 180, 'mp3', 44100.0, 4.0, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg');
+ 
+INSERT INTO `chapter` (id, created_at, created_user, modified_at, modified_by, status, book_id, title, description, number) VALUES
+(1, '2026-03-29 10:00:00.000000', 'system', NULL, NULL, 1, 5, 'Chapter 1: Greetings', 'Basic greetings and introductions in daily life', 1),
+(2, '2026-03-29 10:05:00.000000', 'system', NULL, NULL, 1, 5, 'Chapter 2: Ordering Food', 'Common phrases used at restaurants and cafes', 2),
+(3, '2026-03-29 10:10:00.000000', 'system', NULL, NULL, 1, 6, 'Chapter 1: Meeting New People', 'Expanding your vocabulary for networking', 1),
+(4, '2026-03-29 10:15:00.000000', 'system', NULL, NULL, 1, 7, 'The Brave Little Tailor', 'Story portion part 1 about the clever tailor', 1),
+(5, '2026-03-29 10:20:00.000000', 'system', NULL, NULL, 1, 125, 'Chapter 1: Bé con tên là Songoku', 'Sơ lược về nguồn gốc của nhân vật chính', 1),
+(6, '2026-03-29 10:25:00.000000', 'system', NULL, NULL, 1, 125, 'Chapter 2: Bulma và Songoku', 'Cuộc gặp gỡ tình cờ đầu tiên', 2),
+(7, '2026-03-29 10:30:00.000000', 'system', NULL, NULL, 1, 8, 'The Ugly Duckling', 'A classic fairy tale part 1', 1),
+(8, '2026-03-29 10:35:00.000000', 'system', NULL, NULL, 1, 9, 'Arriving at the Airport', 'Practical English for travel', 1);
+ 
+INSERT INTO `page` (id, created_at, created_user, modified_at, modified_by, status, chapter_id, number, audio_id) VALUES
+(1, '2026-03-29 11:00:00.000000', 'system', NULL, NULL, 1, 5, 1, 3),
+(2, '2026-03-29 11:05:00.000000', 'system', NULL, NULL, 1, 5, 2, 3),
+(3, '2026-03-29 11:10:00.000000', 'system', NULL, NULL, 1, 1, 1, 1),
+(4, '2026-03-29 11:15:00.000000', 'system', NULL, NULL, 1, 2, 1, 2),
+(5, '2026-03-29 11:20:00.000000', 'system', NULL, NULL, 1, 8, 1, NULL);
+ 
+INSERT INTO `sentence` (id, created_at, created_user, modified_at, modified_by, status, page_id, content, transcription1, start_time, end_time) VALUES
+(1, '2026-03-29 12:00:00.000000', 'system', NULL, NULL, 1, 1, 'Ngày xửa ngày xưa, có một lão già tên là Gohan.', 'Once upon a time, there was an old man named Gohan.', 0.0, 5.0),
+(2, '2026-03-29 12:05:00.000000', 'system', NULL, NULL, 1, 1, 'Ông ấy tìm thấy một đứa bé có đuôi trong rừng.', 'He found a baby with a tail in the forest.', 5.1, 10.0),
+(3, '2026-03-29 12:10:00.000000', 'system', NULL, NULL, 1, 3, 'Hello, how are you today?', 'Xin chào, hôm nay bạn thế nào?', 0.0, 3.0),
+(4, '2026-03-29 12:15:00.000000', 'system', NULL, NULL, 1, 3, 'I am fine, thank you. And you?', 'Tôi khỏe, cảm ơn. Còn bạn?', 3.1, 6.0),
+(5, '2026-03-29 12:20:00.000000', 'system', NULL, NULL, 1, 4, 'I would like to order a cup of coffee.', 'Tôi muốn gọi một tách cà phê.', 0.0, 4.0),
+(6, '2026-03-29 12:25:00.000000', 'system', NULL, NULL, 1, 4, 'Sure, would you like milk or sugar?', 'Chắc chắn rồi, bạn có muốn dùng sữa hay đường không?', 4.1, 8.0);
+ 
+INSERT INTO `audio` (id, created_at, created_user, modified_at, modified_by, status, duration, format, sample_rate, file_size, file_url) VALUES
+(4, '2026-03-29 13:15:00.000000', 'system', NULL, NULL, 1, 100, 'mp3', 44100.0, 2.0, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(5, '2026-03-29 13:20:00.000000', 'system', NULL, NULL, 1, 110, 'mp3', 44100.0, 2.2, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg');
+ 
+INSERT INTO `chapter` (id, created_at, created_user, modified_at, modified_by, status, book_id, title, description, number) VALUES
+(9, '2026-03-29 10:40:00.000000', 'system', NULL, NULL, 1, 10, 'Chapter 1: The First Meeting', 'Initial business meetings and formal greetings', 1),
+(10, '2026-03-29 10:45:00.000000', 'system', NULL, NULL, 1, 11, 'Chapter 1: At a Fancy Restaurant', 'Etiquette and vocabulary for high-end dining', 1),
+(11, '2026-03-29 10:50:00.000000', 'system', NULL, NULL, 1, 13, 'Chapter 1: The Lion and the Mouse', 'A famous animal fable for children', 1);
+ 
+INSERT INTO `page` (id, created_at, created_user, modified_at, modified_by, status, chapter_id, number, audio_id) VALUES
+(6, '2026-03-29 11:30:00.000000', 'system', NULL, NULL, 1, 9, 1, 4),
+(7, '2026-03-29 11:35:00.000000', 'system', NULL, NULL, 1, 10, 1, 5),
+(8, '2026-03-29 11:40:00.000000', 'system', NULL, NULL, 1, 11, 1, NULL);
+ 
+INSERT INTO `sentence` (id, created_at, created_user, modified_at, modified_by, status, page_id, content, transcription1, start_time, end_time) VALUES
+(7, '2026-03-29 12:30:00.000000', 'system', NULL, NULL, 1, 6, 'Pleasure to meet you, Mr. Smith.', 'Rất vui được gặp ngài, ông Smith.', 0.0, 4.0),
+(8, '2026-03-29 12:35:00.000000', 'system', NULL, NULL, 1, 6, 'Let\'s discuss the contract details.', 'Hãy thảo luận về các chi tiết trong hợp đồng.', 4.1, 9.0),
+(9, '2026-03-29 12:40:00.000000', 'system', NULL, NULL, 1, 7, 'Could you please bring us the wine list?', 'Bạn có thể vui lòng mang danh sách rượu vang cho chúng tôi không?', 0.0, 5.0),
+(10, '2026-03-29 12:45:00.000000', 'system', NULL, NULL, 1, 7, 'I would like to order the steak medium-rare.', 'Tôi muốn gọi món bít tết chín tái.', 5.1, 10.0),
+(11, '2026-03-29 12:50:00.000000', 'system', NULL, NULL, 1, 8, 'A big lion was sleeping under a tree.', 'Một con sư tử lớn đang ngủ dưới gốc cây.', 0.0, 5.0),
+(12, '2026-03-29 12:55:00.000000', 'system', NULL, NULL, 1, 8, 'A small mouse began to run over him.', 'Một con chuột nhỏ bắt đầu chạy qua người nó.', 5.1, 10.0);
+
+INSERT INTO `audio` (id, created_at, created_user, modified_at, modified_by, status, duration, format, sample_rate, file_size, file_url) VALUES
+(6, '2026-03-29 13:25:00.000000', 'system', NULL, NULL, 1, 95, 'mp3', 44100.0, 1.8, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(7, '2026-03-29 13:30:00.000000', 'system', NULL, NULL, 1, 120, 'mp3', 44100.0, 2.4, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(8, '2026-03-29 13:35:00.000000', 'system', NULL, NULL, 1, 140, 'mp3', 44100.0, 2.9, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(9, '2026-03-29 13:40:00.000000', 'system', NULL, NULL, 1, 105, 'mp3', 44100.0, 2.1, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(10, '2026-03-29 13:45:00.000000', 'system', NULL, NULL, 1, 130, 'mp3', 44100.0, 2.7, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(11, '2026-03-29 13:50:00.000000', 'system', NULL, NULL, 1, 115, 'mp3', 44100.0, 2.3, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(12, '2026-03-29 13:55:00.000000', 'system', NULL, NULL, 1, 160, 'mp3', 44100.0, 3.5, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(13, '2026-03-29 14:00:00.000000', 'system', NULL, NULL, 1, 80, 'mp3', 44100.0, 1.5, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(14, '2026-03-29 14:05:00.000000', 'system', NULL, NULL, 1, 90, 'mp3', 44100.0, 1.7, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg'),
+(15, '2026-03-29 14:10:00.000000', 'system', NULL, NULL, 1, 100, 'mp3', 44100.0, 2.0, 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Sample-OGG-File.ogg');
+
+
+
+
+
+
