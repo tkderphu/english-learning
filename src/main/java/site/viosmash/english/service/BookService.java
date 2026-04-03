@@ -109,55 +109,15 @@ public class BookService {
 
     public List<BookPageResponse> getPagesByBook(int bookId, int offset, int limit) {
         Pageable pageable = new site.viosmash.english.util.OffsetPageRequest(offset, limit);
-        List<site.viosmash.english.entity.Page> pages = pageRepository.findByBookId(bookId, pageable);
+        List<BookPageResponse> pages = pageRepository.findByBookId(pageable, bookId);
         if (pages.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Integer> pageIds = pages.stream().map(site.viosmash.english.entity.Page::getId).toList();
-        List<Integer> audioIds = pages.stream()
-                .map(site.viosmash.english.entity.Page::getAudioId)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+        for (BookPageResponse page : pages) {
+            page.setSentence(sentenceRepository.findAllByPageId(page.getId()));
+        }
 
-        Map<Integer, Audio> audioMap = audioRepository.findAllById(audioIds).stream()
-                .collect(Collectors.toMap(Audio::getId, Function.identity()));
-
-        Map<Integer, List<Sentence>> sentenceMap = sentenceRepository.findByPageIdIn(pageIds).stream()
-                .collect(Collectors.groupingBy(Sentence::getPageId));
-
-        return pages.stream().map(page -> {
-            AudioResponse audioResponse = null;
-            if (page.getAudioId() != null) {
-                Audio audio = audioMap.get(page.getAudioId());
-                if (audio != null) {
-                    audioResponse = new AudioResponse(
-                            audio.getId(),
-                            audio.getDuration(),
-                            audio.getFormat(),
-                            (int) audio.getSampleRate(),
-                            (int) audio.getFileSize(),
-                            audio.getFileUrl(),
-                            page.getId()
-                    );
-                }
-            }
-
-            List<SentenceResponse> sentenceResponses = sentenceMap
-                    .getOrDefault(page.getId(), Collections.emptyList())
-                    .stream()
-                    .map(s -> new SentenceResponse(
-                            page.getId(),
-                            s.getId(),
-                            s.getContent(),
-                            s.getTranscription1(),
-                            (int) s.getStartTime(),
-                            (int) s.getEndTime()
-                    ))
-                    .toList();
-
-            return new BookPageResponse(page.getId(), page.getNumber(), audioResponse, sentenceResponses);
-        }).toList();
+        return pages;
     }
 }

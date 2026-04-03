@@ -16,4 +16,11 @@ public class BookPageResponse {
     private int number;
     private AudioResponse audio;
     private List<SentenceResponse> sentence;
+
+
+    public BookPageResponse(int id, int number, AudioResponse audio) {
+        this.id = id;
+        this.number = number;
+        this.audio = audio;
+    }
 }
