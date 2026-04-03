@@ -20,8 +20,8 @@ public class Sentence extends BaseEntity {
     private String transcription1;
 
     @Column(name = "start_time")
-    private double startTime;
+    private long startTime;
 
     @Column(name = "end_time")
-    private double endTime;
+    private long endTime;
 }

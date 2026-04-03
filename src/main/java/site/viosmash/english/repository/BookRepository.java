@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.entity.Book;
 
-import java.util.List;
-
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(value = """

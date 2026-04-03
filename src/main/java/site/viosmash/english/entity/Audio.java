@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 public class Audio extends BaseEntity {
 
-    private int duration;
+    private long duration;
 
     private String format;
 
@@ -27,4 +27,3 @@ public class Audio extends BaseEntity {
     @Column(name = "file_url")
     private String fileUrl;
 }
-

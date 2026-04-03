@@ -14,6 +14,6 @@ public class SentenceResponse {
     private int id;
     private String content;
     private String transcription1;
-    private double startTime;
-    private double endTime;
+    private long startTime;
+    private long endTime;
 }
