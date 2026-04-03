@@ -15,7 +15,8 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI customOpenAPI(@Value("${server.enable.domain}") boolean enableDomain) {
+    public OpenAPI customOpenAPI(@Value("${server.enable.domain}") boolean enableDomain,
+                                 @Value("${server.public.domain}") String publicDomain) {
         final String securitySchemeName = "bearerAuth";
 
         OpenAPI components = new OpenAPI()
@@ -33,7 +34,7 @@ public class OpenApiConfig {
                                         .bearerFormat("JWT")
                         ));
         if (enableDomain) {
-            components.addServersItem(new Server().url("https://english.kimchimar3.store"));
+            components.addServersItem(new Server().url(publicDomain));
         }
         return components;
     }
