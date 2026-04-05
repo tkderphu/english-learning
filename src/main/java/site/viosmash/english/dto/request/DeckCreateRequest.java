@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class DeckCreateRequest {
     String title;
+    String description;
     String coverImageUrl;
     List<FlashcardCreateRequest> flashcards;
 }

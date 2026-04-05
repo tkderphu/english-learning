@@ -12,6 +12,7 @@ target/
 .env.*
 **/.env
 src/main/resources/.env
+application-local.properties
 
 # App file storage (voice uploads, assets)
 uploads/

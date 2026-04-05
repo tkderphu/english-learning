@@ -24,6 +24,9 @@ public class Deck extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "cover_image_url")
     private String coverImageUrl;
 
