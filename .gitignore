@@ -7,9 +7,11 @@ target/
 .vscode/
 *.swp
 
-# Local env / secrets
+# Local env / secrets (never commit — GitHub push protection)
 .env
 .env.*
+**/.env
+src/main/resources/.env
 
 # App file storage (voice uploads, assets)
 uploads/
