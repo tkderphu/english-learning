@@ -28,4 +28,7 @@ public class UserProfile {
 
     @Column(name = "user_id")
     private Integer userId;
+
+    @Column(name = "after_login_onboarding_completed", nullable = false)
+    private boolean afterLoginOnboardingCompleted;
 }
