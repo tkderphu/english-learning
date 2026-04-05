@@ -14,6 +14,7 @@ import site.viosmash.english.dto.response.LevelResponse;
 import site.viosmash.english.dto.response.PageResponse;
 import site.viosmash.english.service.LevelService;
 import org.springframework.data.domain.Page;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/level")
@@ -23,18 +24,14 @@ public class LevelController {
 
     private final LevelService levelService;
 
-    @Operation(summary = "Get paginated levels")
+    @Operation(summary = "Get all levels")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Paged levels", content = @Content),
+        @ApiResponse(responseCode = "200", description = "List of levels", content = @Content),
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<?>> page(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(required = false) String keyword
-    ) {
-        return ResponseEntity.ok(BaseResponse.success(levelService.page(page, limit, keyword)));
+    public ResponseEntity<BaseResponse<List<LevelResponse>>> getLevels() {
+        return ResponseEntity.ok(BaseResponse.success(levelService.getLevels()));
     }
 
     @Operation(summary = "Create a level")
@@ -46,5 +43,11 @@ public class LevelController {
     public ResponseEntity<BaseResponse<LevelResponse>> create(@RequestBody LevelCreateRequest req) {
         LevelResponse r = levelService.create(req);
         return ResponseEntity.ok(BaseResponse.success(r));
+    }
+
+    @Operation(summary = "Update User Level", security = { @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth") })
+    @PutMapping("/v1")
+    public ResponseEntity<BaseResponse<Boolean>> updateLevel(@RequestBody site.viosmash.english.dto.request.UpdateUserLevelRequest req) {
+        return ResponseEntity.ok(BaseResponse.success(levelService.updateUserLevel(req)));
     }
 }

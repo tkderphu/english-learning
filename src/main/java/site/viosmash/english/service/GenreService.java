@@ -21,6 +21,8 @@ public class GenreService {
 
     private final GenreRepository genreRepository;
 
+    private final site.viosmash.english.repository.UserGenreRepository userGenreRepository;
+
     private final Util util;
 
     public List<GenreResponse> getList() {
@@ -35,5 +37,21 @@ public class GenreService {
         g.setStatus(1);
         g = genreRepository.save(g);
         return new GenreResponse(g.getId(), g.getName(), g.getThumbnail(), g.getDescription(), g.getStatus());
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Boolean updateUserFavoriteGenres(site.viosmash.english.dto.request.UpdateUserFavoriteGenresRequest req) {
+        Integer userId = util.getCurrentUser().getId();
+        userGenreRepository.deleteByUserId(userId);
+        if (req.getGenreIds() != null && !req.getGenreIds().isEmpty()) {
+            java.util.List<site.viosmash.english.entity.UserGenre> genres = req.getGenreIds().stream().map(genreId -> {
+                site.viosmash.english.entity.UserGenre ug = new site.viosmash.english.entity.UserGenre();
+                ug.setUserId(userId);
+                ug.setGenreId(genreId);
+                return ug;
+            }).collect(java.util.stream.Collectors.toList());
+            userGenreRepository.saveAll(genres);
+        }
+        return true;
     }
 }
