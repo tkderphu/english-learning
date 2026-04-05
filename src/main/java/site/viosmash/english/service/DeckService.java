@@ -1,10 +1,12 @@
 package site.viosmash.english.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import site.viosmash.english.dto.request.DeckCreateRequest;
+import site.viosmash.english.dto.request.DeckStudyCompleteRequest;
 import site.viosmash.english.dto.request.DeckUpdateRequest;
 import site.viosmash.english.dto.response.DeckResponse;
 import site.viosmash.english.entity.Deck;
@@ -20,12 +22,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DeckService {
 
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final UserRepository userRepository;
     private final DeckMapper deckMapper;
+    private final ProfileLearningActivityService profileLearningActivityService;
 
     // ==========================================
     // 1. CREATE: Tạo Deck và Flashcards đồng thời
@@ -199,5 +203,29 @@ public class DeckService {
         // để tránh lỗi cascade khóa ngoại với bảng lịch sử học của User.
         deck.setStatus(0); 
         deckRepository.save(deck);
+    }
+
+    /**
+     * Ghi nhận hoàn thành phiên học flashcard (client gọi sau khi học xong bộ thẻ).
+     */
+    @Transactional
+    public void recordStudySessionComplete(Integer userId, int deckId, DeckStudyCompleteRequest req) {
+        Deck deck = getDeckById(deckId);
+        if (deck.getUser() == null || deck.getUser().getId() == null || deck.getUser().getId() != userId) {
+            throw new RuntimeException("Không có quyền truy cập bộ thẻ này.");
+        }
+        try {
+            profileLearningActivityService.logFlashcardDeckStudyCompleted(
+                    userId,
+                    deckId,
+                    deck.getTitle(),
+                    req.getDurationSeconds(),
+                    req.getCardsReviewed(),
+                    req.getQuizCorrect(),
+                    req.getQuizTotal()
+            );
+        } catch (Exception ex) {
+            log.warn("Could not record learning activity for deck study {}", deckId, ex);
+        }
     }
 }

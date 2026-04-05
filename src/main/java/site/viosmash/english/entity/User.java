@@ -25,6 +25,13 @@ public class User extends BaseEntity {
 
     private String avatar;
 
+    /** Optional: city / country for profile (e.g. \"Tallinn, Estonia\"). */
+    private String location;
+
+    /** e.g. BEGINNER, INTERMEDIATE, ADVANCED — display only, optional. */
+    @Column(name = "learning_level")
+    private String learningLevel;
+
     @Column(name = "role")
     private int role;
 }

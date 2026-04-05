@@ -63,6 +63,8 @@ public class SecurityConfig {
 
                     // Require authentication for API endpoints
                     request.requestMatchers("/api/**").authenticated();
+                    // Khi server.servlet.context-path=/api, path trong filter là /profile/v1/... (không còn tiền tố /api)
+                    request.requestMatchers("/profile/v1/**").authenticated();
 
                     // Permit other requests (static, health, etc.)
                     request.anyRequest().permitAll();

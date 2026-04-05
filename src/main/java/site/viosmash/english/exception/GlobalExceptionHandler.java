@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 import java.util.Objects;
@@ -121,6 +122,18 @@ public class GlobalExceptionHandler {
         log.warn("WebClientResponseException status={} body={}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
         return ResponseEntity.status(resolvedStatus)
                 .body(BaseResponse.error(message, resolvedStatus.value()));
+    }
+
+    /**
+     * Spring 6 maps unknown paths to static resources first; missing files become this exception.
+     * For API clients it usually means wrong URL or the running JAR/classpath does not include the controller (rebuild/restart).
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleNoResourceFound(NoResourceFoundException ex) {
+        String path = ex.getResourcePath();
+        log.warn("No resource or API mapping for path: {}", path);
+        String message = "Not found: " + path;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(BaseResponse.error(message, HttpStatus.NOT_FOUND.value()));
     }
 
     @ExceptionHandler(Exception.class)

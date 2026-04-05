@@ -1,6 +1,7 @@
 package site.viosmash.english.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
+import site.viosmash.english.dto.request.BookReadingProgressRequest;
 import site.viosmash.english.dto.response.*;
 import site.viosmash.english.entity.Audio;
 import site.viosmash.english.entity.Book;
@@ -22,7 +24,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
+
+    private static final int MIN_SECONDS_TO_LOG_READING = 30;
 
     private final BookRepository bookRepository;
     private final AuthorBookRepository authorBookRepository;
@@ -33,6 +38,7 @@ public class BookService {
     private final SentenceRepository sentenceRepository;
     private final AudioRepository audioRepository;
     private final Util util;
+    private final ProfileLearningActivityService profileLearningActivityService;
 
     public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
@@ -119,5 +125,43 @@ public class BookService {
         }
 
         return pages;
+    }
+
+    /**
+     * Cập nhật tiến độ đọc và (nếu đủ thời gian) ghi nhật ký hoạt động LESSON cho heatmap.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    public void recordReadingProgress(int userId, int bookId, BookReadingProgressRequest req) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Book not found"));
+
+        int lastPage = req.getLastReadPageNumber();
+        int total = req.getTotalPages();
+        double pct = Math.min(100.0, (lastPage + 1.0) / (double) total * 100.0);
+
+        var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
+        site.viosmash.english.entity.BookProgress bp;
+        if (opt.isPresent()) {
+            bp = opt.get();
+        } else {
+            bp = new site.viosmash.english.entity.BookProgress();
+            bp.setUserId(userId);
+            bp.setBookId(bookId);
+            bp.setIsFavorite(0);
+        }
+        bp.setLastReadPageNumber(lastPage);
+        bp.setProgressPercent(pct);
+        bp.setLastReadTime(java.time.LocalDateTime.now());
+        bookProgressRepository.save(bp);
+
+        Integer dur = req.getDurationSeconds();
+        if (dur != null && dur >= MIN_SECONDS_TO_LOG_READING) {
+            try {
+                profileLearningActivityService.logBookReadingSession(
+                        userId, bookId, book.getTitle(), dur, pct, lastPage);
+            } catch (Exception ex) {
+                log.warn("Could not record learning activity for book reading {}", bookId, ex);
+            }
+        }
     }
 }
