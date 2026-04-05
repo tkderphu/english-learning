@@ -1,4 +1,4 @@
-﻿use english;
+use english;
 
 -- Sua cot file_url: DOUBLE -> VARCHAR(500) de luu URL
 ALTER TABLE `audio` MODIFY COLUMN `file_url` VARCHAR(500);
