@@ -1,0 +1,9 @@
+# GitGuardian: documented dev-only fixtures (not production credentials).
+# See https://docs.gitguardian.com/internal-repositories-monitoring/integrations/git-hooks/configuration
+version: 2
+
+ignore:
+  - name: MySQL seed — bcrypt hash for local admin (documented dev password)
+    paths:
+      - src/main/resources/data.sql
+      - sql/seed_ai_test_data.sql

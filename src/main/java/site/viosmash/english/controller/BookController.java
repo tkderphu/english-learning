@@ -1,6 +1,7 @@
 package site.viosmash.english.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -9,12 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import site.viosmash.english.dto.request.BookCreateRequest;
+import site.viosmash.english.dto.request.BookReadingProgressRequest;
 import site.viosmash.english.dto.request.FavoriteRequest;
 import site.viosmash.english.dto.response.BaseResponse;
 import site.viosmash.english.dto.response.BookPageResponse;
 import site.viosmash.english.dto.response.BookResponse;
 import site.viosmash.english.service.BookService;
+import site.viosmash.english.util.Util;
 
 import java.util.List;
 
@@ -25,6 +29,7 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
+    private final Util util;
 
     @Operation(summary = "Get paginated books")
     @ApiResponses({
@@ -121,5 +126,20 @@ public class BookController {
             @RequestParam("limit") int limit
     ) {
         return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, offset, limit)));
+    }
+
+    @Operation(
+            summary = "Cập nhật tiến độ đọc sách",
+            description = "Lưu trang đang đọc; nếu durationSeconds ≥ 30s thì ghi thêm hoạt động LESSON cho heatmap.",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @PatchMapping("/v1/{bookId}/progress")
+    public ResponseEntity<BaseResponse<String>> updateReadingProgress(
+            @PathVariable("bookId") int bookId,
+            @Valid @RequestBody BookReadingProgressRequest req
+    ) {
+        int userId = util.getCurrentUser().getId();
+        bookService.recordReadingProgress(userId, bookId, req);
+        return ResponseEntity.ok(BaseResponse.success("OK"));
     }
 }

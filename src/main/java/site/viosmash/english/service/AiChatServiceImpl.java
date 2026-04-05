@@ -3,6 +3,7 @@ package site.viosmash.english.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiChatServiceImpl implements AiChatService {
@@ -71,6 +73,7 @@ public class AiChatServiceImpl implements AiChatService {
     private final AiSessionSummaryRepository aiSessionSummaryRepository;
     private final ObjectMapper objectMapper;
     private final Util util;
+    private final ProfileLearningActivityService profileLearningActivityService;
 
     @Value("${openai.model.transcription}")
     private String transcriptionModel;
@@ -113,6 +116,8 @@ public class AiChatServiceImpl implements AiChatService {
 
         AiChatSession savedSession = aiChatSessionRepository.save(session);
 
+        appendOpeningAiMessage(savedSession);
+
         return CreateChatSessionResponse.builder()
                 .sessionId(savedSession.getId())
                 .title(savedSession.getTitle())
@@ -121,6 +126,32 @@ public class AiChatServiceImpl implements AiChatService {
                 .status(savedSession.getStatus())
                 .currentTurn(savedSession.getCurrentTurn())
                 .build();
+    }
+
+    /**
+     * AI speaks first (turn 0). {@link #processUserMessage} still uses {@code currentTurn + 1} for the first learner turn.
+     */
+    private void appendOpeningAiMessage(AiChatSession session) {
+        if (session == null || session.getId() == null) {
+            return;
+        }
+        try {
+            String opening = aiRoleplayService.generateOpeningLine(session);
+            if (opening == null || opening.isBlank()) {
+                return;
+            }
+            AiChatMessage open = new AiChatMessage();
+            open.setSessionId(session.getId());
+            open.setSenderType(SENDER_AI);
+            open.setInputType(INPUT_TEXT);
+            open.setTurnNumber(0);
+            open.setContent(opening.trim());
+            aiChatMessageRepository.save(open);
+            session.setLastMessageAt(LocalDateTime.now());
+            aiChatSessionRepository.save(session);
+        } catch (Exception ex) {
+            log.warn("AI opening line failed for session {}", session.getId(), ex);
+        }
     }
 
     @Override
@@ -194,7 +225,7 @@ public class AiChatServiceImpl implements AiChatService {
                 : allMessages;
 
         String aiReply = aiRoleplayService.generateReply(session, recentMessages, userContent);
-        String feedbackJson = aiRoleplayService.generateFeedbackJson(session, userContent);
+        String feedbackJson = aiRoleplayService.generateFeedbackJson(session, userContent, inputType);
 
         AiChatMessage aiMessage = new AiChatMessage();
         aiMessage.setSessionId(sessionId);
@@ -212,7 +243,7 @@ public class AiChatServiceImpl implements AiChatService {
         }
         aiChatSessionRepository.save(session);
 
-        FeedbackResponse feedbackResponse = saveAndBuildFeedback(savedUserMessage.getId(), feedbackJson);
+        FeedbackResponse feedbackResponse = saveAndBuildFeedback(savedUserMessage.getId(), feedbackJson, inputType);
 
         return SendTextMessageResponse.builder()
                 .sessionId(sessionId)
@@ -234,6 +265,8 @@ public class AiChatServiceImpl implements AiChatService {
 
         assertSessionOwner(session);
 
+        boolean wasActive = STATUS_ACTIVE.equalsIgnoreCase(session.getStatus());
+
         if (!STATUS_ENDED.equalsIgnoreCase(session.getStatus())) {
             session.setStatus(STATUS_ENDED);
             session.setEndedAt(LocalDateTime.now());
@@ -251,6 +284,14 @@ public class AiChatServiceImpl implements AiChatService {
 
         String summaryJson = aiRoleplayService.generateSummaryJson(session, messages);
         EndSessionResponse summaryResponse = saveAndBuildSummary(sessionId, durationSeconds, summaryJson, messages);
+
+        if (wasActive && session.getUserId() != null) {
+            try {
+                profileLearningActivityService.logAiChatSessionEnded(session.getUserId(), session, durationSeconds);
+            } catch (Exception ex) {
+                log.warn("Could not record learning activity for AI chat session {}", sessionId, ex);
+            }
+        }
 
         return EndSessionResponse.builder()
                 .sessionId(summaryResponse.getSessionId())
@@ -479,14 +520,15 @@ public class AiChatServiceImpl implements AiChatService {
                 .build();
     }
 
-    private FeedbackResponse saveAndBuildFeedback(Integer messageId, String feedbackJson) {
+    private FeedbackResponse saveAndBuildFeedback(Integer messageId, String feedbackJson, String inputType) {
         try {
             Map<String, Object> payload = objectMapper.readValue(feedbackJson, new TypeReference<>() {
             });
+            boolean typedOnly = inputType != null && INPUT_TEXT.equalsIgnoreCase(inputType);
             BigDecimal grammarScore = toDecimal(payload.get("grammarScore"));
-            BigDecimal vocabularyScore = toDecimal(payload.get("vocabularyScore"));
-            BigDecimal fluencyScore = toDecimal(payload.get("fluencyScore"));
-            BigDecimal pronunciationScore = toDecimal(payload.get("pronunciationScore"));
+            BigDecimal vocabularyScore = typedOnly ? null : toDecimal(payload.get("vocabularyScore"));
+            BigDecimal fluencyScore = typedOnly ? null : toDecimal(payload.get("fluencyScore"));
+            BigDecimal pronunciationScore = typedOnly ? null : toDecimal(payload.get("pronunciationScore"));
             String overallComment = toStringValue(payload.get("overallComment"));
             String improvedVersion = toStringValue(payload.get("improvedVersion"));
             String naturalSuggestion = toStringValue(payload.get("naturalSuggestion"));
@@ -512,6 +554,9 @@ public class AiChatServiceImpl implements AiChatService {
                         continue;
                     }
                     String type = toStringValue(rawMap.get("type"));
+                    if (typedOnly && type != null && type.equalsIgnoreCase("PRONUNCIATION")) {
+                        continue;
+                    }
                     String originalText = toStringValue(rawMap.get("originalText"));
                     String suggestedText = toStringValue(rawMap.get("suggestedText"));
                     String explanation = toStringValue(rawMap.get("explanation"));
