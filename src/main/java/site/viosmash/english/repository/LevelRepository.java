@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import site.viosmash.english.dto.response.LevelResponse;
 import site.viosmash.english.entity.Level;
+import java.util.List;
 
 public interface LevelRepository extends JpaRepository<Level, Integer> {
 
@@ -17,4 +18,12 @@ public interface LevelRepository extends JpaRepository<Level, Integer> {
          WHERE (:keyword IS NULL OR LOWER(l.name) LIKE :keyword)
     """)
     Page<LevelResponse> findAllByKeyword(Pageable pageable, String keyword);
+
+    @Query("""
+         SELECT new site.viosmash.english.dto.response.LevelResponse(
+            l.id, l.name, l.description, l.numberCourse, l.status
+         )
+         FROM Level l
+    """)
+    List<LevelResponse> findAllLevels();
 }
