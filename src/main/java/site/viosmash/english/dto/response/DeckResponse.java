@@ -15,6 +15,7 @@ public class DeckResponse {
     private int id;
     private Integer userId;
     private String title;
+    private String description;
     private String coverImageUrl;
     private Integer totalWords;
     private int status;

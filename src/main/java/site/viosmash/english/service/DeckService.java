@@ -39,6 +39,7 @@ public class DeckService {
         Deck deck = new Deck()
                 .setUser(user)
                 .setTitle(request.getTitle())
+                .setDescription(request.getDescription())
                 .setCoverImageUrl(request.getCoverImageUrl())
                 .setTotalWords(request.getFlashcards() != null ? request.getFlashcards().size() : 0);
         
@@ -106,6 +107,7 @@ public class DeckService {
         }
         
         if (request.getTitle() != null) deck.setTitle(request.getTitle());
+        if (request.getDescription() != null) deck.setDescription(request.getDescription());
         if (request.getCoverImageUrl() != null) deck.setCoverImageUrl(request.getCoverImageUrl());
         deck.setStatus(request.getStatus());
 
