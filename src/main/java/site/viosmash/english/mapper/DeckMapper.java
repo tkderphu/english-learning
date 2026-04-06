@@ -34,6 +34,7 @@ public class DeckMapper {
                 .id(deck.getId())
                 .userId(deck.getUser() != null ? deck.getUser().getId() : null)
                 .title(deck.getTitle())
+                .description(deck.getDescription())
                 .coverImageUrl(deck.getCoverImageUrl())
                 .totalWords(deck.getTotalWords())
                 .status(deck.getStatus())

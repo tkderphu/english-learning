@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import site.viosmash.english.dto.request.DeckCreateRequest;
+import site.viosmash.english.dto.request.DeckStudyCompleteRequest;
 import site.viosmash.english.dto.request.DeckUpdateRequest;
 import site.viosmash.english.dto.response.BaseResponse;
 import site.viosmash.english.service.DeckService;
@@ -70,5 +72,20 @@ public class DeckController {
     @GetMapping("/v1/{id}/flashcards")
     public ResponseEntity<BaseResponse<?>> getAllFlashcards(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(BaseResponse.success(flashcardService.getAllFlashcardsInDeck(id)));
+    }
+
+    @Operation(
+            summary = "Báo cáo hoàn thành phiên học flashcard",
+            description = "Ghi nhận thời lượng và (tuỳ chọn) điểm quiz vào lịch sử học / heatmap.",
+            security = { @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth") }
+    )
+    @PostMapping("/v1/{id}/study-complete")
+    public ResponseEntity<BaseResponse<String>> studyComplete(
+            @PathVariable("id") Integer deckId,
+            @Valid @RequestBody DeckStudyCompleteRequest req
+    ) {
+        Integer userId = util.getCurrentUser().getId();
+        deckService.recordStudySessionComplete(userId, deckId, req);
+        return ResponseEntity.ok(BaseResponse.success("OK"));
     }
 }
