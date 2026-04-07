@@ -10,6 +10,7 @@ import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
 import site.viosmash.english.dto.response.*;
 import site.viosmash.english.entity.Book;
+import site.viosmash.english.entity.Sentence;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
