@@ -43,4 +43,10 @@ public class GenreController {
         GenreResponse r = genreService.create(req);
         return ResponseEntity.ok(BaseResponse.success(r));
     }
+
+    @Operation(summary = "Update User Favorite Genres", security = { @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth") })
+    @PutMapping("/v1/favorite-genres")
+    public ResponseEntity<BaseResponse<Boolean>> updateFavoriteGenres(@RequestBody site.viosmash.english.dto.request.UpdateUserFavoriteGenresRequest req) {
+        return ResponseEntity.ok(BaseResponse.success(genreService.updateUserFavoriteGenres(req)));
+    }
 }
