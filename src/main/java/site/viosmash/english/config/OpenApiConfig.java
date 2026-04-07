@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,16 +15,16 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI customOpenAPI(@Value("${server.enable.domain}") boolean enableDomain,
+                                 @Value("${server.public.domain}") String publicDomain) {
         final String securitySchemeName = "bearerAuth";
 
-        return new OpenAPI()
+        OpenAPI components = new OpenAPI()
                 .info(new Info()
                         .title("English API")
                         .version("v1")
                         .description("API documentation for the English application"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .addServersItem(new Server().url("https://english.kimchimar3.store"))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
@@ -32,5 +33,9 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
                         ));
+        if (enableDomain) {
+            components.addServersItem(new Server().url(publicDomain));
+        }
+        return components;
     }
 }
