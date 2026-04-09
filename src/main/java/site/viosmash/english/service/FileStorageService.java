@@ -36,7 +36,7 @@ public class FileStorageService {
             Path baseDir = Path.of(storagePath).toAbsolutePath();
             Files.createDirectories(baseDir);
 
-            String generated = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String generated = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path target = baseDir.resolve(generated);
 
             Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);

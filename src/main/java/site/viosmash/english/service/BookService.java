@@ -2,16 +2,13 @@ package site.viosmash.english.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
 import site.viosmash.english.dto.response.*;
-import site.viosmash.english.entity.Audio;
 import site.viosmash.english.entity.Book;
 import site.viosmash.english.entity.Sentence;
 import site.viosmash.english.exception.ServiceException;
@@ -19,8 +16,6 @@ import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +25,13 @@ public class BookService {
     private static final int MIN_SECONDS_TO_LOG_READING = 30;
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
     private final AuthorBookRepository authorBookRepository;
     private final BookGenreRepository bookGenreRepository;
     private final ChapterRepository chapterRepository;
     private final BookProgressRepository bookProgressRepository;
     private final PageRepository pageRepository;
     private final SentenceRepository sentenceRepository;
-    private final AudioRepository audioRepository;
     private final Util util;
     private final ProfileLearningActivityService profileLearningActivityService;
 
@@ -83,20 +78,36 @@ public class BookService {
         return util.convert(bookRepository.findHistory(pageable, userId));
     }
 
-    public List<BookResponse> recommend() {
+    public PageResponse<BookResponse> recommend(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
-        Pageable pageable = PageRequest.of(0, 20);
-        return bookRepository.findAllByKeyword(pageable, null, userId, 1, null).getContent();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return util.convert(bookRepository.findAllByKeyword(pageable, null, userId, 1, null));
     }
 
-    public void favorite(int bookId, boolean isFavorite) {
+    public PageResponse<AuthorResponse> getAuthors(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return util.convert(authorRepository.findAllActive(pageable));
+    }
+
+    public PageResponse<BookResponse> getBooksByAuthor(int authorId, int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return util.convert(bookRepository.findAllByAuthorId(pageable, authorId));
+    }
+
+    public PageResponse<BookResponse> getFavorites(int page, int limit) {
+        Integer userId = util.getCurrentUser().getId();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return util.convert(bookRepository.findFavorites(pageable, userId));
+    }
+
+    public boolean favorite(int bookId, boolean isFavorite) {
         Integer userId = util.getCurrentUser().getId();
         var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
         if (opt.isPresent()) {
             var bp = opt.get();
             bp.setIsFavorite(isFavorite ? 1 : 0);
             bookProgressRepository.save(bp);
-            return;
+            return bp.getIsFavorite() != null && bp.getIsFavorite() == 1;
         }
 
         var bp = new site.viosmash.english.entity.BookProgress();
@@ -105,6 +116,7 @@ public class BookService {
         bp.setProgressPercent(0.0);
         bp.setIsFavorite(isFavorite ? 1 : 0);
         bookProgressRepository.save(bp);
+        return bp.getIsFavorite() != null && bp.getIsFavorite() == 1;
     }
 
     public BookResponse getDetail(int id) {

@@ -47,6 +47,6 @@ public class BookResponse {
         this.lastReadNumberPage = lastReadNumberPage;
         this.progressPercent = progressPercent;
         this.lastReadTime = lastReadTime;
-        this.isFavorite = isFavorite == null || isFavorite == 0 ? false : true;
+        this.isFavorite = isFavorite != null && isFavorite != 0;
     }
 }

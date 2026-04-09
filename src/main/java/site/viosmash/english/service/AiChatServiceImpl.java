@@ -524,7 +524,7 @@ public class AiChatServiceImpl implements AiChatService {
         try {
             Map<String, Object> payload = objectMapper.readValue(feedbackJson, new TypeReference<>() {
             });
-            boolean typedOnly = inputType != null && INPUT_TEXT.equalsIgnoreCase(inputType);
+            boolean typedOnly = INPUT_TEXT.equalsIgnoreCase(inputType);
             BigDecimal grammarScore = toDecimal(payload.get("grammarScore"));
             BigDecimal vocabularyScore = typedOnly ? null : toDecimal(payload.get("vocabularyScore"));
             BigDecimal fluencyScore = typedOnly ? null : toDecimal(payload.get("fluencyScore"));
