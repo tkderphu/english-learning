@@ -19,12 +19,9 @@ public class DeckMapper {
                     .filter(f -> f.getStatus() == 1) // Only return active flashcards
                     .map(f -> site.viosmash.english.dto.response.FlashcardResponse.builder()
                             .id(f.getId())
-                            .word(f.getWord())
-                            .phonetic(f.getPhonetic())
-                            .meaning(f.getMeaning())
-                            .exampleSentence(f.getExampleSentence())
-                            .visualCueUrl(f.getVisualCueUrl())
-                            .note(f.getNote())
+                            .term(f.getTerm())
+                            .definition(f.getDefinition())
+                            .imageUrl(f.getImageUrl())
                             .status(f.getStatus())
                             .build())
                     .collect(java.util.stream.Collectors.toList());
@@ -34,9 +31,7 @@ public class DeckMapper {
                 .id(deck.getId())
                 .userId(deck.getUser() != null ? deck.getUser().getId() : null)
                 .title(deck.getTitle())
-                .description(deck.getDescription())
-                .coverImageUrl(deck.getCoverImageUrl())
-                .totalWords(deck.getTotalWords())
+
                 .status(deck.getStatus())
                 .createdAt(deck.getCreatedAt())
                 .modifiedAt(deck.getModifiedAt())
