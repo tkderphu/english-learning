@@ -28,10 +28,6 @@ public class PageService {
 
     private final PageRepository pageRepository;
 
-    private final FileStorageService fileStorageService;
-
-    private final Util util;
-
     private final AudioRepository audioRepository;
 
     private final WhisperService whisperService;
@@ -47,7 +43,11 @@ public class PageService {
 
         this.pageRepository.save(page);
 
-        List<WhisperSentenceResponse> whisperSentences = whisperService.loadSamplePage(request.getNumber());
+        Audio audio = this.audioRepository.findById(request.getAudioId()).orElse(null);
+        if (audio == null) {
+            throw new IllegalArgumentException("You must provide audio file");
+        }
+        List<WhisperSentenceResponse> whisperSentences = whisperService.transcribe(audio.getFileUrl());
 
         List<Sentence> sentences = whisperSentences.stream().map(sentence -> {
             Sentence s = new Sentence();
