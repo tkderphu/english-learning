@@ -3,6 +3,8 @@ package site.viosmash.english.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -354,5 +356,27 @@ public class ProfileLearningActivityService {
         }
 
         learningActivityRepository.save(a);
+    }
+
+    /**
+     * Lịch sử bài học / bài tập đã ghi nhận (LESSON, EXERCISE), phân trang.
+     *
+     * @param filter ALL | LESSON | EXERCISE (không phân biệt hoa thường)
+     */
+    @Transactional(readOnly = true)
+    public Page<LearningActivityItemResponse> activityHistory(Integer userId, String filter, String q, Pageable pageable) {
+        List<String> types = typesForHistoryFilter(filter);
+        String query = (q == null || q.isBlank()) ? null : q.trim();
+        return learningActivityRepository.findHistory(userId, types, query, pageable)
+                .map(ProfileLearningActivityService::toItem);
+    }
+
+    private static List<String> typesForHistoryFilter(String filter) {
+        String f = filter == null ? "ALL" : filter.trim().toUpperCase();
+        return switch (f) {
+            case "EXERCISE" -> List.of(LearningActivityType.EXERCISE.name());
+            case "LESSON" -> List.of(LearningActivityType.LESSON.name());
+            default -> List.of(LearningActivityType.EXERCISE.name(), LearningActivityType.LESSON.name());
+        };
     }
 }

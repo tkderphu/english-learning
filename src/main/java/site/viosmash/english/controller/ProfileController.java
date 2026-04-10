@@ -6,9 +6,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,11 +26,14 @@ import site.viosmash.english.dto.request.UserLearnedWordCreateRequest;
 import site.viosmash.english.dto.request.UserLearnedWordPatchRequest;
 import site.viosmash.english.dto.response.ActivityDayDetailResponse;
 import site.viosmash.english.dto.response.BaseResponse;
+import site.viosmash.english.dto.response.CorrectionSessionReviewResponse;
 import site.viosmash.english.dto.response.HeatmapDayResponse;
+import site.viosmash.english.dto.response.UserCorrectionItemResponse;
 import site.viosmash.english.dto.response.LearningActivityItemResponse;
 import site.viosmash.english.dto.response.LearningStatsOverviewResponse;
 import site.viosmash.english.dto.response.ProfileMeResponse;
 import site.viosmash.english.dto.response.UserLearnedWordResponse;
+import site.viosmash.english.service.ProfileCorrectionService;
 import site.viosmash.english.service.ProfileLearningActivityService;
 import site.viosmash.english.service.ProfileService;
 import site.viosmash.english.service.UserLearnedWordService;
@@ -47,6 +52,7 @@ public class ProfileController {
     private final ProfileService profileService;
     private final ProfileLearningActivityService learningActivityService;
     private final UserLearnedWordService userLearnedWordService;
+    private final ProfileCorrectionService profileCorrectionService;
 
     @GetMapping("/me")
     @Operation(summary = "Xem thông tin cơ bản (email, tên, avatar, …)")
@@ -92,6 +98,17 @@ public class ProfileController {
         return ResponseEntity.ok(BaseResponse.success(learningActivityService.dayDetail(userId, date)));
     }
 
+    @GetMapping("/activity/history")
+    @Operation(summary = "Danh sách bài học / bài tập đã hoàn thành (LESSON, EXERCISE). filter=ALL|LESSON|EXERCISE")
+    public ResponseEntity<BaseResponse<Page<LearningActivityItemResponse>>> activityHistory(
+            @RequestParam(defaultValue = "ALL") String filter,
+            @RequestParam(required = false) String q,
+            @PageableDefault(size = 20, sort = "startedAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        int userId = util.getCurrentUser().getId();
+        return ResponseEntity.ok(BaseResponse.success(learningActivityService.activityHistory(userId, filter, q, pageable)));
+    }
+
     @PostMapping("/activity/log")
     @Operation(summary = "Ghi nhận một hoạt động học (app / module khác gọi sau khi hoàn thành)")
     public ResponseEntity<BaseResponse<LearningActivityItemResponse>> logActivity(
@@ -129,5 +146,33 @@ public class ProfileController {
     ) {
         int userId = util.getCurrentUser().getId();
         return ResponseEntity.ok(BaseResponse.success(userLearnedWordService.patch(userId, id, req)));
+    }
+
+    @GetMapping("/corrections")
+    @Operation(summary = "Lỗi AI đã sửa (từ AI Chat), mới nhất trước. filter: ALL|GRAMMAR|VOCABULARY|SPELLING")
+    public ResponseEntity<BaseResponse<Page<UserCorrectionItemResponse>>> corrections(
+            @RequestParam(defaultValue = "ALL") String filter,
+            @RequestParam(required = false) String q,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        int userId = util.getCurrentUser().getId();
+        return ResponseEntity.ok(BaseResponse.success(profileCorrectionService.listCorrections(userId, filter, q, pageable)));
+    }
+
+    @GetMapping("/corrections/sessions/{sessionId}")
+    @Operation(summary = "Chi tiết tất cả lỗi trong một phiên chat")
+    public ResponseEntity<BaseResponse<CorrectionSessionReviewResponse>> correctionSession(
+            @PathVariable Integer sessionId
+    ) {
+        int userId = util.getCurrentUser().getId();
+        return ResponseEntity.ok(BaseResponse.success(profileCorrectionService.sessionReview(userId, sessionId)));
+    }
+
+    @DeleteMapping("/corrections")
+    @Operation(summary = "Xóa toàn bộ lịch sử lỗi (bản ghi ai_message_errors của user)")
+    public ResponseEntity<BaseResponse<Boolean>> clearCorrections() {
+        int userId = util.getCurrentUser().getId();
+        profileCorrectionService.clearHistory(userId);
+        return ResponseEntity.ok(BaseResponse.success(true));
     }
 }

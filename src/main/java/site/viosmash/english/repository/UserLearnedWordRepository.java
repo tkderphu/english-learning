@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import site.viosmash.english.entity.UserLearnedWord;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserLearnedWordRepository extends JpaRepository<UserLearnedWord, Integer> {
@@ -26,4 +27,6 @@ public interface UserLearnedWordRepository extends JpaRepository<UserLearnedWord
 
     Page<UserLearnedWord> findByUserIdAndNeedsAttentionTrueAndTermContainingIgnoreCaseOrderByCreatedAtDesc(
             Integer userId, String term, Pageable pageable);
+
+    List<UserLearnedWord> findTop20ByUserIdOrderByCreatedAtDesc(Integer userId);
 }

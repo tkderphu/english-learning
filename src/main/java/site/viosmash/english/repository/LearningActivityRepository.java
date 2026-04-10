@@ -1,5 +1,7 @@
 package site.viosmash.english.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,4 +53,17 @@ public interface LearningActivityRepository extends JpaRepository<LearningActivi
             WHERE user_id = :userId
             """, nativeQuery = true)
     long countDistinctStudyDaysNative(@Param("userId") Integer userId);
+
+    @Query("""
+            SELECT a FROM LearningActivity a
+            WHERE a.userId = :userId
+              AND a.activityType IN :types
+              AND (:q IS NULL OR LOWER(COALESCE(a.title, '')) LIKE LOWER(CONCAT('%', :q, '%')))
+            """)
+    Page<LearningActivity> findHistory(
+            @Param("userId") Integer userId,
+            @Param("types") List<String> types,
+            @Param("q") String q,
+            Pageable pageable
+    );
 }
