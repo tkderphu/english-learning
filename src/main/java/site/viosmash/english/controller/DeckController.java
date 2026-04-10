@@ -35,9 +35,9 @@ public class DeckController {
 
     @Operation(summary = "Get list of all active decks", security = { @SecurityRequirement(name = "bearerAuth") })
     @GetMapping("/v1")
-    public ResponseEntity<BaseResponse<?>> getList() {
+    public ResponseEntity<BaseResponse<?>> getList(@RequestParam(value = "search", required = false) String search) {
         Integer userId = util.getCurrentUser().getId();
-        return ResponseEntity.ok(BaseResponse.success(deckService.getAllActiveDecks(userId)));
+        return ResponseEntity.ok(BaseResponse.success(deckService.getAllActiveDecks(userId, search)));
     }
 
     @Operation(summary = "Get deck details by ID", security = { @SecurityRequirement(name = "bearerAuth") })
