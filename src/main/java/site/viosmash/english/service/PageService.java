@@ -40,6 +40,7 @@ public class PageService {
         page.setContent(request.getContent());
         page.setAudioId(request.getAudioId());
         page.setChapterId(request.getChapterId());
+        page.setNumber(request.getNumber());
 
         this.pageRepository.save(page);
 
@@ -48,6 +49,8 @@ public class PageService {
             throw new IllegalArgumentException("You must provide audio file");
         }
         List<WhisperSentenceResponse> whisperSentences = whisperService.transcribe(audio.getFileUrl());
+
+//        List<WhisperSentenceResponse> whisperSentences = whisperService.loadSamplePage(page.getNumber());
 
         List<Sentence> sentences = whisperSentences.stream().map(sentence -> {
             Sentence s = new Sentence();
