@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mit.learning_english",
+      "sha256_cert_fingerprints": ["72:94:08:3F:32:E0:36:F0:04:65:BE:EC:71:D7:16:84:05:96:B7:8E:FC:E8:24:CC:1C:D4:A3:16:9C:0B:B1:37"]
+    }
+  }
+]
