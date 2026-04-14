@@ -15,6 +15,7 @@ import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -148,8 +149,12 @@ public class BookService {
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Book not found"));
 
         int lastPage = req.getLastReadPageNumber();
-        int total = req.getTotalPages();
-        double pct = Math.min(100.0, (lastPage + 1.0) / (double) total * 100.0);
+        LocalDateTime lastRead = req.getLastRead();
+        long total = pageRepository.countByBookId(bookId);
+        double pct = 0.0;
+        if (total > 0) {
+            pct = Math.min(100.0, (lastPage + 1.0) / (double) total * 100.0);
+        }
 
         var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
         site.viosmash.english.entity.BookProgress bp;
@@ -163,10 +168,10 @@ public class BookService {
         }
         bp.setLastReadPageNumber(lastPage);
         bp.setProgressPercent(pct);
-        bp.setLastReadTime(java.time.LocalDateTime.now());
+        bp.setLastReadTime(lastRead);
         bookProgressRepository.save(bp);
 
-        Integer dur = req.getDurationSeconds();
+        Integer dur = req.getDuration();
         if (dur != null && dur >= MIN_SECONDS_TO_LOG_READING) {
             try {
                 profileLearningActivityService.logBookReadingSession(
