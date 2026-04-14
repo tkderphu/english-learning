@@ -31,7 +31,6 @@ public class DeckMapper {
                 .id(deck.getId())
                 .userId(deck.getUser() != null ? deck.getUser().getId() : null)
                 .title(deck.getTitle())
-
                 .status(deck.getStatus())
                 .createdAt(deck.getCreatedAt())
                 .modifiedAt(deck.getModifiedAt())
