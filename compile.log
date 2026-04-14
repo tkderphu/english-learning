@@ -1,0 +1,105 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for site.viosmash:english:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.mpatric:mp3agic:jar -> duplicate declaration of version 0.9.1 @ line 117, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -----------------------< site.viosmash:english >------------------------
+[INFO] Building english 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ english ---
+[INFO] Deleting C:\MADLearningEnglish\english-learning\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ english ---
+[INFO] Copying 4 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ english ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 197 source files with javac [debug parameters release 17] to target\classes
+[INFO] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/WhisperService.java: C:\MADLearningEnglish\english-learning\src\main\java\site\viosmash\english\service\WhisperService.java uses or overrides a deprecated API.
+[INFO] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/WhisperService.java: Recompile with -Xlint:deprecation for details.
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/PasswordResetOtp.java:[11,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/UserSession.java:[11,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/BookProgress.java:[11,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Sentence.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Author.java:[8,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Chapter.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Genre.java:[8,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Topic.java:[8,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Level.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/exception/ServiceException.java:[6,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/User.java:[10,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Page.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/entity/Book.java:[9,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[INFO] 13 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[32,34] cannot find symbol
+  symbol:   method getVisualCueUrl()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[31,34] cannot find symbol
+  symbol:   method getExampleSentence()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[30,34] cannot find symbol
+  symbol:   method getMeaning()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[29,34] cannot find symbol
+  symbol:   method getPartOfSpeech()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[28,34] cannot find symbol
+  symbol:   method getPhonetic()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[27,34] cannot find symbol
+  symbol:   method getWord()
+  location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[34,25] incompatible types: inference variable T has incompatible bounds
+    equality constraints: site.viosmash.english.dto.response.FlashcardStudyDTO
+    lower bounds: java.lang.Object
+[INFO] 7 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.041 s
+[INFO] Finished at: 2026-04-08T21:59:55+07:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project english: Compilation failure: Compilation failure: 
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[32,34] cannot find symbol
+[ERROR]   symbol:   method getVisualCueUrl()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[31,34] cannot find symbol
+[ERROR]   symbol:   method getExampleSentence()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[30,34] cannot find symbol
+[ERROR]   symbol:   method getMeaning()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[29,34] cannot find symbol
+[ERROR]   symbol:   method getPartOfSpeech()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[28,34] cannot find symbol
+[ERROR]   symbol:   method getPhonetic()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[27,34] cannot find symbol
+[ERROR]   symbol:   method getWord()
+[ERROR]   location: variable flashcard of type site.viosmash.english.entity.Flashcard
+[ERROR] /C:/MADLearningEnglish/english-learning/src/main/java/site/viosmash/english/service/FlashcardService.java:[34,25] incompatible types: inference variable T has incompatible bounds
+[ERROR]     equality constraints: site.viosmash.english.dto.response.FlashcardStudyDTO
+[ERROR]     lower bounds: java.lang.Object
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -42,11 +42,8 @@ public class DeckService {
         // 1. Khởi tạo và lưu Deck trước để lấy ID
         Deck deck = new Deck()
                 .setUser(user)
-                .setTitle(request.getTitle())
-                .setDescription(request.getDescription())
-                .setCoverImageUrl(request.getCoverImageUrl())
-                .setTotalWords(request.getFlashcards() != null ? request.getFlashcards().size() : 0);
-        
+                .setTitle(request.getTitle());
+
         deck.setStatus(1); // 1 = Active
         
         Deck savedDeck = deckRepository.save(deck);
@@ -56,12 +53,9 @@ public class DeckService {
             List<Flashcard> flashcards = request.getFlashcards().stream().map(fcDto -> {
                 Flashcard fc = new Flashcard()
                         .setDeck(savedDeck) 
-                        .setWord(fcDto.getWord())
-                        .setPhonetic(fcDto.getPhonetic())
-                        .setMeaning(fcDto.getMeaning())
-                        .setExampleSentence(fcDto.getExampleSentence())
-                        .setVisualCueUrl(fcDto.getVisualCueUrl())
-                        .setNote(fcDto.getNote());
+                        .setTerm(fcDto.getTerm())
+                        .setDefinition(fcDto.getDefinition())
+                        .setImageUrl(fcDto.getImageUrl());
                 
                 fc.setStatus(1); 
                 return fc;
@@ -79,8 +73,8 @@ public class DeckService {
     // ==========================================
     
     // Lấy tất cả Deck đang Active của user
-    public List<DeckResponse> getAllActiveDecks(Integer userId) {
-        return deckRepository.findByUserIdAndStatus(userId, 1).stream()
+    public List<DeckResponse> getAllActiveDecks(Integer userId, String searchParam) {
+        return deckRepository.findByUserIdAndStatusAndTitleContainingIgnoreCase(userId, 1, searchParam).stream()
                 .map(deckMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -111,8 +105,6 @@ public class DeckService {
         }
         
         if (request.getTitle() != null) deck.setTitle(request.getTitle());
-        if (request.getDescription() != null) deck.setDescription(request.getDescription());
-        if (request.getCoverImageUrl() != null) deck.setCoverImageUrl(request.getCoverImageUrl());
         deck.setStatus(request.getStatus());
 
         Deck savedDeck = deckRepository.save(deck);
@@ -134,12 +126,9 @@ public class DeckService {
                             .filter(c -> c.getId() == cardDto.getId().intValue())
                             .findFirst().orElseThrow();
                     
-                    existingCard.setWord(cardDto.getWord());
-                    existingCard.setPhonetic(cardDto.getPhonetic());
-                    existingCard.setMeaning(cardDto.getMeaning());
-                    existingCard.setExampleSentence(cardDto.getExampleSentence());
-                    existingCard.setVisualCueUrl(cardDto.getVisualCueUrl());
-                    existingCard.setNote(cardDto.getNote());
+                    existingCard.setTerm(cardDto.getTerm());
+                    existingCard.setDefinition(cardDto.getDefinition());
+                    existingCard.setImageUrl(cardDto.getImageUrl());
                     
                     if (cardDto.getStatus() != null) {
                         existingCard.setStatus(cardDto.getStatus());
@@ -153,12 +142,9 @@ public class DeckService {
                     // Insert new
                     Flashcard newCard = new Flashcard()
                             .setDeck(savedDeck)
-                            .setWord(cardDto.getWord())
-                            .setPhonetic(cardDto.getPhonetic())
-                            .setMeaning(cardDto.getMeaning())
-                            .setExampleSentence(cardDto.getExampleSentence())
-                            .setVisualCueUrl(cardDto.getVisualCueUrl())
-                            .setNote(cardDto.getNote());
+                            .setTerm(cardDto.getTerm())
+                            .setDefinition(cardDto.getDefinition())
+                            .setImageUrl(cardDto.getImageUrl());
                     
                     if (cardDto.getStatus() != null) {
                         newCard.setStatus(cardDto.getStatus());
@@ -182,9 +168,7 @@ public class DeckService {
                 flashcardRepository.saveAll(cardsToSave);
             }
             
-            // Update total words count
-            long activeCount = cardsToSave.stream().filter(c -> c.getStatus() == 1).count();
-            savedDeck.setTotalWords((int) activeCount);
+            // No total words count update needed
             deckRepository.save(savedDeck);
         }
 

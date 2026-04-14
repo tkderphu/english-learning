@@ -17,22 +17,11 @@ public class Flashcard extends BaseEntity {
     private Deck deck;
 
     @Column(nullable = false)
-    private String word;
-
-    private String phonetic;
-
-    @Column(name = "part_of_speech")
-    private String partOfSpeech;
+    private String term;
 
     @Column(columnDefinition = "TEXT")
-    private String meaning;
+    private String definition;
 
-    @Column(name = "example_sentence", columnDefinition = "TEXT")
-    private String exampleSentence;
-
-    @Column(name = "visual_cue_url")
-    private String visualCueUrl;
-
-    @Column(columnDefinition = "TEXT")
-    private String note;
+    @Column(name = "image_url")
+    private String imageUrl;
 }

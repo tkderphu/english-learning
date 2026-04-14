@@ -6,10 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FlashcardCreateRequest {
-    String word;
-    String phonetic;
-    String meaning;
-    String exampleSentence;
-    String visualCueUrl;
-    String note;
+    String term;
+    String definition;
+    String imageUrl;
 }

@@ -24,12 +24,9 @@ public class FlashcardService {
         return flashcards.stream()
                 .map(flashcard -> new FlashcardStudyDTO(
                         flashcard.getId(),
-                        flashcard.getWord(),
-                        flashcard.getPhonetic(),
-                        flashcard.getPartOfSpeech(),
-                        flashcard.getMeaning(),
-                        flashcard.getExampleSentence(),
-                        flashcard.getVisualCueUrl()
+                        flashcard.getTerm(),
+                        flashcard.getDefinition(),
+                        flashcard.getImageUrl()
                 ))
                 .collect(Collectors.toList());
     }
