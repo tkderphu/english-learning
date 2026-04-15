@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import site.viosmash.english.dto.request.OpenAiTextRequest;
 import site.viosmash.english.dto.response.OpenAiTranscriptionResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import site.viosmash.english.exception.ServiceException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +45,10 @@ public class GroqAiClient {
 
     private void ensureApiKeyPresent() {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new RuntimeException("AI provider API key is missing. Set GROQ_API_KEY or config openai.api.key.");
+            throw new ServiceException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "AI provider API key is missing. Set GROQ_API_KEY or openai.api.key in application properties."
+            );
         }
     }
 

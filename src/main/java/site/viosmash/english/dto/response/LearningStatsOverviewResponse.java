@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class LearningStatsOverviewResponse {
-    /** Số phiên bài học / bài tập đã ghi nhận (LESSON + EXERCISE). */
+    /** Số phiên sách / bài tập đã ghi nhận (BOOK + EXERCISE). */
     private long completedLessonsOrExercises;
     /** Số từ trong danh sách từ vựng đã học. */
     private long wordsLearnedCount;

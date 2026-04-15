@@ -30,6 +30,7 @@ import site.viosmash.english.dto.response.CorrectionSessionReviewResponse;
 import site.viosmash.english.dto.response.HeatmapDayResponse;
 import site.viosmash.english.dto.response.UserCorrectionItemResponse;
 import site.viosmash.english.dto.response.LearningActivityItemResponse;
+import site.viosmash.english.dto.response.LearningMemoryResponse;
 import site.viosmash.english.dto.response.LearningStatsOverviewResponse;
 import site.viosmash.english.dto.response.ProfileMeResponse;
 import site.viosmash.english.dto.response.UserLearnedWordResponse;
@@ -37,6 +38,7 @@ import site.viosmash.english.service.ProfileCorrectionService;
 import site.viosmash.english.service.ProfileLearningActivityService;
 import site.viosmash.english.service.ProfileService;
 import site.viosmash.english.service.UserLearnedWordService;
+import site.viosmash.english.service.LearningMemoryService;
 import site.viosmash.english.util.Util;
 
 import java.time.LocalDate;
@@ -53,6 +55,7 @@ public class ProfileController {
     private final ProfileLearningActivityService learningActivityService;
     private final UserLearnedWordService userLearnedWordService;
     private final ProfileCorrectionService profileCorrectionService;
+    private final LearningMemoryService learningMemoryService;
 
     @GetMapping("/me")
     @Operation(summary = "Xem thông tin cơ bản (email, tên, avatar, …)")
@@ -99,7 +102,7 @@ public class ProfileController {
     }
 
     @GetMapping("/activity/history")
-    @Operation(summary = "Danh sách bài học / bài tập đã hoàn thành (LESSON, EXERCISE). filter=ALL|LESSON|EXERCISE")
+    @Operation(summary = "Danh sách hoạt động đã hoàn thành (BOOK đọc sách, EXERCISE). filter=ALL|EXERCISE|BOOK")
     public ResponseEntity<BaseResponse<Page<LearningActivityItemResponse>>> activityHistory(
             @RequestParam(defaultValue = "ALL") String filter,
             @RequestParam(required = false) String q,
@@ -149,7 +152,7 @@ public class ProfileController {
     }
 
     @GetMapping("/corrections")
-    @Operation(summary = "Lỗi AI đã sửa (từ AI Chat), mới nhất trước. filter: ALL|GRAMMAR|VOCABULARY|SPELLING")
+    @Operation(summary = "Lỗi đã sửa chỉ từ phiên AI Chat (SCENARIO/FREE_CHAT). Mới nhất trước. filter: ALL|GRAMMAR|VOCABULARY|SPELLING")
     public ResponseEntity<BaseResponse<Page<UserCorrectionItemResponse>>> corrections(
             @RequestParam(defaultValue = "ALL") String filter,
             @RequestParam(required = false) String q,
@@ -169,10 +172,17 @@ public class ProfileController {
     }
 
     @DeleteMapping("/corrections")
-    @Operation(summary = "Xóa toàn bộ lịch sử lỗi (bản ghi ai_message_errors của user)")
+    @Operation(summary = "Xóa lịch sử lỗi AI Chat (ai_message_errors gắn phiên SCENARIO/FREE_CHAT)")
     public ResponseEntity<BaseResponse<Boolean>> clearCorrections() {
         int userId = util.getCurrentUser().getId();
         profileCorrectionService.clearHistory(userId);
         return ResponseEntity.ok(BaseResponse.success(true));
+    }
+
+    @GetMapping("/learning-memory")
+    @Operation(summary = "Memory học tập AI: recurring errors, weak skills, preferred topics, confidence")
+    public ResponseEntity<BaseResponse<LearningMemoryResponse>> learningMemory() {
+        int userId = util.getCurrentUser().getId();
+        return ResponseEntity.ok(BaseResponse.success(learningMemoryService.buildMemory(userId)));
     }
 }

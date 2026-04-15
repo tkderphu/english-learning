@@ -30,16 +30,19 @@ public class ProfileService {
 
     @Transactional
     public ProfileMeResponse updateProfile(User user, ProfileUpdateRequest req) {
+        // JWT principal only carries a subset of fields; always update from managed entity.
+        User managed = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "User not found"));
         if (req.getFullName() != null) {
-            user.setFullName(req.getFullName().trim());
+            managed.setFullName(req.getFullName().trim());
         }
         if (req.getLocation() != null) {
-            user.setLocation(req.getLocation().trim().isEmpty() ? null : req.getLocation().trim());
+            managed.setLocation(req.getLocation().trim().isEmpty() ? null : req.getLocation().trim());
         }
         if (req.getLearningLevel() != null) {
-            user.setLearningLevel(req.getLearningLevel().trim().isEmpty() ? null : req.getLearningLevel().trim());
+            managed.setLearningLevel(req.getLearningLevel().trim().isEmpty() ? null : req.getLearningLevel().trim());
         }
-        return buildProfileResponse(userRepository.save(user));
+        return buildProfileResponse(userRepository.save(managed));
     }
 
     @Transactional
@@ -47,9 +50,12 @@ public class ProfileService {
         if (file == null || file.isEmpty()) {
             throw new ServiceException(HttpStatus.BAD_REQUEST, "File is required");
         }
+        // JWT principal only carries id/role/email, no password; fetch managed entity to avoid nulling columns.
+        User managed = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "User not found"));
         FileResponse stored = fileStorageService.store(file);
-        user.setAvatar(stored.getUrl());
-        return buildProfileResponse(userRepository.save(user));
+        managed.setAvatar(stored.getUrl());
+        return buildProfileResponse(userRepository.save(managed));
     }
 
     private ProfileMeResponse buildProfileResponse(User user) {

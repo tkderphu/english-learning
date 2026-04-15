@@ -17,6 +17,6 @@ public class UserCorrectionItemResponse {
     private Integer messageId;
     private Integer sessionId;
     private String sessionTitle;
-    /** Hiển thị nguồn: Daily Conversation Chat, Chat: …, v.v. */
+    /** Nguồn hiển thị (chỉ AI Chat): ví dụ Daily Conversation Chat, Chat: … */
     private String sourceLabel;
 }

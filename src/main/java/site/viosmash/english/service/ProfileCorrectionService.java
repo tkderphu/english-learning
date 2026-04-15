@@ -22,9 +22,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Lịch sử lỗi ngôn ngữ chỉ từ <strong>AI Chat</strong>: bảng {@code ai_message_errors}
+ * gắn với tin nhắn trong {@code ai_chat_sessions} (phiên SCENARIO / FREE_CHAT).
+ */
 @Service
 @RequiredArgsConstructor
 public class ProfileCorrectionService {
+
+    /** Chỉ phiên AI Chat do app tạo ({@code SCENARIO} / {@code FREE_CHAT}); {@code NULL} = dữ liệu cũ. */
+    private static final String AI_CHAT_SESSION_TYPE_FILTER =
+            " AND (s.session_type IS NULL OR UPPER(TRIM(s.session_type)) IN ('SCENARIO', 'FREE_CHAT'))";
 
     private final EntityManager entityManager;
     private final AiChatSessionRepository chatSessionRepository;
@@ -45,6 +53,7 @@ public class ProfileCorrectionService {
                 INNER JOIN ai_chat_sessions s ON m.session_id = s.id
                 WHERE s.user_id = :userId
                 """
+                + AI_CHAT_SESSION_TYPE_FILTER
                 + typePart
                 + searchPart;
 
@@ -92,7 +101,10 @@ public class ProfileCorrectionService {
                 INNER JOIN ai_chat_messages m ON f.message_id = m.id
                 INNER JOIN ai_chat_sessions s ON m.session_id = s.id
                 WHERE s.user_id = :userId AND s.id = :sessionId
-                ORDER BY m.created_at ASC, e.id ASC
+                """
+                + AI_CHAT_SESSION_TYPE_FILTER
+                + """
+                 ORDER BY m.created_at ASC, e.id ASC
                 """;
 
         Query q = entityManager.createNativeQuery(sql);
@@ -140,7 +152,8 @@ public class ProfileCorrectionService {
                 INNER JOIN ai_chat_messages m ON f.message_id = m.id
                 INNER JOIN ai_chat_sessions s ON m.session_id = s.id
                 WHERE s.user_id = :userId
-                """;
+                """
+                + AI_CHAT_SESSION_TYPE_FILTER;
         Query q = entityManager.createNativeQuery(sql);
         q.setParameter("userId", userId);
         q.executeUpdate();
@@ -189,16 +202,20 @@ public class ProfileCorrectionService {
         return null;
     }
 
+    /** Luôn mô tả nguồn là phiên AI Chat (không còn nhãn lesson/book). */
     private static String buildSourceLabel(String sessionType, String title) {
         String t = title != null ? title.trim() : "";
         if (sessionType != null) {
-            String u = sessionType.toUpperCase();
-            if (u.contains("LESSON") || u.contains("BOOK")) {
-                return t.isEmpty() ? "Lesson" : "Lesson: " + t;
+            String u = sessionType.trim().toUpperCase();
+            if ("SCENARIO".equals(u) && !t.isEmpty()) {
+                return "Chat: " + t;
+            }
+            if ("FREE_CHAT".equals(u)) {
+                return t.isEmpty() ? "Daily Conversation Chat" : "Chat: " + t;
             }
         }
         if (t.isEmpty()) {
-            return "Daily Conversation Chat";
+            return "AI Chat";
         }
         return "Chat: " + t;
     }

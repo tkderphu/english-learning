@@ -20,6 +20,9 @@ import site.viosmash.english.dto.response.AiChatSessionDetailResponse;
 import site.viosmash.english.dto.response.EndSessionResponse;
 import site.viosmash.english.dto.response.ErrorItemResponse;
 import site.viosmash.english.dto.response.FeedbackResponse;
+import site.viosmash.english.dto.response.FeedbackLayersResponse;
+import site.viosmash.english.dto.response.FluencySignalsResponse;
+import site.viosmash.english.dto.response.SessionMissionResponse;
 import site.viosmash.english.dto.response.SendTextMessageResponse;
 import site.viosmash.english.entity.AiChatMessage;
 import site.viosmash.english.entity.AiChatSession;
@@ -47,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -75,6 +79,7 @@ public class AiChatServiceImpl implements AiChatService {
     private final Util util;
     private final ProfileLearningActivityService profileLearningActivityService;
     private final PersonalizedVocabularyService personalizedVocabularyService;
+    private final LearningMemoryService learningMemoryService;
 
     @Value("${openai.model.transcription}")
     private String transcriptionModel;
@@ -112,8 +117,37 @@ public class AiChatServiceImpl implements AiChatService {
         session.setSystemPromptSnapshot(scenario != null ? scenario.getSystemPrompt() : null);
         session.setMaxTurns(request.getMaxTurns() != null ? request.getMaxTurns() : DEFAULT_MAX_TURNS);
         session.setCurrentTurn(0);
+        session.setGoalType(request.getGoalType());
+        session.setFocusSkill(request.getFocusSkill());
+        session.setCoachingMode(request.getCoachingMode());
+        session.setFluencyMode(Boolean.TRUE.equals(request.getFluencyMode()));
+        session.setTargetDurationMinutes(request.getTargetDurationMinutes());
+        if (request.getMission() != null) {
+            session.setMissionTitle(request.getMission().getTitle());
+            session.setMissionObjective(request.getMission().getObjective());
+            if (request.getMission().getSuccessCriteria() != null) {
+                session.setMissionSuccessCriteriaJson(request.getMission().getSuccessCriteria().stream()
+                        .filter(Objects::nonNull)
+                        .map(String::trim)
+                        .filter(s -> !s.isBlank())
+                        .collect(Collectors.joining("|")));
+            }
+            session.setMissionStatus("ACTIVE");
+        }
         session.setStartedAt(LocalDateTime.now());
         session.setLastMessageAt(LocalDateTime.now());
+        String memoryBlock = learningMemoryService.toPromptBlock(
+                currentUserId,
+                request.getGoalType(),
+                request.getFocusSkill(),
+                request.getCoachingMode()
+        );
+        String baseSystemPrompt = session.getSystemPromptSnapshot();
+        if (baseSystemPrompt == null || baseSystemPrompt.isBlank()) {
+            session.setSystemPromptSnapshot(memoryBlock);
+        } else {
+            session.setSystemPromptSnapshot(baseSystemPrompt + "\n\n" + memoryBlock);
+        }
 
         AiChatSession savedSession = aiChatSessionRepository.save(session);
 
@@ -126,6 +160,12 @@ public class AiChatServiceImpl implements AiChatService {
                 .instruction(savedSession.getInstructionSnapshot())
                 .status(savedSession.getStatus())
                 .currentTurn(savedSession.getCurrentTurn())
+                .goalType(savedSession.getGoalType())
+                .focusSkill(savedSession.getFocusSkill())
+                .coachingMode(savedSession.getCoachingMode())
+                .fluencyMode(savedSession.getFluencyMode())
+                .targetDurationMinutes(savedSession.getTargetDurationMinutes())
+                .mission(toMissionResponse(savedSession))
                 .build();
     }
 
@@ -136,23 +176,37 @@ public class AiChatServiceImpl implements AiChatService {
         if (session == null || session.getId() == null) {
             return;
         }
+        String opening = null;
         try {
-            String opening = aiRoleplayService.generateOpeningLine(session);
-            if (opening == null || opening.isBlank()) {
-                return;
-            }
-            AiChatMessage open = new AiChatMessage();
-            open.setSessionId(session.getId());
-            open.setSenderType(SENDER_AI);
-            open.setInputType(INPUT_TEXT);
-            open.setTurnNumber(0);
-            open.setContent(opening.trim());
-            aiChatMessageRepository.save(open);
-            session.setLastMessageAt(LocalDateTime.now());
-            aiChatSessionRepository.save(session);
+            opening = aiRoleplayService.generateOpeningLine(session);
         } catch (Exception ex) {
             log.warn("AI opening line failed for session {}", session.getId(), ex);
         }
+        if (opening == null || opening.isBlank()) {
+            opening = buildFallbackOpeningLine(session);
+        }
+        AiChatMessage open = new AiChatMessage();
+        open.setSessionId(session.getId());
+        open.setSenderType(SENDER_AI);
+        open.setInputType(INPUT_TEXT);
+        open.setTurnNumber(0);
+        open.setContent(opening.trim());
+        aiChatMessageRepository.save(open);
+        session.setLastMessageAt(LocalDateTime.now());
+        aiChatSessionRepository.save(session);
+    }
+
+    private String buildFallbackOpeningLine(AiChatSession session) {
+        boolean scenario = session.getScenarioId() != null
+                || (session.getSessionType() != null && session.getSessionType().equalsIgnoreCase("SCENARIO"));
+        String instruction = session.getInstructionSnapshot() == null ? "" : session.getInstructionSnapshot().trim();
+        if (scenario) {
+            if (!instruction.isBlank()) {
+                return "Hi! Let's begin. " + instruction;
+            }
+            return "Hi! Welcome to this scenario. Let's start whenever you're ready.";
+        }
+        return "Hi! Nice to meet you. What would you like to talk about today?";
     }
 
     @Override
@@ -443,6 +497,12 @@ public class AiChatServiceImpl implements AiChatService {
                 .status(session.getStatus())
                 .currentTurn(session.getCurrentTurn())
                 .maxTurns(session.getMaxTurns())
+                .goalType(session.getGoalType())
+                .focusSkill(session.getFocusSkill())
+                .coachingMode(session.getCoachingMode())
+                .fluencyMode(session.getFluencyMode())
+                .targetDurationMinutes(session.getTargetDurationMinutes())
+                .mission(toMissionResponse(session))
                 .startedAt(session.getStartedAt())
                 .endedAt(session.getEndedAt())
                 .durationSeconds(durationSeconds)
@@ -517,6 +577,7 @@ public class AiChatServiceImpl implements AiChatService {
                 .improvedVersion(feedback.getImprovedVersion())
                 .naturalSuggestion(feedback.getNaturalSuggestion())
                 .errors(mappedErrors)
+                .feedbackLayers(buildFeedbackLayers(feedback.getOverallComment(), feedback.getNaturalSuggestion()))
                 .build();
     }
 
@@ -535,6 +596,13 @@ public class AiChatServiceImpl implements AiChatService {
         try {
             Map<String, Object> payload = objectMapper.readValue(feedbackJson, new TypeReference<>() {
             });
+            String layer1Tip = toStringValue(payload.get("layer1Tip"));
+            String layer2Explanation = toStringValue(payload.get("layer2Explanation"));
+            String layer2Example = toStringValue(payload.get("layer2Example"));
+            Integer pauseDensity = toInteger(payload.get("pauseDensity"));
+            Integer fillerWords = toInteger(payload.get("fillerWords"));
+            Integer continuousLength = toInteger(payload.get("continuousLength"));
+            Integer flowProgress = toInteger(payload.get("flowProgress"));
             boolean typedOnly = INPUT_TEXT.equalsIgnoreCase(inputType);
             BigDecimal grammarScore = toDecimal(payload.get("grammarScore"));
             BigDecimal vocabularyScore = typedOnly ? null : toDecimal(payload.get("vocabularyScore"));
@@ -598,6 +666,21 @@ public class AiChatServiceImpl implements AiChatService {
                     .improvedVersion(improvedVersion)
                     .naturalSuggestion(naturalSuggestion)
                     .errors(errorItems)
+                    .feedbackLayers(
+                            FeedbackLayersResponse.builder()
+                                    .layer1Tip(defaultIfBlank(layer1Tip, overallComment))
+                                    .layer2Explanation(defaultIfBlank(layer2Explanation, naturalSuggestion))
+                                    .layer2Example(layer2Example)
+                                    .build()
+                    )
+                    .fluencySignals(
+                            FluencySignalsResponse.builder()
+                                    .pauseDensity(pauseDensity)
+                                    .fillerWords(fillerWords)
+                                    .continuousLength(continuousLength)
+                                    .flowProgress(flowProgress)
+                                    .build()
+                    )
                     .build();
         } catch (Exception ex) {
             throw new ServiceException(HttpStatus.BAD_GATEWAY, "AI feedback format is invalid");
@@ -753,6 +836,34 @@ public class AiChatServiceImpl implements AiChatService {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private FeedbackLayersResponse buildFeedbackLayers(String overallComment, String naturalSuggestion) {
+        return FeedbackLayersResponse.builder()
+                .layer1Tip(overallComment)
+                .layer2Explanation(naturalSuggestion)
+                .layer2Example(null)
+                .layer3Checkpoint(null)
+                .layer3NextAction(null)
+                .build();
+    }
+
+    private SessionMissionResponse toMissionResponse(AiChatSession session) {
+        String raw = session.getMissionSuccessCriteriaJson();
+        List<String> criteria = raw == null || raw.isBlank()
+                ? List.of()
+                : List.of(raw.split("\\|")).stream().map(String::trim).filter(s -> !s.isBlank()).toList();
+        if ((session.getMissionTitle() == null || session.getMissionTitle().isBlank())
+                && (session.getMissionObjective() == null || session.getMissionObjective().isBlank())
+                && criteria.isEmpty()) {
+            return null;
+        }
+        return SessionMissionResponse.builder()
+                .title(session.getMissionTitle())
+                .objective(session.getMissionObjective())
+                .successCriteria(criteria)
+                .status(session.getMissionStatus())
+                .build();
     }
 
     private boolean isAdmin() {

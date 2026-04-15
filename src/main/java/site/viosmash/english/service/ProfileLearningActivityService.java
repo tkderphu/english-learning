@@ -93,9 +93,9 @@ public class ProfileLearningActivityService {
     }
 
     public LearningStatsOverviewResponse overview(Integer userId) {
-        long lessons = learningActivityRepository.countByUserIdAndActivityTypeIn(
+        long completedBooksOrExercises = learningActivityRepository.countByUserIdAndActivityTypeIn(
                 userId,
-                List.of(LearningActivityType.LESSON.name(), LearningActivityType.EXERCISE.name())
+                List.of(LearningActivityType.BOOK.name(), LearningActivityType.EXERCISE.name())
         );
         long words = userLearnedWordRepository.countByUserId(userId);
         long totalDays = learningActivityRepository.countDistinctStudyDaysNative(userId);
@@ -105,7 +105,7 @@ public class ProfileLearningActivityService {
         int streak = StreakCalculator.currentStreak(daySet, LocalDate.now());
 
         return LearningStatsOverviewResponse.builder()
-                .completedLessonsOrExercises(lessons)
+                .completedLessonsOrExercises(completedBooksOrExercises)
                 .wordsLearnedCount(words)
                 .currentStreakDays(streak)
                 .totalStudyDays(totalDays)
@@ -317,7 +317,7 @@ public class ProfileLearningActivityService {
     }
 
     /**
-     * Ghi nhận một phiên đọc sách (lesson) cho heatmap / lịch sử.
+     * Ghi nhận một phiên đọc sách (BOOK) cho heatmap / lịch sử.
      */
     @Transactional
     public void logBookReadingSession(
@@ -337,7 +337,7 @@ public class ProfileLearningActivityService {
 
         LearningActivity a = new LearningActivity();
         a.setUserId(userId);
-        a.setActivityType(LearningActivityType.LESSON.name());
+        a.setActivityType(LearningActivityType.BOOK.name());
         a.setTitle(bookTitle != null && !bookTitle.isBlank() ? bookTitle : "Reading");
         a.setStartedAt(start);
         a.setEndedAt(end);
@@ -359,9 +359,9 @@ public class ProfileLearningActivityService {
     }
 
     /**
-     * Lịch sử bài học / bài tập đã ghi nhận (LESSON, EXERCISE), phân trang.
+     * Lịch sử hoạt động đã ghi nhận (BOOK, EXERCISE), phân trang.
      *
-     * @param filter ALL | LESSON | EXERCISE (không phân biệt hoa thường)
+     * @param filter ALL | EXERCISE | BOOK
      */
     @Transactional(readOnly = true)
     public Page<LearningActivityItemResponse> activityHistory(Integer userId, String filter, String q, Pageable pageable) {
@@ -375,8 +375,11 @@ public class ProfileLearningActivityService {
         String f = filter == null ? "ALL" : filter.trim().toUpperCase();
         return switch (f) {
             case "EXERCISE" -> List.of(LearningActivityType.EXERCISE.name());
-            case "LESSON" -> List.of(LearningActivityType.LESSON.name());
-            default -> List.of(LearningActivityType.EXERCISE.name(), LearningActivityType.LESSON.name());
+            case "BOOK" -> List.of(LearningActivityType.BOOK.name());
+            default -> List.of(
+                    LearningActivityType.EXERCISE.name(),
+                    LearningActivityType.BOOK.name()
+            );
         };
     }
 }
