@@ -12,4 +12,10 @@ public class CreateChatSessionResponse {
     private String instruction;
     private String status;
     private Integer currentTurn;
+    private String goalType;
+    private String focusSkill;
+    private String coachingMode;
+    private Boolean fluencyMode;
+    private Integer targetDurationMinutes;
+    private SessionMissionResponse mission;
 }

@@ -22,6 +22,12 @@ public class AiChatSessionDetailResponse {
     private String status;
     private Integer currentTurn;
     private Integer maxTurns;
+    private String goalType;
+    private String focusSkill;
+    private String coachingMode;
+    private Boolean fluencyMode;
+    private Integer targetDurationMinutes;
+    private SessionMissionResponse mission;
 
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;

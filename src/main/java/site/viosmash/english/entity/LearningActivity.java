@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Nhật ký hoạt động học (flashcard, lesson, chat AI, …) phục vụ thống kê & heatmap.
+ * Nhật ký hoạt động học (flashcard, book, exercise, chat AI, …) phục vụ thống kê & heatmap.
  */
 @Entity
 @Table(name = "learning_activities")
