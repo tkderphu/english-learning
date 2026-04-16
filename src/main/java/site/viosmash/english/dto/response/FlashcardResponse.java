@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FlashcardResponse {
     private int id;
-    private String word;
-    private String phonetic;
-    private String partOfSpeech;
-    private String meaning;
-    private String exampleSentence;
-    private String visualCueUrl;
-    private String note;
+    private String term;
+    private String definition;
+    private String imageUrl;
     private int status;
 }

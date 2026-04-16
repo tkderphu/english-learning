@@ -24,14 +24,6 @@ public class Deck extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "cover_image_url")
-    private String coverImageUrl;
-
-    @Column(name = "total_words")
-    private Integer totalWords = 0;
 
     @jakarta.persistence.OneToMany(mappedBy = "deck", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<Flashcard> flashcards = new java.util.ArrayList<>();

@@ -88,7 +88,13 @@ public class BookService {
     public PageResponse<BookResponse> recommend(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
-        return util.convert(bookRepository.findAllByKeyword(pageable, null, userId, 1, null));
+        // Prefer personalized recommendations by user genres.
+        var personalized = bookRepository.findAllByKeyword(pageable, null, userId, 1, null);
+        if (personalized.hasContent()) {
+            return util.convert(personalized);
+        }
+        // Fallback: return general book list so Home screen is never empty.
+        return util.convert(bookRepository.findAllByKeyword(pageable, null, null, null, null));
     }
 
     public PageResponse<AuthorResponse> getAuthors(int page, int limit) {
@@ -145,7 +151,7 @@ public class BookService {
     }
 
     /**
-     * Cập nhật tiến độ đọc và (nếu đủ thời gian) ghi nhật ký hoạt động LESSON cho heatmap.
+     * Cập nhật tiến độ đọc và (nếu đủ thời gian) ghi nhật ký hoạt động BOOK cho heatmap.
      */
     @org.springframework.transaction.annotation.Transactional
     public void recordReadingProgress(int userId, int bookId, BookReadingProgressRequest req) {

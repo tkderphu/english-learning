@@ -175,7 +175,7 @@ public class BookController {
 
     @Operation(
             summary = "Cập nhật tiến độ đọc sách",
-            description = "Lưu trang đang đọc; nếu durationSeconds ≥ 30s thì ghi thêm hoạt động LESSON cho heatmap.",
+            description = "Lưu trang đang đọc; nếu durationSeconds ≥ 30s thì ghi thêm hoạt động BOOK cho heatmap.",
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @PatchMapping("/v1/{bookId}/progress")

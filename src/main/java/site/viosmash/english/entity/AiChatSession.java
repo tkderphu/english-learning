@@ -62,4 +62,31 @@ public class AiChatSession {
 
     @Column(name = "system_prompt_snapshot", columnDefinition = "TEXT")
     private String systemPromptSnapshot;
+
+    @Transient
+    private String goalType;
+
+    @Transient
+    private String focusSkill;
+
+    @Transient
+    private String coachingMode;
+
+    @Transient
+    private Boolean fluencyMode;
+
+    @Transient
+    private Integer targetDurationMinutes;
+
+    @Transient
+    private String missionTitle;
+
+    @Transient
+    private String missionObjective;
+
+    @Transient
+    private String missionSuccessCriteriaJson;
+
+    @Transient
+    private String missionStatus;
 }
