@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class BookReadingProgressRequest {
 
@@ -12,12 +14,9 @@ public class BookReadingProgressRequest {
     private Integer lastReadPageNumber;
 
     @NotNull
-    @Min(1)
-    private Integer totalPages;
+    private String lastRead;
 
-    /**
-     * Thời gian (giây) người dùng ở màn đọc trong lần gọi này; dùng để ghi nhật ký hoạt động nếu đủ lớn.
-     */
+    @NotNull
     @Min(0)
-    private Integer durationSeconds;
+    private Integer duration;
 }

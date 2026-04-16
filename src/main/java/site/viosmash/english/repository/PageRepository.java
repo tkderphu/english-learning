@@ -24,4 +24,7 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
         ORDER BY p.number ASC
     """)
     List<BookPageResponse> findByBookId(Pageable pageable, @Param("bookId") int bookId);
+
+    @Query("SELECT COUNT(p) FROM Page p WHERE p.chapterId IN (SELECT c.id FROM Chapter c WHERE c.bookId = :bookId)")
+    long countByBookId(@Param("bookId") int bookId);
 }
