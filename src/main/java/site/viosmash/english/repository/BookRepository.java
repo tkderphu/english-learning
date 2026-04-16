@@ -69,15 +69,23 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                bp.last_read_page_number, bp.progress_percent, bp.last_read_time,
                bp.is_favorite
         FROM book b
-            JOIN book_progress bp ON bp.book_id = b.id
-        WHERE bp.user_id = :userId
+            JOIN (
+                SELECT MAX(id) AS id, book_id
+                FROM book_progress
+                WHERE user_id = :userId
+                GROUP BY book_id
+            ) latest_bp ON latest_bp.book_id = b.id
+            JOIN book_progress bp ON bp.id = latest_bp.id
         """,
     nativeQuery = true,
     countQuery = """
-        SELECT COUNT(b.id)
-        FROM book b
-            JOIN book_progress bp ON bp.book_id = b.id
-        WHERE bp.user_id = :userId
+        SELECT COUNT(*)
+        FROM (
+            SELECT bp.book_id
+            FROM book_progress bp
+            WHERE bp.user_id = :userId
+            GROUP BY bp.book_id
+        ) dedup_bp
     """)
     Page<BookResponse> findHistory(Pageable pageable, @Param("userId") Integer userId);
 
@@ -102,18 +110,27 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                bp.last_read_page_number, bp.progress_percent, bp.last_read_time,
                bp.is_favorite
         FROM book b
-            JOIN book_progress bp ON bp.book_id = b.id
-        WHERE bp.user_id = :userId
+            JOIN (
+                SELECT MAX(id) AS id, book_id
+                FROM book_progress
+                WHERE user_id = :userId
+                GROUP BY book_id
+            ) latest_bp ON latest_bp.book_id = b.id
+            JOIN book_progress bp ON bp.id = latest_bp.id
+        WHERE 1 = 1
           AND bp.is_favorite = 1
         ORDER BY bp.last_read_time DESC
         """,
     nativeQuery = true,
     countQuery = """
-        SELECT COUNT(b.id)
-        FROM book b
-            JOIN book_progress bp ON bp.book_id = b.id
-        WHERE bp.user_id = :userId
-          AND bp.is_favorite = 1
+        SELECT COUNT(*)
+        FROM (
+            SELECT bp.book_id
+            FROM book_progress bp
+            WHERE bp.user_id = :userId
+              AND bp.is_favorite = 1
+            GROUP BY bp.book_id
+        ) dedup_bp
     """)
     Page<BookResponse> findFavorites(Pageable pageable, @Param("userId") Integer userId);
 
@@ -158,9 +175,20 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                          JOIN author a on a.id = ab.author_id
                       WHERE ab.book_id = b.id
                   ), '') as authors,
-               b.status
+               COALESCE(bp.last_read_page_number, 0) as last_read_page_number,
+               COALESCE(bp.progress_percent, 0) as progress_percent,
+               bp.last_read_time,
+               COALESCE(bp.is_favorite, 0) as is_favorite
         FROM book b
+            LEFT JOIN book_progress bp ON bp.id = (
+                SELECT bp2.id
+                FROM book_progress bp2
+                WHERE bp2.book_id = b.id
+                  AND bp2.user_id = :userId
+                ORDER BY bp2.last_read_time DESC, bp2.id DESC
+                LIMIT 1
+            )
         WHERE b.id = :id
     """, nativeQuery = true)
-    BookResponse findOneById(@Param("id") int id);
+    BookResponse findOneById(@Param("id") int id, @Param("userId") int userId);
 }

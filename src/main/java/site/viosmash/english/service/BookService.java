@@ -10,12 +10,16 @@ import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
 import site.viosmash.english.dto.response.*;
 import site.viosmash.english.entity.Book;
-import site.viosmash.english.entity.Sentence;
+import site.viosmash.english.entity.BookProgress;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.*;
 import site.viosmash.english.util.Util;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
@@ -24,6 +28,8 @@ import java.util.*;
 public class BookService {
 
     private static final int MIN_SECONDS_TO_LOG_READING = 30;
+    private static final DateTimeFormatter ISO_LOCAL_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter ISO_OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
@@ -101,27 +107,25 @@ public class BookService {
         return util.convert(bookRepository.findFavorites(pageable, userId));
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public boolean favorite(int bookId, boolean isFavorite) {
         Integer userId = util.getCurrentUser().getId();
-        var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
-        if (opt.isPresent()) {
-            var bp = opt.get();
-            bp.setIsFavorite(isFavorite ? 1 : 0);
-            bookProgressRepository.save(bp);
-            return bp.getIsFavorite() != null && bp.getIsFavorite() == 1;
-        }
+        int favoriteValue = isFavorite ? 1 : 0;
 
-        var bp = new site.viosmash.english.entity.BookProgress();
-        bp.setUserId(userId);
-        bp.setBookId(bookId);
-        bp.setProgressPercent(0.0);
-        bp.setIsFavorite(isFavorite ? 1 : 0);
+        BookProgress bp = bookProgressRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseGet(() -> new BookProgress()
+                        .setUserId(userId)
+                        .setBookId(bookId)
+                        .setProgressPercent(0.0));
+
+        bp.setIsFavorite(favoriteValue);
         bookProgressRepository.save(bp);
-        return bp.getIsFavorite() != null && bp.getIsFavorite() == 1;
+        return favoriteValue == 1;
     }
 
     public BookResponse getDetail(int id) {
-        BookResponse bookResponse = bookRepository.findOneById(id);
+        Integer userId = util.getCurrentUser().getId();
+        BookResponse bookResponse = bookRepository.findOneById(id, userId);
         bookResponse.setChapters(chapterRepository.findAllByBookId(id));
         return bookResponse;
     }
@@ -149,23 +153,19 @@ public class BookService {
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Book not found"));
 
         int lastPage = req.getLastReadPageNumber();
-        LocalDateTime lastRead = req.getLastRead();
+        LocalDateTime lastRead = parseLastRead(req.getLastRead());
         long total = pageRepository.countByBookId(bookId);
         double pct = 0.0;
         if (total > 0) {
             pct = Math.min(100.0, (lastPage + 1.0) / (double) total * 100.0);
         }
 
-        var opt = bookProgressRepository.findByUserIdAndBookId(userId, bookId);
-        site.viosmash.english.entity.BookProgress bp;
-        if (opt.isPresent()) {
-            bp = opt.get();
-        } else {
-            bp = new site.viosmash.english.entity.BookProgress();
-            bp.setUserId(userId);
-            bp.setBookId(bookId);
-            bp.setIsFavorite(0);
-        }
+        BookProgress bp = bookProgressRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseGet(() -> new BookProgress()
+                        .setUserId(userId)
+                        .setBookId(bookId)
+                        .setIsFavorite(0));
+
         bp.setLastReadPageNumber(lastPage);
         bp.setProgressPercent(pct);
         bp.setLastReadTime(lastRead);
@@ -178,6 +178,21 @@ public class BookService {
                         userId, bookId, book.getTitle(), dur, pct, lastPage);
             } catch (Exception ex) {
                 log.warn("Could not record learning activity for book reading {}", bookId, ex);
+            }
+        }
+    }
+
+    private LocalDateTime parseLastRead(String rawLastRead) {
+        try {
+            return LocalDateTime.parse(rawLastRead, ISO_LOCAL_DATE_TIME_FORMATTER);
+        } catch (DateTimeParseException ignore) {
+            try {
+                return OffsetDateTime.parse(rawLastRead, ISO_OFFSET_DATE_TIME_FORMATTER)
+                        .atZoneSameInstant(ZoneId.systemDefault())
+                        .toLocalDateTime();
+            } catch (DateTimeParseException ex) {
+                throw new ServiceException(HttpStatus.BAD_REQUEST,
+                        "Invalid lastRead format. Use ISO-8601 datetime, e.g. 2026-04-16T23:41:53.738916");
             }
         }
     }

@@ -14,7 +14,7 @@ public class BookReadingProgressRequest {
     private Integer lastReadPageNumber;
 
     @NotNull
-    private LocalDateTime lastRead;
+    private String lastRead;
 
     @NotNull
     @Min(0)

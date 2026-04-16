@@ -37,16 +37,27 @@ public class BookResponse {
         this.status = status;
     }
 
-    public BookResponse(Integer id, String title, String language, String coverUrl, String genresName, String authors, Integer lastReadNumberPage, Double progressPercent, Date lastReadTime, Integer isFavorite) {
-        this.id = id;
+    public BookResponse(Number id, String title, String language, String coverUrl, String genresName, String authors, Number status, Number isFavorite) {
+        this.id = id == null ? null : id.intValue();
         this.title = title;
         this.language = language;
         this.coverUrl = coverUrl;
         this.genresName = genresName;
         this.authors = authors;
-        this.lastReadNumberPage = lastReadNumberPage;
-        this.progressPercent = progressPercent;
+        this.status = status == null ? null : status.intValue();
+        this.isFavorite = isFavorite != null && isFavorite.intValue() != 0;
+    }
+
+    public BookResponse(Number id, String title, String language, String coverUrl, String genresName, String authors, Number lastReadNumberPage, Number progressPercent, Date lastReadTime, Number isFavorite) {
+        this.id = id == null ? null : id.intValue();
+        this.title = title;
+        this.language = language;
+        this.coverUrl = coverUrl;
+        this.genresName = genresName;
+        this.authors = authors;
+        this.lastReadNumberPage = lastReadNumberPage == null ? null : lastReadNumberPage.intValue();
+        this.progressPercent = progressPercent == null ? null : progressPercent.doubleValue();
         this.lastReadTime = lastReadTime;
-        this.isFavorite = isFavorite != null && isFavorite != 0;
+        this.isFavorite = isFavorite != null && isFavorite.intValue() != 0;
     }
 }
