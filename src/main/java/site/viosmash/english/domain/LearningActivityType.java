@@ -5,7 +5,8 @@ package site.viosmash.english.domain;
  */
 public enum LearningActivityType {
     FLASHCARD,
-    LESSON,
+    /** Reading / study sessions tied to a {@code BOOK} reference. */
+    BOOK,
     EXERCISE,
     AI_CHAT,
     OTHER

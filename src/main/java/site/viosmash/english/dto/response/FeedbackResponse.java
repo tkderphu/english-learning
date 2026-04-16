@@ -17,4 +17,6 @@ public class FeedbackResponse {
     private String improvedVersion;
     private String naturalSuggestion;
     private List<ErrorItemResponse> errors;
+    private FeedbackLayersResponse feedbackLayers;
+    private FluencySignalsResponse fluencySignals;
 }
