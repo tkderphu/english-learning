@@ -14,6 +14,7 @@ public class UserCorrectionItemResponse {
     private String suggestedText;
     private String explanation;
     private LocalDateTime occurredAt;
+    private Long occurredAtEpochMs;
     private Integer messageId;
     private Integer sessionId;
     private String sessionTitle;
