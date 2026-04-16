@@ -7,11 +7,8 @@ import lombok.Setter;
 @Setter
 public class FlashcardUpdateRequest {
     Integer id; // Null means it's a new flashcard
-    String word;
-    String phonetic;
-    String meaning;
-    String exampleSentence;
-    String visualCueUrl;
-    String note;
+    String term;
+    String definition;
+    String imageUrl;
     Integer status; // 1 for active, 0 for deleted
 }

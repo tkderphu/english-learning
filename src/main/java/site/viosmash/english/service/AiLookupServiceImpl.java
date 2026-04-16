@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import site.viosmash.english.dto.request.OpenAiTextRequest;
 import site.viosmash.english.dto.response.TextLookupResponse;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.groqapi.GroqAiClient;
-import site.viosmash.english.dto.request.OpenAiTextRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -32,22 +32,38 @@ public class AiLookupServiceImpl implements AiLookupService {
             throw new ServiceException(HttpStatus.BAD_REQUEST, "text is required");
         }
 
-        // Build a simple prompt asking the AI to return strict JSON matching our response shape.
+        // Prompt yêu cầu nghĩa tiếng Việt + JSON strict
         String prompt = String.format(
-                "Return a JSON object with fields: selectedText, meaning, phonetic (nullable), audioUrl (nullable), examples (array of strings, nullable).\nSelected text: %s\n", text.trim());
+                "Return ONLY a JSON object with fields:\n" +
+                        "- selectedText (string)\n" +
+                        "- meaning (Vietnamese, clear and easy to understand)\n" +
+                        "- phonetic (nullable)\n" +
+                        "- audioUrl (nullable)\n" +
+                        "- examples (array of English sentences, nullable)\n" +
+                        "Do not include any extra text or markdown.\n" +
+                        "Selected text: %s\n",
+                text.trim()
+        );
 
-    String modelToUse = (lookupModel == null || lookupModel.isBlank()) ? roleplayModel : lookupModel;
+        String modelToUse = (lookupModel == null || lookupModel.isBlank()) ? roleplayModel : lookupModel;
 
-    OpenAiTextRequest request = OpenAiTextRequest.builder()
-        .model(modelToUse)
+        OpenAiTextRequest request = OpenAiTextRequest.builder()
+                .model(modelToUse)
                 .input(List.of(
                         Map.of(
                                 "role", "system",
-                                "content", List.of(Map.of("type", "input_text", "text", "You are an English dictionary/lookup service. Produce only JSON in the exact shape requested."))
+                                "content", List.of(
+                                        Map.of(
+                                                "type", "input_text",
+                                                "text", "You are an English dictionary/lookup service. Produce ONLY valid JSON. No explanation, no markdown."
+                                        )
+                                )
                         ),
                         Map.of(
                                 "role", "user",
-                                "content", List.of(Map.of("type", "input_text", "text", prompt))
+                                "content", List.of(
+                                        Map.of("type", "input_text", "text", prompt)
+                                )
                         )
                 ))
                 .build();
@@ -60,21 +76,30 @@ public class AiLookupServiceImpl implements AiLookupService {
         }
 
         try {
-            // Try to parse JSON from the AI response. Allow the AI to return either the object or a JSON string inside text.
+            // Parse trực tiếp
             TextLookupResponse res = objectMapper.readValue(aiRaw, TextLookupResponse.class);
-            res.setAudioUrl(String.format("https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=en&client=tw-ob", res.getSelectedText()));
+            res.setAudioUrl(String.format(
+                    "https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=en&client=tw-ob",
+                    res.getSelectedText()
+            ));
             return res;
+
         } catch (Exception ex) {
-            // As a fallback, attempt to extract JSON substring from the AI output.
+            // Fallback: extract JSON
             try {
                 String json = extractJson(aiRaw);
                 if (json == null) {
                     throw new ServiceException(HttpStatus.BAD_GATEWAY, "AI response not JSON: " + aiRaw);
                 }
-                TextLookupResponse textLookupResponse = objectMapper.readValue(json, TextLookupResponse.class);
-                textLookupResponse.setAudioUrl(String.format("https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=en&client=tw-ob", textLookupResponse.getSelectedText()));
 
-                return textLookupResponse;
+                TextLookupResponse res = objectMapper.readValue(json, TextLookupResponse.class);
+                res.setAudioUrl(String.format(
+                        "https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=en&client=tw-ob",
+                        res.getSelectedText()
+                ));
+
+                return res;
+
             } catch (ServiceException se) {
                 throw se;
             } catch (Exception ex2) {
