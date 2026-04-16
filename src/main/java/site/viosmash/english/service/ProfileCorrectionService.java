@@ -18,6 +18,7 @@ import site.viosmash.english.repository.AiChatSessionRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,10 +67,11 @@ public class ProfileCorrectionService {
 
         String dataSql = """
                 SELECT e.id, e.error_type, e.original_text, e.suggested_text, e.explanation,
-                f.created_at, m.id, m.session_id, s.title, s.session_type
+                COALESCE(s.ended_at, s.last_message_at, f.created_at) AS occurred_end_at,
+                m.id, m.session_id, s.title, s.session_type
                 """
                 + baseSql
-                + " ORDER BY f.created_at DESC";
+                + " ORDER BY COALESCE(s.ended_at, s.last_message_at, f.created_at) DESC";
 
         Query dataQ = entityManager.createNativeQuery(dataSql);
         dataQ.setParameter("userId", userId);
@@ -182,6 +184,7 @@ public class ProfileCorrectionService {
                 .suggestedText((String) row[3])
                 .explanation((String) row[4])
                 .occurredAt(occurred)
+                .occurredAtEpochMs(occurred == null ? null : occurred.toInstant(ZoneOffset.UTC).toEpochMilli())
                 .messageId(((Number) row[6]).intValue())
                 .sessionId(((Number) row[7]).intValue())
                 .sessionTitle(sessionTitle)
