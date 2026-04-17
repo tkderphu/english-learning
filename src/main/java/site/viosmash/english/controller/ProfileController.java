@@ -45,7 +45,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/api/profile/v1", "/profile/v1"})
+@RequestMapping("/api/profile/v1")
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "Hồ sơ, thống kê học tập, heatmap, từ vựng")
 public class ProfileController {

@@ -51,7 +51,7 @@ public class UserLearnedWordService {
 
         String dataSql = """
                 SELECT
-                    -CAST(CRC32(LOWER(TRIM(f.term))) AS SIGNED) AS id,
+                    -CAST(MOD(CRC32(LOWER(TRIM(f.term))), 2000000000) AS SIGNED) AS id,
                     MAX(TRIM(f.term)) AS term,
                     NULL AS phonetic,
                     MAX(NULLIF(TRIM(f.definition), '')) AS definition,

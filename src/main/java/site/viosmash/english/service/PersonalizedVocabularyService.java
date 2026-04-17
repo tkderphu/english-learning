@@ -64,7 +64,11 @@ public class PersonalizedVocabularyService {
 
         Set<String> chosen = new LinkedHashSet<>();
         for (String w : filtered) {
-            chosen.add(w.trim());
+            String candidate = w.trim();
+            if (isCoveredByChosen(candidate, chosen)) {
+                continue;
+            }
+            chosen.add(candidate);
             if (chosen.size() >= MAX_PERSONAL_WORDS_PER_TURN) {
                 break;
             }
@@ -77,12 +81,27 @@ public class PersonalizedVocabularyService {
         return turn >= 2;
     }
 
+    private boolean isCoveredByChosen(String candidate, Set<String> chosen) {
+        String normalizedCandidate = normalize(candidate);
+        if (normalizedCandidate.isBlank()) return true;
+        for (String existing : chosen) {
+            String normalizedExisting = normalize(existing);
+            if (normalizedExisting.equals(normalizedCandidate)) return true;
+            // Avoid choosing short subset term (coffee) when a fuller phrase already selected (black coffee).
+            if (containsToken(normalizedExisting, normalizedCandidate) && normalizedExisting.length() > normalizedCandidate.length()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private int relevanceScore(String termValue, String latestMessage, String sessionContext) {
         int score = 0;
         String term = normalize(termValue);
 
         if (!term.isBlank() && containsToken(latestMessage, term)) score += 2;
         if (!term.isBlank() && containsToken(sessionContext, term)) score += 2;
+        if (!term.isBlank() && term.contains(" ")) score += 1;
         return score;
     }
 

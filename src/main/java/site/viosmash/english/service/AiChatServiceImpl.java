@@ -307,7 +307,7 @@ public class AiChatServiceImpl implements AiChatService {
         }
         aiChatSessionRepository.save(session);
 
-        FeedbackResponse feedbackResponse = saveAndBuildFeedback(savedUserMessage.getId(), feedbackJson, inputType);
+        FeedbackResponse feedbackResponse = saveAndBuildFeedback(sessionId, savedUserMessage.getId(), feedbackJson, inputType);
 
         return SendTextMessageResponse.builder()
                 .sessionId(sessionId)
@@ -591,7 +591,7 @@ public class AiChatServiceImpl implements AiChatService {
                 .build();
     }
 
-    private FeedbackResponse saveAndBuildFeedback(Integer messageId, String feedbackJson, String inputType) {
+    private FeedbackResponse saveAndBuildFeedback(Integer sessionId, Integer messageId, String feedbackJson, String inputType) {
         try {
             Map<String, Object> payload = objectMapper.readValue(feedbackJson, new TypeReference<>() {
             });
@@ -638,6 +638,9 @@ public class AiChatServiceImpl implements AiChatService {
                     String originalText = toStringValue(rawMap.get("originalText"));
                     String suggestedText = toStringValue(rawMap.get("suggestedText"));
                     String explanation = toStringValue(rawMap.get("explanation"));
+                    if (isRepeatedErrorTypeInSession(sessionId, messageId, type)) {
+                        explanation = "Lỗi này đang lặp lại từ các câu trước. " + defaultIfBlank(explanation, "Bạn cần chú ý sửa dứt điểm lỗi này.");
+                    }
 
                     AiMessageError error = new AiMessageError();
                     error.setFeedbackId(savedFeedback.getId());
@@ -684,6 +687,35 @@ public class AiChatServiceImpl implements AiChatService {
         } catch (Exception ex) {
             throw new ServiceException(HttpStatus.BAD_GATEWAY, "AI feedback format is invalid");
         }
+    }
+
+    private boolean isRepeatedErrorTypeInSession(Integer sessionId, Integer currentMessageId, String currentType) {
+        if (sessionId == null || currentMessageId == null || currentType == null || currentType.isBlank()) {
+            return false;
+        }
+        List<AiChatMessage> messages = aiChatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            AiChatMessage m = messages.get(i);
+            if (m.getId() == null || m.getId().equals(currentMessageId)) {
+                continue;
+            }
+            if (!SENDER_USER.equalsIgnoreCase(m.getSenderType())) {
+                continue;
+            }
+            Optional<AiMessageFeedback> fbOpt = aiMessageFeedbackRepository.findByMessageId(m.getId());
+            if (fbOpt.isEmpty()) {
+                continue;
+            }
+            List<AiMessageError> prevErrors = aiMessageErrorRepository.findByFeedbackId(fbOpt.get().getId());
+            for (AiMessageError e : prevErrors) {
+                if (e.getErrorType() != null && e.getErrorType().equalsIgnoreCase(currentType)) {
+                    return true;
+                }
+            }
+            // only look back to the nearest previous USER turn with feedback
+            return false;
+        }
+        return false;
     }
 
     private EndSessionResponse saveAndBuildSummary(

@@ -102,6 +102,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     Include at least 1 of these words naturally in this reply when context allows.
                     If none fits naturally, you may skip them to keep the response correct and fluent.
                     Never list the words explicitly.
+                    Use the chosen personalized item exactly as provided; do not shorten a phrase to one word
+                    (e.g., keep "black coffee" as "black coffee", not just "coffee").
                     If you use a personalized word, wrap that exact word in HTML bold tags as <b>word</b>.
                     Keep bold tags only for personalized words you actually used.
                     Prioritize a natural conversation flow over vocabulary insertion.
