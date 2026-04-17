@@ -42,6 +42,7 @@ import site.viosmash.english.util.Util;
 import site.viosmash.english.util.enums.RoleType;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,6 +67,14 @@ public class AiChatServiceImpl implements AiChatService {
     private static final String INPUT_VOICE = "VOICE";
     private static final int DEFAULT_MAX_TURNS = 20;
     private static final int DEFAULT_RECENT_MESSAGE_LIMIT = 8;
+
+    /** Từ thường gặp trong giải thích tiếng Việt hợp lệ (tránh false positive khi câu toàn từ ngắn). */
+    private static final Set<String> COMMON_VI_EXPLANATION_WORDS = Set.of(
+            "bạn", "câu", "của", "và", "là", "trong", "để", "với", "một", "không",
+            "có", "thể", "nên", "hãy", "thì", "đã", "sẽ", "rất", "tốt", "ý", "khi",
+            "nói", "viết", "dùng", "thử", "giao", "tiếp", "ngữ", "pháp", "đúng", "sai",
+            "lỗi", "sửa", "gợi", "nghĩa", "tự", "nhiên", "hơn", "cách", "động",
+            "từ", "quá", "khứ", "hiện", "tại", "mạo", "giới", "chia");
 
     private final AiChatSessionRepository aiChatSessionRepository;
     private final AiChatMessageRepository aiChatMessageRepository;
@@ -606,11 +616,13 @@ public class AiChatServiceImpl implements AiChatService {
             BigDecimal vocabularyScore = typedOnly ? null : toDecimal(payload.get("vocabularyScore"));
             BigDecimal fluencyScore = typedOnly ? null : toDecimal(payload.get("fluencyScore"));
             BigDecimal pronunciationScore = typedOnly ? null : toDecimal(payload.get("pronunciationScore"));
-            String overallComment = toStringValue(payload.get("overallComment"));
+            String overallComment = normalizeLearnerText(toStringValue(payload.get("overallComment")));
             String improvedVersion = toStringValue(payload.get("improvedVersion"));
-            String naturalSuggestion = toStringValue(payload.get("naturalSuggestion"));
+            String naturalSuggestion = normalizeLearnerText(toStringValue(payload.get("naturalSuggestion")));
             Integer errorCount = toInteger(payload.get("errorCount"));
             AiChatSession currentSession = aiChatSessionRepository.findById(sessionId).orElse(null);
+            overallComment = safeOverallCommentVietnamese(overallComment);
+            naturalSuggestion = safeNaturalSuggestionVietnamese(naturalSuggestion, improvedVersion);
             AiMessageFeedback feedback = new AiMessageFeedback();
             feedback.setMessageId(messageId);
             feedback.setGrammarScore(grammarScore);
@@ -636,11 +648,12 @@ public class AiChatServiceImpl implements AiChatService {
                     }
                     String originalText = toStringValue(rawMap.get("originalText"));
                     String suggestedText = toStringValue(rawMap.get("suggestedText"));
-                    String explanation = toStringValue(rawMap.get("explanation"));
-                    if (isRepeatedErrorTypeInSession(sessionId, messageId, type)) {
-                        explanation = "Lỗi này đang lặp lại từ các câu trước. "
-                                + defaultIfBlank(explanation, "Bạn cần chú ý sửa dứt điểm lỗi này.");
-                    }
+                    String rawExplanation = normalizeLearnerText(toStringValue(rawMap.get("explanation")));
+                    String coreExplanation = safeExplanationVietnamese(
+                            rawExplanation, originalText, suggestedText);
+                    String explanation = isRepeatedErrorTypeInSession(sessionId, messageId, type)
+                            ? "Lỗi này đang lặp lại từ các câu trước. " + coreExplanation
+                            : coreExplanation;
 
                     AiMessageError error = new AiMessageError();
                     error.setFeedbackId(savedFeedback.getId());
@@ -865,6 +878,105 @@ public class AiChatServiceImpl implements AiChatService {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private String normalizeLearnerText(String s) {
+        if (s == null || s.isBlank()) {
+            return s;
+        }
+        return Normalizer.normalize(s.trim(), Normalizer.Form.NFC);
+    }
+
+    private boolean looksLikeCorruptedVietnamese(String s) {
+        if (s == null || s.isBlank()) {
+            return false;
+        }
+        if (s.indexOf('\uFFFD') >= 0) {
+            return true;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            int t = Character.getType(s.charAt(i));
+            if (t == Character.CURRENCY_SYMBOL || t == Character.OTHER_SYMBOL) {
+                return true;
+            }
+        }
+        long nonAscii = s.codePoints().filter(cp -> cp > 127).count();
+        long asciiLetters = s.chars().filter(c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')).count();
+        if (asciiLetters > 40 && nonAscii < 4) {
+            return true;
+        }
+        return mostlyShortGibberishTokens(s);
+    }
+
+    private boolean mostlyShortGibberishTokens(String s) {
+        String[] parts = s.toLowerCase().trim().split("\\s+");
+        if (parts.length < 6) {
+            return false;
+        }
+        int shortTok = 0;
+        int commonHits = 0;
+        for (String raw : parts) {
+            String p = raw.replaceAll("[^a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]", "");
+            if (p.isEmpty()) {
+                continue;
+            }
+            if (p.length() <= 3) {
+                shortTok++;
+            }
+            if (COMMON_VI_EXPLANATION_WORDS.contains(p)) {
+                commonHits++;
+            }
+        }
+        return shortTok >= parts.length * 0.72 && commonHits <= 1;
+    }
+
+    private String safeExplanationVietnamese(String raw, String originalText, String suggestedText) {
+        if (raw == null || raw.isBlank()) {
+            return buildFallbackExplanationVietnamese(originalText, suggestedText);
+        }
+        if (looksLikeCorruptedVietnamese(raw)) {
+            log.warn("Discarding corrupted-looking error explanation; using fallback.");
+            return buildFallbackExplanationVietnamese(originalText, suggestedText);
+        }
+        return raw;
+    }
+
+    private String safeOverallCommentVietnamese(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return raw;
+        }
+        if (looksLikeCorruptedVietnamese(raw)) {
+            log.warn("Discarding corrupted-looking overallComment; using fallback.");
+            return "Bạn đang đi đúng hướng. Hãy thử diễn đạt lại câu một cách rõ ràng và tự nhiên hơn.";
+        }
+        return raw;
+    }
+
+    private String safeNaturalSuggestionVietnamese(String raw, String improvedEnglish) {
+        if (raw == null || raw.isBlank()) {
+            return raw;
+        }
+        if (looksLikeCorruptedVietnamese(raw)) {
+            log.warn("Discarding corrupted-looking naturalSuggestion; using fallback.");
+            if (improvedEnglish != null && !improvedEnglish.isBlank()) {
+                return "Gợi ý: bạn có thể nói tương tự như — " + improvedEnglish.trim();
+            }
+            return "Hãy nhắc lại ý của bạn bằng một câu tiếng Anh hoàn chỉnh và tự nhiên hơn.";
+        }
+        return raw;
+    }
+
+    private String buildFallbackExplanationVietnamese(String originalText, String suggestedText) {
+        String o = originalText == null ? "" : originalText.trim();
+        String sug = suggestedText == null ? "" : suggestedText.trim();
+        if (!sug.isEmpty() && !o.isEmpty()) {
+            return "Bạn có thể diễn đạt lại gần với câu gợi ý: \"" + sug
+                    + "\" — cách này tự nhiên và dễ hiểu hơn trong ngữ cảnh.";
+        }
+        if (!sug.isEmpty()) {
+            return "Thử nói theo mẫu: \"" + sug + "\" để người nghe hiểu rõ hơn.";
+        }
+        return "Hãy đọc phần gợi ý đúng phía trên và luyện nói lại từ từ, ưu tiên truyền đạt ý rõ ràng.";
     }
 
     private String normalizePolicyValue(String value) {

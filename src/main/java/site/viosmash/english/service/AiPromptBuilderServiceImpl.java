@@ -188,7 +188,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     Score grammar, vocabulary, and fluency from the wording; score pronunciation as a reasonable estimate from the transcript (word forms, missing words, obvious mis-recognitions).
                     Language rules for returned text fields:
                     - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
-                    - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                    - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
+                    - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                     - Keep Vietnamese explanations short, practical, and easy for learners.
                     Session policy:
                     - GoalType: %s
@@ -226,7 +227,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 Focus on grammar, word choice, and natural written expression only.
                 Language rules for returned text fields:
                 - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
-                - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
+                - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                 - Keep Vietnamese explanations short, practical, and easy for learners.
                 Session policy:
                 - GoalType: %s
