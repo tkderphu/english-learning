@@ -8,7 +8,12 @@ import site.viosmash.english.entity.AiChatSession;
 import java.util.List;
 
 public interface AiRoleplayService {
-    String generateReply(AiChatSession session, List<AiChatMessage> recentMessages, String userMessage);
+    String generateReply(
+            AiChatSession session,
+            List<AiChatMessage> recentMessages,
+            String userMessage,
+            List<String> personalizedWords
+    );
 
     /** Greeting / scene-setter before the learner sends anything. */
     String generateOpeningLine(AiChatSession session);

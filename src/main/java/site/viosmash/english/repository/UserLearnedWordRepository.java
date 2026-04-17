@@ -11,6 +11,8 @@ public interface UserLearnedWordRepository extends JpaRepository<UserLearnedWord
 
     long countByUserId(Integer userId);
 
+    java.util.List<UserLearnedWord> findTop20ByUserIdOrderByCreatedAtDesc(Integer userId);
+
     Optional<UserLearnedWord> findByUserIdAndTerm(Integer userId, String term);
 
     Page<UserLearnedWord> findByUserIdOrderByCreatedAtDesc(Integer userId, Pageable pageable);

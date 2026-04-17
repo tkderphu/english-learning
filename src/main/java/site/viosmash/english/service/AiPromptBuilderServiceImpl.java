@@ -70,7 +70,12 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
     }
 
     @Override
-    public String buildRoleplayUserPrompt(AiChatSession session, List<AiChatMessage> recentMessages, String latestUserMessage) {
+    public String buildRoleplayUserPrompt(
+            AiChatSession session,
+            List<AiChatMessage> recentMessages,
+            String latestUserMessage,
+            List<String> personalizedWords
+    ) {
         StringBuilder sb = new StringBuilder();
         sb.append("Recent conversation:\n");
 
@@ -88,6 +93,19 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 sb.append(" \"").append(title).append("\"");
             }
             sb.append(". Learner task: ").append(instruction.isEmpty() ? "follow the scene in character." : instruction).append("\n");
+        }
+        if (personalizedWords != null && !personalizedWords.isEmpty()) {
+            sb.append("\n[Personalization] Learner recently studied these words:\n");
+            sb.append(String.join(", ", personalizedWords)).append("\n");
+            sb.append("""
+                    
+                    Include at least 1 of these words naturally in this reply when context allows.
+                    If none fits naturally, you may skip them to keep the response correct and fluent.
+                    Never list the words explicitly.
+                    If you use a personalized word, wrap that exact word in HTML bold tags as <b>word</b>.
+                    Keep bold tags only for personalized words you actually used.
+                    Prioritize a natural conversation flow over vocabulary insertion.
+                    """);
         }
         sb.append("\nRespond as the AI role only, in English.");
         return sb.toString();

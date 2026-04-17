@@ -26,9 +26,19 @@ public class OpenAiRoleplayServiceImpl implements AiRoleplayService {
     private String feedbackModel;
 
     @Override
-    public String generateReply(AiChatSession session, List<AiChatMessage> recentMessages, String userMessage) {
+    public String generateReply(
+            AiChatSession session,
+            List<AiChatMessage> recentMessages,
+            String userMessage,
+            List<String> personalizedWords
+    ) {
         String systemPrompt = aiPromptBuilderService.buildRoleplaySystemPrompt(session);
-        String userPrompt = aiPromptBuilderService.buildRoleplayUserPrompt(session, recentMessages, userMessage);
+        String userPrompt = aiPromptBuilderService.buildRoleplayUserPrompt(
+                session,
+                recentMessages,
+                userMessage,
+                personalizedWords
+        );
 
         OpenAiTextRequest request = OpenAiTextRequest.builder()
                 .model(roleplayModel)
