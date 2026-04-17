@@ -118,7 +118,7 @@ public class AiChatServiceImpl implements AiChatService {
         session.setMaxTurns(request.getMaxTurns() != null ? request.getMaxTurns() : DEFAULT_MAX_TURNS);
         session.setCurrentTurn(0);
         session.setGoalType(request.getGoalType());
-        session.setFocusSkill(request.getFocusSkill());
+        session.setFocusSkill(resolveFocusSkill(request.getGoalType(), request.getFocusSkill()));
         session.setCoachingMode(request.getCoachingMode());
         session.setFluencyMode(Boolean.TRUE.equals(request.getFluencyMode()));
         session.setTargetDurationMinutes(request.getTargetDurationMinutes());
@@ -881,7 +881,7 @@ public class AiChatServiceImpl implements AiChatService {
             boolean includeActionHint) {
         String goal = normalizePolicyValue(goalType);
         String mode = normalizePolicyValue(coachingMode);
-        String focus = normalizePolicyValue(focusSkill);
+        String focus = normalizePolicyValue(resolveFocusSkill(goalType, focusSkill));
 
         String goalLabel = switch (goal) {
             case "GRAMMAR" -> "Mục tiêu: Ngữ pháp (ưu tiên sửa cấu trúc và ngữ pháp).";
@@ -891,8 +891,8 @@ public class AiChatServiceImpl implements AiChatService {
         };
 
         String modeLabel = switch (mode) {
-            case "FLUENCY" -> "Chế độ: Fluency (phản hồi ngắn, giữ nhịp hội thoại liên tục).";
-            case "COACH" -> "Chế độ: Coach (phản hồi kèm hướng dẫn cụ thể để cải thiện).";
+            case "FLUENCY" -> "Chế độ: Tập trung trôi chảy (phản hồi ngắn, giữ nhịp hội thoại liên tục).";
+            case "COACH" -> "Chế độ: Huấn luyện (phản hồi kèm hướng dẫn cụ thể để cải thiện).";
             default -> "Chế độ: Tiêu chuẩn (phản hồi cân bằng theo ngữ cảnh).";
         };
 
@@ -922,6 +922,25 @@ public class AiChatServiceImpl implements AiChatService {
             return "GENERAL";
         }
         return value.trim().toUpperCase();
+    }
+
+    /**
+     * Giữ cặp goal-focus nhất quán để learner nhìn đúng intent phiên học.
+     * - COMMUNICATION không nên hiển thị focus Grammar vì gây hiểu nhầm.
+     */
+    private String resolveFocusSkill(String goalType, String requestedFocusSkill) {
+        String goal = normalizePolicyValue(goalType);
+        String requested = normalizePolicyValue(requestedFocusSkill);
+        if ("COMMUNICATION".equals(goal)) {
+            if ("FLUENCY".equals(requested) || "VOCABULARY".equals(requested)) {
+                return requested;
+            }
+            return "FLUENCY";
+        }
+        if ("GENERAL".equals(requested)) {
+            return goal;
+        }
+        return requested;
     }
 
     private FeedbackLayersResponse buildFeedbackLayers(String overallComment, String naturalSuggestion) {
