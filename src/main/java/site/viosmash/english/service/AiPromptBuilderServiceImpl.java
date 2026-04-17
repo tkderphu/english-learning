@@ -167,6 +167,10 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     Analyze the learner's English for a speaking-practice app.
                     Input channel: VOICE. The text below is a speech-to-text transcript of what they said.
                     Score grammar, vocabulary, and fluency from the wording; score pronunciation as a reasonable estimate from the transcript (word forms, missing words, obvious mis-recognitions).
+                    Language rules for returned text fields:
+                    - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
+                    - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                    - Keep Vietnamese explanations short, practical, and easy for learners.
 
                     %sTranscript (learner):
                     %s
@@ -196,6 +200,10 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 Analyze the learner's English for a chat app.
                 Input channel: TYPED TEXT (not spoken). Do not score speaking or pronunciation — there is no audio.
                 Focus on grammar, word choice, and natural written expression only.
+                Language rules for returned text fields:
+                - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
+                - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                - Keep Vietnamese explanations short, practical, and easy for learners.
 
                 %sLearner message:
                 %s

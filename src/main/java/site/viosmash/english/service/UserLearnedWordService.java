@@ -41,8 +41,6 @@ public class UserLearnedWordService {
                     FROM flashcards f
                     JOIN decks d ON d.id = f.deck_id
                     WHERE d.user_id = :userId
-                      AND d.status = 1
-                      AND f.status = 1
                       AND f.term IS NOT NULL
                       AND TRIM(f.term) <> ''
                 """ + whereSearch + """
@@ -65,8 +63,6 @@ public class UserLearnedWordService {
                 FROM flashcards f
                 JOIN decks d ON d.id = f.deck_id
                 WHERE d.user_id = :userId
-                  AND d.status = 1
-                  AND f.status = 1
                   AND f.term IS NOT NULL
                   AND TRIM(f.term) <> ''
                 """ + whereSearch + """

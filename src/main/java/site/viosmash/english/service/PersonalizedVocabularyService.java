@@ -1,6 +1,7 @@
 package site.viosmash.english.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.entity.AiChatMessage;
@@ -11,7 +12,6 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -100,18 +100,8 @@ public class PersonalizedVocabularyService {
         return normalize(sb.toString());
     }
 
-    private boolean hasAnyOverlap(String left, String right) {
-        if (left.isBlank() || right.isBlank()) return false;
-        Set<String> leftTokens = tokenize(left);
-        if (leftTokens.isEmpty()) return false;
-        for (String token : tokenize(right)) {
-            if (leftTokens.contains(token)) return true;
-        }
-        return false;
-    }
-
     private List<String> loadFlashcardTerms(Integer userId) {
-        Map<String, Object> params = Map.of("userId", userId);
+        var params = new MapSqlParameterSource("userId", userId);
         return jdbc.query(
                 """
                 SELECT term
@@ -122,8 +112,6 @@ public class PersonalizedVocabularyService {
                     FROM flashcards f
                     JOIN decks d ON d.id = f.deck_id
                     WHERE d.user_id = :userId
-                      AND d.status = 1
-                      AND f.status = 1
                       AND f.term IS NOT NULL
                       AND TRIM(f.term) <> ''
                     GROUP BY LOWER(TRIM(f.term))
@@ -134,16 +122,6 @@ public class PersonalizedVocabularyService {
                 params,
                 (rs, i) -> rs.getString("term")
         );
-    }
-
-    private Set<String> tokenize(String text) {
-        if (text == null || text.isBlank()) return Set.of();
-        String[] parts = normalize(text).split("\\s+");
-        Set<String> tokens = new LinkedHashSet<>();
-        for (String p : parts) {
-            if (p.length() >= 3) tokens.add(p);
-        }
-        return tokens;
     }
 
     private boolean containsToken(String haystack, String token) {
