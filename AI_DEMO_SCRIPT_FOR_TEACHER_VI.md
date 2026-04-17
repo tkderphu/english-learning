@@ -113,6 +113,20 @@ Chạy lặp lại 3 lần với 3 Goal, rồi 2 lần với 2 Mode để so sá
 ### 3.0.4 Câu chốt phần so sánh (nên nói nguyên văn)
 > "Như thầy thấy, Goal quyết định *học cái gì là chính* (giao tiếp, độ trôi, hay ngữ pháp), còn Mode quyết định *cách AI kèm cặp* trong phiên đó. Hai lớp này kết hợp để cá nhân hóa buổi học thay vì một kiểu phản hồi cố định."
 
+### 3.0.5 Giao diện: thanh gợi ý dưới cùng và cách test để thấy khác biệt thật
+
+- **Thanh gợi ý (dưới ô nhập)** chỉ hiển thị nội dung gợi ý ngắn (ưu tiên `naturalSuggestion`), **không** lặp lại khối “thiết lập phiên” dài. Mục tiêu / chế độ đã có trên dòng tiêu đề (ví dụ `BEGINNER • GRAMMAR • COACH`).
+- **Để thấy Goal khác nhau**, đừng chỉ nhìn một chỗ: so sánh **(1)** câu tiếng Anh của AI (nhân vật), **(2)** thẻ “Sửa lỗi nhanh” + giải thích, **(3)** thanh gợi ý dưới cùng.
+- **Bắt buộc tạo phiên mới** sau khi đổi Goal (mỗi session gắn một cấu hình).
+
+**Cùng một câu test (nên dùng):** `I go cafe yesterday and speak with barista.`
+
+| Goal | Tín hiệu dễ thấy |
+|------|------------------|
+| **GRAMMAR** | Thẻ sửa lỗi nhấn mạnh thì/cấu trúc; `overallComment` (trong luồng feedback) nêu rõ lỗi ngữ pháp chính; AI trong hội thoại thường lồng một câu mẫu đúng ngữ pháp. |
+| **FLUENCY** | AI trả lời rất ngắn, giữ nhịp; ít mục lỗi trong `errors[]`; gợi ý thiên về cách nói trôi, có thể kèm một câu tiếng Anh ngắn để nói lại. |
+| **COMMUNICATION** | AI mở đầu thân thiện, đẩy tình huống (gọi món, hỏi ý); feedback ưu tiên “hiểu ý bạn”, tối đa ~1 lỗi trong `errors[]` trừ khi sai nặng làm mất nghĩa. |
+
 ## Phần A - Tạo phiên AI theo ngữ cảnh (3 phút)
 
 ### Mục tiêu sư phạm

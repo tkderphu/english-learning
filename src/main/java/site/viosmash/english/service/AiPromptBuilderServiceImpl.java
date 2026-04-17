@@ -297,30 +297,34 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
         String goalRules = switch (goal) {
             case "GRAMMAR" -> """
-                    - GRAMMAR goal: prioritize grammatical accuracy. Correct tense, agreement, and sentence structure explicitly.
-                    - Ask follow-up questions that encourage the learner to reuse corrected structures.
+                    CRITICAL — GRAMMAR goal (visible every turn in your English reply):
+                    - Stay in character, but weave in ONE natural model sentence that fixes their main grammar mistake (correct tense, agreement, or word order). Do not paste meta labels like "Grammar:".
+                    - Ask one follow-up that nudges them to reuse that structure.
+                    - Do not give long rule lectures; demonstrate through dialogue.
                     """;
             case "FLUENCY" -> """
-                    - FLUENCY goal: prioritize smooth, continuous expression and natural phrasing.
-                    - Avoid over-correcting minor errors in the middle of conversation flow.
+                    CRITICAL — FLUENCY goal:
+                    - Reply in 2–3 short English sentences only. Keep momentum; one forward-driving question.
+                    - Do not teach grammar rules in the chat bubble; ignore small slips unless they block understanding.
+                    - Prefer natural reformulations they can repeat immediately.
                     """;
             case "COMMUNICATION" -> """
-                    - COMMUNICATION goal: prioritize successful meaning delivery and confidence.
-                    - Keep learner engaged in task completion, with gentle corrections only when needed.
+                    CRITICAL — COMMUNICATION goal:
+                    - Prioritize intent and completing the scenario task (order, ask, solve the situation).
+                    - Open with empathy or task progress, not with correction.
+                    - At most one gentle correction per turn, only if misunderstanding is likely; otherwise keep flowing.
                     """;
             default -> """
-                    - General goal: keep a balanced approach between clarity, correctness, and confidence.
+                    - General goal: balance clarity, correctness, and confidence without over-explaining.
                     """;
         };
 
         String modeRules = switch (mode) {
             case "FLUENCY" -> """
-                    - FLUENCY mode: keep replies short and momentum-oriented; ask one forward-driving question.
-                    - Prefer reformulations that the learner can say immediately.
+                    - FLUENCY mode: keep replies under ~40 words; minimal correction; keep the conversation moving.
                     """;
             case "COACH" -> """
-                    - COACH mode: balance encouragement with actionable correction and next-step guidance.
-                    - Give one concrete coaching suggestion per turn when possible.
+                    - COACH mode: include one concrete next-step hint in English inside the reply (still in character).
                     """;
             default -> "";
         };
@@ -333,7 +337,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
             default -> "";
         };
 
-        return "Goal/Mode policy:\n" + goalRules + modeRules + focusRules;
+        return "Goal/Mode policy (must follow):\n" + goalRules + modeRules + focusRules;
     }
 
     private String buildGoalModeFeedbackRules(String goalType, String focusSkill, String coachingMode) {
@@ -343,26 +347,37 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
         String goalRules = switch (goal) {
             case "GRAMMAR" -> """
-                    - If unsure between issues, prioritize grammar mistakes first.
-                    - Ensure at least one grammar-focused recommendation when an error exists.
+                    CRITICAL — GRAMMAR goal feedback:
+                    - overallComment (Vietnamese): exactly 1–2 short sentences (under ~280 characters). First sentence MUST name the main grammar issue (thì, thứ tự từ, số ít/nhiều, giới từ…).
+                    - errors[]: when grammar mistakes exist, list at least one GRAMMAR item when applicable.
+                    - naturalSuggestion (Vietnamese): one concrete practice tip tied to that grammar point.
+                    Do NOT paste session settings or meta headers; do not repeat the words "Goal", "Mode", or "Focus".
                     """;
             case "FLUENCY" -> """
-                    - Prioritize natural flow and concise reformulation over exhaustive micro-corrections.
-                    - naturalSuggestion should optimize speakability and rhythm.
+                    CRITICAL — FLUENCY goal feedback:
+                    - overallComment (Vietnamese): focus on nhịp nói, liên kết ý, từ đệm — avoid drilling grammar terminology unless the error blocks understanding.
+                    - errors[]: at most one item unless multiple errors severely block flow.
+                    - naturalSuggestion (Vietnamese): include one short English sentence (under 18 words) they can say next, natural and fluid.
+                    Do NOT paste session settings or meta headers.
                     """;
             case "COMMUNICATION" -> """
-                    - Prioritize intelligibility and task success; avoid overwhelming detail.
-                    - overallComment should reinforce successful communication intent.
+                    CRITICAL — COMMUNICATION goal feedback:
+                    - overallComment (Vietnamese): start by confirming you understood their intent; tone supportive; avoid opening with harsh criticism.
+                    - errors[]: at most one item per turn unless meaning is blocked.
+                    - naturalSuggestion (Vietnamese): one practical line to complete the communication task, not a grammar list.
+                    Do NOT paste session settings or meta headers.
                     """;
-            default -> "";
+            default -> """
+                    - Keep overallComment and naturalSuggestion short and practical.
+                    """;
         };
 
         String modeRules = switch (mode) {
             case "FLUENCY" -> """
-                    - Keep corrections minimal; prefer one high-impact fix that improves flow.
+                    - FLUENCY mode: keep corrections minimal; prefer one high-impact fix that improves flow.
                     """;
             case "COACH" -> """
-                    - Include one practical coaching takeaway in overallComment or naturalSuggestion.
+                    - COACH mode: include one practical coaching takeaway in overallComment or naturalSuggestion.
                     """;
             default -> "";
         };
