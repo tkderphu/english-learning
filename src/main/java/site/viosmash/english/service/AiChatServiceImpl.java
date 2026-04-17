@@ -609,6 +609,12 @@ public class AiChatServiceImpl implements AiChatService {
             String improvedVersion = toStringValue(payload.get("improvedVersion"));
             String naturalSuggestion = toStringValue(payload.get("naturalSuggestion"));
             Integer errorCount = toInteger(payload.get("errorCount"));
+            AiChatSession currentSession = aiChatSessionRepository.findById(sessionId).orElse(null);
+            String goalType = currentSession != null ? currentSession.getGoalType() : null;
+            String coachingMode = currentSession != null ? currentSession.getCoachingMode() : null;
+            String focusSkill = currentSession != null ? currentSession.getFocusSkill() : null;
+            overallComment = applyGoalModeLabel(overallComment, goalType, coachingMode, focusSkill, false);
+            naturalSuggestion = applyGoalModeLabel(naturalSuggestion, goalType, coachingMode, focusSkill, true);
 
             AiMessageFeedback feedback = new AiMessageFeedback();
             feedback.setMessageId(messageId);
@@ -865,6 +871,51 @@ public class AiChatServiceImpl implements AiChatService {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private String applyGoalModeLabel(
+            String source,
+            String goalType,
+            String coachingMode,
+            String focusSkill,
+            boolean includeActionHint
+    ) {
+        String goal = normalizePolicyValue(goalType);
+        String mode = normalizePolicyValue(coachingMode);
+        String focus = normalizePolicyValue(focusSkill);
+
+        String goalLabel = switch (goal) {
+            case "GRAMMAR" -> "Goal Grammar: ưu tiên sửa cấu trúc và ngữ pháp.";
+            case "FLUENCY" -> "Goal Fluency: ưu tiên độ trôi chảy và diễn đạt tự nhiên.";
+            case "COMMUNICATION" -> "Goal Communication: ưu tiên truyền đạt ý rõ ràng, tự tin.";
+            default -> "Goal General: cân bằng giữa đúng ngữ pháp và giao tiếp tự nhiên.";
+        };
+
+        String modeLabel = switch (mode) {
+            case "FLUENCY" -> "Mode Fluency: phản hồi ngắn, giữ nhịp hội thoại liên tục.";
+            case "COACH" -> "Mode Coach: phản hồi kèm hướng dẫn cụ thể để cải thiện.";
+            default -> "Mode Standard: phản hồi cân bằng theo ngữ cảnh.";
+        };
+
+        String focusLabel = switch (focus) {
+            case "GRAMMAR" -> "Focus Grammar.";
+            case "FLUENCY" -> "Focus Fluency.";
+            case "VOCABULARY" -> "Focus Vocabulary.";
+            case "PRONUNCIATION" -> "Focus Pronunciation.";
+            default -> "Focus General.";
+        };
+
+        String base = defaultIfBlank(source, includeActionHint
+                ? "Hãy thử nói lại câu theo đúng mục tiêu của phiên hiện tại."
+                : "Bạn đang đi đúng hướng của phiên luyện tập.");
+        return "[" + goalLabel + " " + modeLabel + " " + focusLabel + "] " + base;
+    }
+
+    private String normalizePolicyValue(String value) {
+        if (value == null || value.isBlank()) {
+            return "GENERAL";
+        }
+        return value.trim().toUpperCase();
     }
 
     private FeedbackLayersResponse buildFeedbackLayers(String overallComment, String naturalSuggestion) {
