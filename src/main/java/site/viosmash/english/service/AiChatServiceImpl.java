@@ -140,8 +140,7 @@ public class AiChatServiceImpl implements AiChatService {
                 currentUserId,
                 request.getGoalType(),
                 request.getFocusSkill(),
-                request.getCoachingMode()
-        );
+                request.getCoachingMode());
         String baseSystemPrompt = session.getSystemPromptSnapshot();
         if (baseSystemPrompt == null || baseSystemPrompt.isBlank()) {
             session.setSystemPromptSnapshot(memoryBlock);
@@ -170,7 +169,8 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     /**
-     * AI speaks first (turn 0). {@link #processUserMessage} still uses {@code currentTurn + 1} for the first learner turn.
+     * AI speaks first (turn 0). {@link #processUserMessage} still uses
+     * {@code currentTurn + 1} for the first learner turn.
      */
     private void appendOpeningAiMessage(AiChatSession session) {
         if (session == null || session.getId() == null) {
@@ -284,8 +284,7 @@ public class AiChatServiceImpl implements AiChatService {
                 session,
                 recentMessages,
                 userContent,
-                nextTurn
-        );
+                nextTurn);
         log.info("AI personalization - sessionId={}, userId={}, turn={}, vocabCount={}",
                 sessionId, session.getUserId(), nextTurn, personalizedWords.size());
         String aiReply = aiRoleplayService.generateReply(session, recentMessages, userContent, personalizedWords);
@@ -307,7 +306,8 @@ public class AiChatServiceImpl implements AiChatService {
         }
         aiChatSessionRepository.save(session);
 
-        FeedbackResponse feedbackResponse = saveAndBuildFeedback(sessionId, savedUserMessage.getId(), feedbackJson, inputType);
+        FeedbackResponse feedbackResponse = saveAndBuildFeedback(sessionId, savedUserMessage.getId(), feedbackJson,
+                inputType);
 
         return SendTextMessageResponse.builder()
                 .sessionId(sessionId)
@@ -589,7 +589,8 @@ public class AiChatServiceImpl implements AiChatService {
                 .build();
     }
 
-    private FeedbackResponse saveAndBuildFeedback(Integer sessionId, Integer messageId, String feedbackJson, String inputType) {
+    private FeedbackResponse saveAndBuildFeedback(Integer sessionId, Integer messageId, String feedbackJson,
+            String inputType) {
         try {
             Map<String, Object> payload = objectMapper.readValue(feedbackJson, new TypeReference<>() {
             });
@@ -643,7 +644,8 @@ public class AiChatServiceImpl implements AiChatService {
                     String suggestedText = toStringValue(rawMap.get("suggestedText"));
                     String explanation = toStringValue(rawMap.get("explanation"));
                     if (isRepeatedErrorTypeInSession(sessionId, messageId, type)) {
-                        explanation = "Lỗi này đang lặp lại từ các câu trước. " + defaultIfBlank(explanation, "Bạn cần chú ý sửa dứt điểm lỗi này.");
+                        explanation = "Lỗi này đang lặp lại từ các câu trước. "
+                                + defaultIfBlank(explanation, "Bạn cần chú ý sửa dứt điểm lỗi này.");
                     }
 
                     AiMessageError error = new AiMessageError();
@@ -677,16 +679,14 @@ public class AiChatServiceImpl implements AiChatService {
                                     .layer1Tip(defaultIfBlank(layer1Tip, overallComment))
                                     .layer2Explanation(defaultIfBlank(layer2Explanation, naturalSuggestion))
                                     .layer2Example(layer2Example)
-                                    .build()
-                    )
+                                    .build())
                     .fluencySignals(
                             FluencySignalsResponse.builder()
                                     .pauseDensity(pauseDensity)
                                     .fillerWords(fillerWords)
                                     .continuousLength(continuousLength)
                                     .flowProgress(flowProgress)
-                                    .build()
-                    )
+                                    .build())
                     .build();
         } catch (Exception ex) {
             throw new ServiceException(HttpStatus.BAD_GATEWAY, "AI feedback format is invalid");
@@ -878,37 +878,43 @@ public class AiChatServiceImpl implements AiChatService {
             String goalType,
             String coachingMode,
             String focusSkill,
-            boolean includeActionHint
-    ) {
+            boolean includeActionHint) {
         String goal = normalizePolicyValue(goalType);
         String mode = normalizePolicyValue(coachingMode);
         String focus = normalizePolicyValue(focusSkill);
 
         String goalLabel = switch (goal) {
-            case "GRAMMAR" -> "Goal Grammar: ưu tiên sửa cấu trúc và ngữ pháp.";
-            case "FLUENCY" -> "Goal Fluency: ưu tiên độ trôi chảy và diễn đạt tự nhiên.";
-            case "COMMUNICATION" -> "Goal Communication: ưu tiên truyền đạt ý rõ ràng, tự tin.";
-            default -> "Goal General: cân bằng giữa đúng ngữ pháp và giao tiếp tự nhiên.";
+            case "GRAMMAR" -> "Mục tiêu: Ngữ pháp (ưu tiên sửa cấu trúc và ngữ pháp).";
+            case "FLUENCY" -> "Mục tiêu: Trôi chảy (ưu tiên độ trôi chảy và diễn đạt tự nhiên).";
+            case "COMMUNICATION" -> "Mục tiêu: Giao tiếp (ưu tiên truyền đạt ý rõ ràng, tự tin).";
+            default -> "Mục tiêu: Tổng quát (cân bằng giữa ngữ pháp và giao tiếp tự nhiên).";
         };
 
         String modeLabel = switch (mode) {
-            case "FLUENCY" -> "Mode Fluency: phản hồi ngắn, giữ nhịp hội thoại liên tục.";
-            case "COACH" -> "Mode Coach: phản hồi kèm hướng dẫn cụ thể để cải thiện.";
-            default -> "Mode Standard: phản hồi cân bằng theo ngữ cảnh.";
+            case "FLUENCY" -> "Chế độ: Fluency (phản hồi ngắn, giữ nhịp hội thoại liên tục).";
+            case "COACH" -> "Chế độ: Coach (phản hồi kèm hướng dẫn cụ thể để cải thiện).";
+            default -> "Chế độ: Tiêu chuẩn (phản hồi cân bằng theo ngữ cảnh).";
         };
 
         String focusLabel = switch (focus) {
-            case "GRAMMAR" -> "Focus Grammar.";
-            case "FLUENCY" -> "Focus Fluency.";
-            case "VOCABULARY" -> "Focus Vocabulary.";
-            case "PRONUNCIATION" -> "Focus Pronunciation.";
-            default -> "Focus General.";
+            case "GRAMMAR" -> "Trọng tâm: Ngữ pháp.";
+            case "FLUENCY" -> "Trọng tâm: Trôi chảy.";
+            case "VOCABULARY" -> "Trọng tâm: Từ vựng.";
+            case "PRONUNCIATION" -> "Trọng tâm: Phát âm.";
+            default -> "Trọng tâm: Tổng quát.";
         };
 
         String base = defaultIfBlank(source, includeActionHint
                 ? "Hãy thử nói lại câu theo đúng mục tiêu của phiên hiện tại."
                 : "Bạn đang đi đúng hướng của phiên luyện tập.");
-        return "[" + goalLabel + " " + modeLabel + " " + focusLabel + "] " + base;
+        return """
+                [Thiết lập phiên]
+                - %s
+                - %s
+                - %s
+                [Gợi ý]
+                %s
+                """.formatted(goalLabel, modeLabel, focusLabel, base);
     }
 
     private String normalizePolicyValue(String value) {
