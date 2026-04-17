@@ -24,6 +24,9 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
         String role = safe(session.getAiRoleSnapshot());
         String instruction = safe(session.getInstructionSnapshot());
         String extraFromContent = safe(session.getSystemPromptSnapshot());
+        String goalType = safe(session.getGoalType());
+        String focusSkill = safe(session.getFocusSkill());
+        String coachingMode = safe(session.getCoachingMode());
 
         String topicRules = scenario
                 ? """
@@ -43,6 +46,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 ? ""
                 : "\nAdditional notes from content team:\n" + extraFromContent + "\n";
 
+        String goalModeRules = buildGoalModeRoleplayRules(goalType, focusSkill, coachingMode);
+
         return """
                 You are an AI English conversation partner in a language learning app.
                 Speak only in English. Stay fully in character for the role below.
@@ -60,11 +65,19 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 Session title: %s
                 Your in-character role: %s
                 Scenario goal (what the learner should practice): %s
+                Session learning goal: %s
+                Session focus skill: %s
+                Session coaching mode: %s
+                %s
                 %s""".formatted(
                 topicRules,
                 title.isEmpty() ? "(practice session)" : title,
                 role.isEmpty() ? "English practice partner" : role,
                 instruction.isEmpty() ? "General English practice." : instruction,
+                goalType,
+                focusSkill,
+                coachingMode,
+                goalModeRules,
                 extraBlock
         );
     }
@@ -151,6 +164,10 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
     @Override
     public String buildFeedbackPrompt(AiChatSession session, String userMessage, String inputType) {
+        String goalType = safe(session.getGoalType());
+        String focusSkill = safe(session.getFocusSkill());
+        String coachingMode = safe(session.getCoachingMode());
+        String feedbackRules = buildGoalModeFeedbackRules(goalType, focusSkill, coachingMode);
         String scenarioLine = "";
         if (isScenarioSession(session)) {
             scenarioLine = """
@@ -173,6 +190,11 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
                     - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
                     - Keep Vietnamese explanations short, practical, and easy for learners.
+                    Session policy:
+                    - GoalType: %s
+                    - FocusSkill: %s
+                    - CoachingMode: %s
+                    %s
 
                     %sTranscript (learner):
                     %s
@@ -196,7 +218,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                         }
                       ]
                     }
-                    """.formatted(scenarioLine, userMessage);
+                    """.formatted(goalType, focusSkill, coachingMode, feedbackRules, scenarioLine, userMessage);
         }
         return """
                 Analyze the learner's English for a chat app.
@@ -206,6 +228,11 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
                 - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
                 - Keep Vietnamese explanations short, practical, and easy for learners.
+                Session policy:
+                - GoalType: %s
+                - FocusSkill: %s
+                - CoachingMode: %s
+                %s
 
                 %sLearner message:
                 %s
@@ -229,7 +256,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     }
                   ]
                 }
-                """.formatted(scenarioLine, userMessage);
+                """.formatted(goalType, focusSkill, coachingMode, feedbackRules, scenarioLine, userMessage);
     }
 
     @Override
@@ -261,5 +288,92 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
     private String safe(String s) {
         return s == null ? "" : s;
+    }
+
+    private String buildGoalModeRoleplayRules(String goalType, String focusSkill, String coachingMode) {
+        String goal = goalType.toUpperCase();
+        String mode = coachingMode.toUpperCase();
+        String focus = focusSkill.toUpperCase();
+
+        String goalRules = switch (goal) {
+            case "GRAMMAR" -> """
+                    - GRAMMAR goal: prioritize grammatical accuracy. Correct tense, agreement, and sentence structure explicitly.
+                    - Ask follow-up questions that encourage the learner to reuse corrected structures.
+                    """;
+            case "FLUENCY" -> """
+                    - FLUENCY goal: prioritize smooth, continuous expression and natural phrasing.
+                    - Avoid over-correcting minor errors in the middle of conversation flow.
+                    """;
+            case "COMMUNICATION" -> """
+                    - COMMUNICATION goal: prioritize successful meaning delivery and confidence.
+                    - Keep learner engaged in task completion, with gentle corrections only when needed.
+                    """;
+            default -> """
+                    - General goal: keep a balanced approach between clarity, correctness, and confidence.
+                    """;
+        };
+
+        String modeRules = switch (mode) {
+            case "FLUENCY" -> """
+                    - FLUENCY mode: keep replies short and momentum-oriented; ask one forward-driving question.
+                    - Prefer reformulations that the learner can say immediately.
+                    """;
+            case "COACH" -> """
+                    - COACH mode: balance encouragement with actionable correction and next-step guidance.
+                    - Give one concrete coaching suggestion per turn when possible.
+                    """;
+            default -> "";
+        };
+
+        String focusRules = switch (focus) {
+            case "GRAMMAR" -> "- FocusSkill GRAMMAR: emphasize structure quality in your guidance.\n";
+            case "FLUENCY" -> "- FocusSkill FLUENCY: emphasize natural pacing and linking ideas.\n";
+            case "VOCABULARY" -> "- FocusSkill VOCABULARY: emphasize word choice precision and collocations.\n";
+            case "PRONUNCIATION" -> "- FocusSkill PRONUNCIATION: when channel is voice, give practical articulation hints.\n";
+            default -> "";
+        };
+
+        return "Goal/Mode policy:\n" + goalRules + modeRules + focusRules;
+    }
+
+    private String buildGoalModeFeedbackRules(String goalType, String focusSkill, String coachingMode) {
+        String goal = goalType.toUpperCase();
+        String mode = coachingMode.toUpperCase();
+        String focus = focusSkill.toUpperCase();
+
+        String goalRules = switch (goal) {
+            case "GRAMMAR" -> """
+                    - If unsure between issues, prioritize grammar mistakes first.
+                    - Ensure at least one grammar-focused recommendation when an error exists.
+                    """;
+            case "FLUENCY" -> """
+                    - Prioritize natural flow and concise reformulation over exhaustive micro-corrections.
+                    - naturalSuggestion should optimize speakability and rhythm.
+                    """;
+            case "COMMUNICATION" -> """
+                    - Prioritize intelligibility and task success; avoid overwhelming detail.
+                    - overallComment should reinforce successful communication intent.
+                    """;
+            default -> "";
+        };
+
+        String modeRules = switch (mode) {
+            case "FLUENCY" -> """
+                    - Keep corrections minimal; prefer one high-impact fix that improves flow.
+                    """;
+            case "COACH" -> """
+                    - Include one practical coaching takeaway in overallComment or naturalSuggestion.
+                    """;
+            default -> "";
+        };
+
+        String focusRules = switch (focus) {
+            case "GRAMMAR" -> "- FocusSkill GRAMMAR: explanations should emphasize grammar rules briefly.\n";
+            case "FLUENCY" -> "- FocusSkill FLUENCY: suggestions should improve pacing and linking.\n";
+            case "VOCABULARY" -> "- FocusSkill VOCABULARY: prioritize lexical precision and natural collocations.\n";
+            default -> "";
+        };
+
+        return goalRules + modeRules + focusRules;
     }
 }
