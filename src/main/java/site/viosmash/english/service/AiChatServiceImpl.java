@@ -329,8 +329,6 @@ public class AiChatServiceImpl implements AiChatService {
 
         assertSessionOwner(session);
 
-        boolean wasActive = STATUS_ACTIVE.equalsIgnoreCase(session.getStatus());
-
         if (!STATUS_ENDED.equalsIgnoreCase(session.getStatus())) {
             session.setStatus(STATUS_ENDED);
             session.setEndedAt(LocalDateTime.now());
@@ -349,7 +347,7 @@ public class AiChatServiceImpl implements AiChatService {
         String summaryJson = aiRoleplayService.generateSummaryJson(session, messages);
         EndSessionResponse summaryResponse = saveAndBuildSummary(sessionId, durationSeconds, summaryJson, messages);
 
-        if (wasActive && session.getUserId() != null) {
+        if (session.getUserId() != null) {
             try {
                 profileLearningActivityService.logAiChatSessionEnded(session.getUserId(), session, durationSeconds);
             } catch (Exception ex) {
