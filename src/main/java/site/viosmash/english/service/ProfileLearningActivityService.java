@@ -3,6 +3,8 @@ package site.viosmash.english.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,6 @@ import site.viosmash.english.entity.LearningActivity;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.profile.StreakCalculator;
 import site.viosmash.english.repository.LearningActivityRepository;
-import site.viosmash.english.repository.UserLearnedWordRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,7 +42,7 @@ public class ProfileLearningActivityService {
     private static final int HEATMAP_MED_MAX_MIN = 44;
 
     private final LearningActivityRepository learningActivityRepository;
-    private final UserLearnedWordRepository userLearnedWordRepository;
+    private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -97,7 +98,7 @@ public class ProfileLearningActivityService {
                 userId,
                 List.of(LearningActivityType.BOOK.name(), LearningActivityType.EXERCISE.name())
         );
-        long words = userLearnedWordRepository.countByUserId(userId);
+        long words = countDistinctLearnedWords(userId);
         long totalDays = learningActivityRepository.countDistinctStudyDaysNative(userId);
 
         List<java.sql.Date> dates = learningActivityRepository.findDistinctActivityDates(userId);
@@ -110,6 +111,24 @@ public class ProfileLearningActivityService {
                 .currentStreakDays(streak)
                 .totalStudyDays(totalDays)
                 .build();
+    }
+
+    private long countDistinctLearnedWords(Integer userId) {
+        String sql = """
+                SELECT COUNT(*) FROM (
+                    SELECT LOWER(TRIM(f.term)) AS norm_term
+                    FROM flashcards f
+                    JOIN decks d ON d.id = f.deck_id
+                    WHERE d.user_id = :userId
+                      AND d.status = 1
+                      AND f.status = 1
+                      AND f.term IS NOT NULL
+                      AND TRIM(f.term) <> ''
+                    GROUP BY LOWER(TRIM(f.term))
+                ) t
+                """;
+        Long count = jdbc.queryForObject(sql, new MapSqlParameterSource("userId", userId), Long.class);
+        return count == null ? 0L : count;
     }
 
     public List<HeatmapDayResponse> heatmap(Integer userId, LocalDate from, LocalDate to) {

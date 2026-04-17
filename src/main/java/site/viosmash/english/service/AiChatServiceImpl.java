@@ -79,6 +79,7 @@ public class AiChatServiceImpl implements AiChatService {
     private final Util util;
     private final ProfileLearningActivityService profileLearningActivityService;
     private final LearningMemoryService learningMemoryService;
+    private final PersonalizedVocabularyService personalizedVocabularyService;
 
     @Value("${openai.model.transcription}")
     private String transcriptionModel;
@@ -278,9 +279,16 @@ public class AiChatServiceImpl implements AiChatService {
                 ? allMessages.subList(allMessages.size() - DEFAULT_RECENT_MESSAGE_LIMIT, allMessages.size())
                 : allMessages;
 
-        log.info("AI personalization - sessionId={}, userId={}, turn={}",
-                sessionId, session.getUserId(), nextTurn);
-        String aiReply = aiRoleplayService.generateReply(session, recentMessages, userContent);
+        List<String> personalizedWords = personalizedVocabularyService.selectWordsForTurn(
+                session.getUserId(),
+                session,
+                recentMessages,
+                userContent,
+                nextTurn
+        );
+        log.info("AI personalization - sessionId={}, userId={}, turn={}, vocabCount={}",
+                sessionId, session.getUserId(), nextTurn, personalizedWords.size());
+        String aiReply = aiRoleplayService.generateReply(session, recentMessages, userContent, personalizedWords);
         String feedbackJson = aiRoleplayService.generateFeedbackJson(session, userContent, inputType);
 
         AiChatMessage aiMessage = new AiChatMessage();
