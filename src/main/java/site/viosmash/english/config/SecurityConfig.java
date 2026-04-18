@@ -58,7 +58,11 @@ public class SecurityConfig {
                             "/swagger-ui.html/**",
                             "/api/auth/**",
                             "/api/user/v1",
-                            "/api/assets/**"
+                            "/api/assets/**",
+                            // Deep link landing page: phải public để trình duyệt/chat app mở được
+                            "/book/**",
+                            // Android App Links: assetlinks.json phải public
+                            "/.well-known/**"
                     ).permitAll();
 
                     // Require authentication for API endpoints
