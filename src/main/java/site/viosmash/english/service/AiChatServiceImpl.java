@@ -200,12 +200,15 @@ public class AiChatServiceImpl implements AiChatService {
         if (opening == null || opening.isBlank()) {
             opening = buildFallbackOpeningLine(session);
         }
+        opening = personalizedVocabularyService.ensureFlashcardTermsBoldHtml(
+                opening.trim(),
+                personalizedVocabularyService.listFlashcardTermsForUser(session.getUserId()));
         AiChatMessage open = new AiChatMessage();
         open.setSessionId(session.getId());
         open.setSenderType(SENDER_AI);
         open.setInputType(INPUT_TEXT);
         open.setTurnNumber(0);
-        open.setContent(opening.trim());
+        open.setContent(opening);
         aiChatMessageRepository.save(open);
         session.setLastMessageAt(LocalDateTime.now());
         aiChatSessionRepository.save(session);
@@ -303,6 +306,8 @@ public class AiChatServiceImpl implements AiChatService {
         log.info("AI personalization - sessionId={}, userId={}, turn={}, vocabCount={}",
                 sessionId, session.getUserId(), nextTurn, personalizedWords.size());
         String aiReply = aiRoleplayService.generateReply(session, recentMessages, userContent, personalizedWords);
+        List<String> flashTermsForBold = personalizedVocabularyService.listFlashcardTermsForUser(session.getUserId());
+        aiReply = personalizedVocabularyService.ensureFlashcardTermsBoldHtml(aiReply, flashTermsForBold);
         String feedbackJson = aiRoleplayService.generateFeedbackJson(session, userContent, inputType);
 
         AiChatMessage aiMessage = new AiChatMessage();
