@@ -191,6 +191,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
                     - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                     - Keep Vietnamese explanations short, practical, and easy for learners.
+                    - CRITICAL for errors[]: "originalText" and "suggestedText" must be ENGLISH only (quote the learner's mistake and give corrected English). Put Vietnamese ONLY in each error's "explanation", plus overallComment and naturalSuggestion — never translate suggestedText into Vietnamese.
                     Session policy:
                     - GoalType: %s
                     - FocusSkill: %s
@@ -230,6 +231,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
                 - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                 - Keep Vietnamese explanations short, practical, and easy for learners.
+                - CRITICAL for errors[]: "originalText" and "suggestedText" must be ENGLISH only. Vietnamese belongs ONLY in "explanation", overallComment, and naturalSuggestion — never put Vietnamese in suggestedText.
                 Session policy:
                 - GoalType: %s
                 - FocusSkill: %s
@@ -367,6 +369,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     - overallComment (Vietnamese): start by confirming you understood their intent; tone supportive; avoid opening with harsh criticism.
                     - errors[]: at most one item per turn unless meaning is blocked.
                     - naturalSuggestion (Vietnamese): one practical line to complete the communication task, not a grammar list.
+                    - Still: errors[].suggestedText MUST be corrected ENGLISH (same task, better wording). Do NOT replace English corrections with Vietnamese sentences.
                     Do NOT paste session settings or meta headers.
                     """;
             default -> """

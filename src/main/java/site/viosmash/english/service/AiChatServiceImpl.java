@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,6 +76,10 @@ public class AiChatServiceImpl implements AiChatService {
             "nói", "viết", "dùng", "thử", "giao", "tiếp", "ngữ", "pháp", "đúng", "sai",
             "lỗi", "sửa", "gợi", "nghĩa", "tự", "nhiên", "hơn", "cách", "động",
             "từ", "quá", "khứ", "hiện", "tại", "mạo", "giới", "chia");
+
+    /** Dấu tiếng Việt: nếu xuất hiện trong suggestedText của lỗi thì gần như chắc model đã nhầm (phải là tiếng Anh). */
+    private static final Pattern VIETNAMESE_DIACRITIC_IN_TEXT = Pattern.compile(
+            "[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]");
 
     private final AiChatSessionRepository aiChatSessionRepository;
     private final AiChatMessageRepository aiChatMessageRepository;
@@ -647,7 +652,10 @@ public class AiChatServiceImpl implements AiChatService {
                         continue;
                     }
                     String originalText = toStringValue(rawMap.get("originalText"));
-                    String suggestedText = toStringValue(rawMap.get("suggestedText"));
+                    String suggestedText = coerceEnglishErrorSuggestedText(
+                            toStringValue(rawMap.get("suggestedText")),
+                            improvedVersion,
+                            originalText);
                     String rawExplanation = normalizeLearnerText(toStringValue(rawMap.get("explanation")));
                     String coreExplanation = safeExplanationVietnamese(
                             rawExplanation, originalText, suggestedText);
@@ -964,6 +972,32 @@ public class AiChatServiceImpl implements AiChatService {
             return "Hãy nhắc lại ý của bạn bằng một câu tiếng Anh hoàn chỉnh và tự nhiên hơn.";
         }
         return raw;
+    }
+
+    private boolean containsVietnameseDiacritics(String s) {
+        return s != null && !s.isBlank() && VIETNAMESE_DIACRITIC_IN_TEXT.matcher(s).find();
+    }
+
+    /**
+     * Schema yêu cầu errors[].suggestedText là tiếng Anh; model đôi khi nhầm (nhất là goal COMMUNICATION).
+     * Nếu phát hiện tiếng Việt trong suggestedText, thay bằng improvedVersion (câu tiếng Anh đầy đủ) khi hợp lệ.
+     */
+    private String coerceEnglishErrorSuggestedText(
+            String suggestedText,
+            String improvedVersion,
+            String originalText) {
+        if (suggestedText == null || suggestedText.isBlank()) {
+            return suggestedText;
+        }
+        if (!containsVietnameseDiacritics(suggestedText)) {
+            return suggestedText;
+        }
+        log.warn("AI put Vietnamese in errors[].suggestedText; replacing with improvedVersion when possible.");
+        if (improvedVersion != null && !improvedVersion.isBlank()
+                && !containsVietnameseDiacritics(improvedVersion)) {
+            return improvedVersion.trim();
+        }
+        return suggestedText;
     }
 
     private String buildFallbackExplanationVietnamese(String originalText, String suggestedText) {
