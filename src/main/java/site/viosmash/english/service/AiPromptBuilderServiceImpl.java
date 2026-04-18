@@ -24,6 +24,9 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
         String role = safe(session.getAiRoleSnapshot());
         String instruction = safe(session.getInstructionSnapshot());
         String extraFromContent = safe(session.getSystemPromptSnapshot());
+        String goalType = safe(session.getGoalType());
+        String focusSkill = safe(session.getFocusSkill());
+        String coachingMode = safe(session.getCoachingMode());
 
         String topicRules = scenario
                 ? """
@@ -43,6 +46,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 ? ""
                 : "\nAdditional notes from content team:\n" + extraFromContent + "\n";
 
+        String goalModeRules = buildGoalModeRoleplayRules(goalType, focusSkill, coachingMode);
+
         return """
                 You are an AI English conversation partner in a language learning app.
                 Speak only in English. Stay fully in character for the role below.
@@ -60,11 +65,19 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 Session title: %s
                 Your in-character role: %s
                 Scenario goal (what the learner should practice): %s
+                Session learning goal: %s
+                Session focus skill: %s
+                Session coaching mode: %s
+                %s
                 %s""".formatted(
                 topicRules,
                 title.isEmpty() ? "(practice session)" : title,
                 role.isEmpty() ? "English practice partner" : role,
                 instruction.isEmpty() ? "General English practice." : instruction,
+                goalType,
+                focusSkill,
+                coachingMode,
+                goalModeRules,
                 extraBlock
         );
     }
@@ -102,6 +115,8 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     Include at least 1 of these words naturally in this reply when context allows.
                     If none fits naturally, you may skip them to keep the response correct and fluent.
                     Never list the words explicitly.
+                    Use the chosen personalized item exactly as provided; do not shorten a phrase to one word
+                    (e.g., keep "black coffee" as "black coffee", not just "coffee").
                     If you use a personalized word, wrap that exact word in HTML bold tags as <b>word</b>.
                     Keep bold tags only for personalized words you actually used.
                     Prioritize a natural conversation flow over vocabulary insertion.
@@ -149,6 +164,10 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
     @Override
     public String buildFeedbackPrompt(AiChatSession session, String userMessage, String inputType) {
+        String goalType = safe(session.getGoalType());
+        String focusSkill = safe(session.getFocusSkill());
+        String coachingMode = safe(session.getCoachingMode());
+        String feedbackRules = buildGoalModeFeedbackRules(goalType, focusSkill, coachingMode);
         String scenarioLine = "";
         if (isScenarioSession(session)) {
             scenarioLine = """
@@ -169,8 +188,14 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     Score grammar, vocabulary, and fluency from the wording; score pronunciation as a reasonable estimate from the transcript (word forms, missing words, obvious mis-recognitions).
                     Language rules for returned text fields:
                     - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
-                    - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                    - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
+                    - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                     - Keep Vietnamese explanations short, practical, and easy for learners.
+                    Session policy:
+                    - GoalType: %s
+                    - FocusSkill: %s
+                    - CoachingMode: %s
+                    %s
 
                     %sTranscript (learner):
                     %s
@@ -194,7 +219,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                         }
                       ]
                     }
-                    """.formatted(scenarioLine, userMessage);
+                    """.formatted(goalType, focusSkill, coachingMode, feedbackRules, scenarioLine, userMessage);
         }
         return """
                 Analyze the learner's English for a chat app.
@@ -202,8 +227,14 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                 Focus on grammar, word choice, and natural written expression only.
                 Language rules for returned text fields:
                 - "improvedVersion" and "suggestedText" MUST be in natural ENGLISH.
-                - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE.
+                - "overallComment", "naturalSuggestion", and each "errors[].explanation" MUST be in clear VIETNAMESE (Unicode UTF-8, NFC), with normal spelling and tones.
+                - Use full words and normal sentences — never output random syllables, garbled diacritics, or symbols like ¥ © ® in these fields.
                 - Keep Vietnamese explanations short, practical, and easy for learners.
+                Session policy:
+                - GoalType: %s
+                - FocusSkill: %s
+                - CoachingMode: %s
+                %s
 
                 %sLearner message:
                 %s
@@ -227,7 +258,7 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
                     }
                   ]
                 }
-                """.formatted(scenarioLine, userMessage);
+                """.formatted(goalType, focusSkill, coachingMode, feedbackRules, scenarioLine, userMessage);
     }
 
     @Override
@@ -259,5 +290,107 @@ public class AiPromptBuilderServiceImpl implements AiPromptBuilderService {
 
     private String safe(String s) {
         return s == null ? "" : s;
+    }
+
+    private String buildGoalModeRoleplayRules(String goalType, String focusSkill, String coachingMode) {
+        String goal = goalType.toUpperCase();
+        String mode = coachingMode.toUpperCase();
+        String focus = focusSkill.toUpperCase();
+
+        String goalRules = switch (goal) {
+            case "GRAMMAR" -> """
+                    CRITICAL — GRAMMAR goal (visible every turn in your English reply):
+                    - Stay in character, but weave in ONE natural model sentence that fixes their main grammar mistake (correct tense, agreement, or word order). Do not paste meta labels like "Grammar:".
+                    - Ask one follow-up that nudges them to reuse that structure.
+                    - Do not give long rule lectures; demonstrate through dialogue.
+                    """;
+            case "FLUENCY" -> """
+                    CRITICAL — FLUENCY goal:
+                    - Reply in 2–3 short English sentences only. Keep momentum; one forward-driving question.
+                    - Do not teach grammar rules in the chat bubble; ignore small slips unless they block understanding.
+                    - Prefer natural reformulations they can repeat immediately.
+                    """;
+            case "COMMUNICATION" -> """
+                    CRITICAL — COMMUNICATION goal:
+                    - Prioritize intent and completing the scenario task (order, ask, solve the situation).
+                    - Open with empathy or task progress, not with correction.
+                    - At most one gentle correction per turn, only if misunderstanding is likely; otherwise keep flowing.
+                    """;
+            default -> """
+                    - General goal: balance clarity, correctness, and confidence without over-explaining.
+                    """;
+        };
+
+        String modeRules = switch (mode) {
+            case "FLUENCY" -> """
+                    - FLUENCY mode: keep replies under ~40 words; minimal correction; keep the conversation moving.
+                    """;
+            case "COACH" -> """
+                    - COACH mode: include one concrete next-step hint in English inside the reply (still in character).
+                    """;
+            default -> "";
+        };
+
+        String focusRules = switch (focus) {
+            case "GRAMMAR" -> "- FocusSkill GRAMMAR: emphasize structure quality in your guidance.\n";
+            case "FLUENCY" -> "- FocusSkill FLUENCY: emphasize natural pacing and linking ideas.\n";
+            case "VOCABULARY" -> "- FocusSkill VOCABULARY: emphasize word choice precision and collocations.\n";
+            case "PRONUNCIATION" -> "- FocusSkill PRONUNCIATION: when channel is voice, give practical articulation hints.\n";
+            default -> "";
+        };
+
+        return "Goal/Mode policy (must follow):\n" + goalRules + modeRules + focusRules;
+    }
+
+    private String buildGoalModeFeedbackRules(String goalType, String focusSkill, String coachingMode) {
+        String goal = goalType.toUpperCase();
+        String mode = coachingMode.toUpperCase();
+        String focus = focusSkill.toUpperCase();
+
+        String goalRules = switch (goal) {
+            case "GRAMMAR" -> """
+                    CRITICAL — GRAMMAR goal feedback:
+                    - overallComment (Vietnamese): exactly 1–2 short sentences (under ~280 characters). First sentence MUST name the main grammar issue (thì, thứ tự từ, số ít/nhiều, giới từ…).
+                    - errors[]: when grammar mistakes exist, list at least one GRAMMAR item when applicable.
+                    - naturalSuggestion (Vietnamese): one concrete practice tip tied to that grammar point.
+                    Do NOT paste session settings or meta headers; do not repeat the words "Goal", "Mode", or "Focus".
+                    """;
+            case "FLUENCY" -> """
+                    CRITICAL — FLUENCY goal feedback:
+                    - overallComment (Vietnamese): focus on nhịp nói, liên kết ý, từ đệm — avoid drilling grammar terminology unless the error blocks understanding.
+                    - errors[]: at most one item unless multiple errors severely block flow.
+                    - naturalSuggestion (Vietnamese): include one short English sentence (under 18 words) they can say next, natural and fluid.
+                    Do NOT paste session settings or meta headers.
+                    """;
+            case "COMMUNICATION" -> """
+                    CRITICAL — COMMUNICATION goal feedback:
+                    - overallComment (Vietnamese): start by confirming you understood their intent; tone supportive; avoid opening with harsh criticism.
+                    - errors[]: at most one item per turn unless meaning is blocked.
+                    - naturalSuggestion (Vietnamese): one practical line to complete the communication task, not a grammar list.
+                    Do NOT paste session settings or meta headers.
+                    """;
+            default -> """
+                    - Keep overallComment and naturalSuggestion short and practical.
+                    """;
+        };
+
+        String modeRules = switch (mode) {
+            case "FLUENCY" -> """
+                    - FLUENCY mode: keep corrections minimal; prefer one high-impact fix that improves flow.
+                    """;
+            case "COACH" -> """
+                    - COACH mode: include one practical coaching takeaway in overallComment or naturalSuggestion.
+                    """;
+            default -> "";
+        };
+
+        String focusRules = switch (focus) {
+            case "GRAMMAR" -> "- FocusSkill GRAMMAR: explanations should emphasize grammar rules briefly.\n";
+            case "FLUENCY" -> "- FocusSkill FLUENCY: suggestions should improve pacing and linking.\n";
+            case "VOCABULARY" -> "- FocusSkill VOCABULARY: prioritize lexical precision and natural collocations.\n";
+            default -> "";
+        };
+
+        return goalRules + modeRules + focusRules;
     }
 }
