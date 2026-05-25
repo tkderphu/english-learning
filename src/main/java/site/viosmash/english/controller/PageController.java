@@ -25,6 +25,18 @@ public class PageController {
 
     private final PageService pageService;
 
+    @Operation(summary = "Get list of pages by chapter ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pages list", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
+    })
+    @GetMapping("/v1")
+    public ResponseEntity<BaseResponse<?>> getList(@RequestParam int chapterId,
+                                                   @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+                                                   @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(BaseResponse.success(pageService.getListByChapterId(chapterId, page, limit)));
+    }
+
     @Operation(summary = "Create a page (multipart/form-data)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Page created", content = @Content),

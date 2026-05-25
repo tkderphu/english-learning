@@ -23,6 +23,20 @@ public class ChapterController {
 
     private final ChapterService chapterService;
 
+    @Operation(summary = "Get paginated chapters for a book")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Paged chapters", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
+    })
+    @org.springframework.web.bind.annotation.GetMapping("/v1")
+    public ResponseEntity<BaseResponse<?>> getList(
+            @org.springframework.web.bind.annotation.RequestParam int bookId,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int limit
+    ) {
+        return ResponseEntity.ok(BaseResponse.success(chapterService.getList(bookId, page, limit)));
+    }
+
     @Operation(summary = "Create a chapter")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Chapter created", content = @Content),

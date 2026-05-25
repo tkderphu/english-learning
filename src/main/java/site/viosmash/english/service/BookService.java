@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
@@ -130,9 +131,13 @@ public class BookService {
     }
 
     public BookResponse getDetail(int id) {
-        Integer userId = util.getCurrentUser().getId();
+        Integer userId = null;
+        if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String)) {
+            userId = util.getCurrentUser().getId();
+        }
+
         BookResponse bookResponse = bookRepository.findOneById(id, userId);
-        bookResponse.setChapters(chapterRepository.findAllByBookId(id));
+        bookResponse.setChapters(chapterRepository.findByBookIdPaginated(id, PageRequest.of(0, 100)).getContent());
         return bookResponse;
     }
 

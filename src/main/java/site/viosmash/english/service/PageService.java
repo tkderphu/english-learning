@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.viosmash.english.dto.request.PageRequest;
 import site.viosmash.english.dto.request.SentenceCreateRequest;
+import site.viosmash.english.dto.response.BookPageResponse;
 import site.viosmash.english.dto.response.FileResponse;
 import site.viosmash.english.dto.response.WhisperSentenceResponse;
 import site.viosmash.english.entity.Audio;
@@ -34,6 +35,15 @@ public class PageService {
 
     private final SentenceRepository sentenceRepository;
 
+    public org.springframework.data.domain.Page<BookPageResponse> getListByChapterId(int chapterId,
+                                                                                     int page,
+                                                                                     int limit) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page - 1, limit, org.springframework.data.domain.Sort.by("number").ascending());
+
+        org.springframework.data.domain.Page<BookPageResponse> result = pageRepository.findByChapterId(pageable, chapterId);
+        return result;
+    }
+
     @Transactional
     public int  create(PageRequest request) throws IOException, UnsupportedAudioFileException {
         Page page = new Page();
@@ -48,9 +58,9 @@ public class PageService {
         if (audio == null) {
             throw new IllegalArgumentException("You must provide audio file");
         }
-        List<WhisperSentenceResponse> whisperSentences = whisperService.transcribe(audio.getFileUrl());
+//        List<WhisperSentenceResponse> whisperSentences = whisperService.transcribe(audio.getFileUrl());
 
-//        List<WhisperSentenceResponse> whisperSentences = whisperService.loadSamplePage(page.getNumber());
+        List<WhisperSentenceResponse> whisperSentences = whisperService.loadSamplePage(page.getNumber());
 
         List<Sentence> sentences = whisperSentences.stream().map(sentence -> {
             Sentence s = new Sentence();

@@ -20,6 +20,20 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
         )
         FROM Page p
             LEFT JOIN Audio a ON p.audioId = a.id
+        WHERE p.chapterId = :chapterId
+        ORDER BY p.number ASC
+    """)
+    org.springframework.data.domain.Page<BookPageResponse> findByChapterId(Pageable pageable, @Param("chapterId") int chapterId);
+
+    @Query("""
+        SELECT new site.viosmash.english.dto.response.BookPageResponse(
+            p.id, p.number,
+            new site.viosmash.english.dto.response.AudioResponse(
+                a.id, a.duration, a.format, a.sampleRate, a.fileSize, a.fileUrl, p.id
+            )
+        )
+        FROM Page p
+            LEFT JOIN Audio a ON p.audioId = a.id
         WHERE p.chapterId IN (SELECT c.id FROM Chapter c WHERE c.bookId = :bookId)
         ORDER BY p.number ASC
     """)
