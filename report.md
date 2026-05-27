@@ -74,7 +74,20 @@
 
 # Danh mục từ viết tắt
 
-(Bổ sung nếu cần)
+| Chữ viết tắt | Cụm từ đầy đủ (Tiếng Anh) | Giải nghĩa |
+|---|---|---|
+| **AI** | Artificial Intelligence | Trí tuệ nhân tạo |
+| **ANR** | Application Not Responding | Ứng dụng không phản hồi (hiện tượng giật, treo ứng dụng) |
+| **API** | Application Programming Interface | Giao diện lập trình ứng dụng |
+| **CSDL** | Database | Cơ sở dữ liệu |
+| **DTO** | Data Transfer Object | Đối tượng chuyển đổi dữ liệu |
+| **JPA** | Java Persistence API | Giao diện lập trình Java chuẩn hóa việc lưu trữ dữ liệu |
+| **JSON** | JavaScript Object Notation | Định dạng trao đổi dữ liệu dạng văn bản gọn nhẹ |
+| **JWT** | JSON Web Token | Tiêu chuẩn mở truyền thông tin xác thực an toàn |
+| **LLM** | Large Language Model | Mô hình ngôn ngữ lớn (như Groq AI, ChatGPT) |
+| **MVVM** | Model-View-ViewModel | Mẫu kiến trúc phần mềm phổ biến trong Android |
+| **OTP** | One-Time Password | Mật khẩu dùng một lần |
+| **UI** | User Interface | Giao diện người dùng |
 
 ---
 
