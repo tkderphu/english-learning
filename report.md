@@ -198,12 +198,15 @@ Các bảng MySQL liên quan đến các chức năng được phân công:
 
 | Bảng (Entity) | Trường chính | Mô tả | Liên quan chức năng |
 |---|---|---|---|
-| users | id, email, password, full_name, avatar_url | Thông tin người dùng hệ thống (Admin, User). | Đăng nhập, Đăng ký |
-| otp_tokens | id, user_id, otp_code, expiration_time | Lưu mã OTP gửi qua email và thời hạn hiệu lực. | Quên mật khẩu |
-| books | id, title, description, cover_image | Lưu thông tin cơ bản của cuốn sách (tựa đề, mô tả...). | Tạo sách (Admin) |
-| chapters | id, book_id, title, chapter_order | Lưu thông tin các chương thuộc về một cuốn sách. | Tạo sách (Admin) |
-| pages | id, chapter_id, content, page_order | Lưu nội dung chi tiết dạng văn bản của từng trang. | Tạo sách (Admin) |
-| flashcards | id, term, definition, deck_id | Lưu thông tin từ vựng và nghĩa. Dùng khi user tra từ và thêm vào bộ thẻ. | Tra cứu từ và lưu Flashcard |
+| users | id, email, password, full_name | Thông tin người dùng hệ thống (Admin, User). | Đăng nhập, Đăng ký |
+| password_reset_otps | id, email, otp, expires_at | Lưu mã OTP gửi qua email và thời hạn hiệu lực. | Quên mật khẩu |
+| book | id, title, description, cover_url, language | Lưu thông tin cơ bản của cuốn sách (tựa đề, ngôn ngữ...). | Tạo sách (Admin) |
+| chapter | id, book_id, title, description, number | Lưu thông tin các chương (số thứ tự, mô tả) thuộc một cuốn sách. | Tạo sách (Admin) |
+| page | id, chapter_id, content, audio_id, number | Lưu nội dung chi tiết dạng văn bản của từng trang. | Tạo sách (Admin) |
+| audio | id, duration, format, file_url | Lưu thông tin tệp âm thanh đính kèm của trang sách. | Tạo sách (Admin) |
+| sentence | id, page_id, content, start_time, end_time | Lưu từng câu văn được Whisper AI phân tách với mốc thời gian. | Tạo sách (Admin) |
+| decks | id, user_id, title | Lưu danh sách bộ thẻ từ vựng của người dùng. | Tra cứu từ và lưu Flashcard |
+| flashcards | id, deck_id, term, definition, image_url | Lưu thông tin từ vựng và nghĩa. Dùng khi user tra từ và thêm vào bộ thẻ. | Tra cứu từ và lưu Flashcard |
 
 ### 1.3.2 Chức năng Đăng nhập, đăng ký và quên mật khẩu – Các lớp và hàm
 
