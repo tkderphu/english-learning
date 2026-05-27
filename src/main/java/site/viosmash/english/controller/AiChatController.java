@@ -24,6 +24,11 @@ import site.viosmash.english.dto.response.DeleteChatSessionResponse;
 @RequestMapping("/api/ai-chat")
 @RequiredArgsConstructor
 @Tag(name = "AI Chat", description = "AI roleplay chat endpoints")
+/**
+ * REST controller cho toàn bộ chức năng chat với AI.
+ * Bao gồm tạo session, gửi tin nhắn text/voice, lấy lịch sử,
+ * lấy transcript, xem chi tiết session và xóa session.
+ */
 public class AiChatController {
 
     private final AiChatService aiChatService;

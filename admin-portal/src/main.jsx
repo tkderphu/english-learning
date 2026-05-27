@@ -5,6 +5,11 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
 
+/**
+ * Theme dùng chung cho toàn bộ admin portal.
+ * Thiết lập màu sắc, typography và component style để giao diện đồng nhất,
+ * hiện đại và phù hợp với phong cách glassmorphism nhẹ.
+ */
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -75,6 +80,10 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Khởi tạo ứng dụng React với Router và ThemeProvider.
+ * Toàn bộ dashboard admin sẽ kế thừa theme và baseline style được khai báo ở trên.
+ */
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

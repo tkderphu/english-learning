@@ -48,6 +48,11 @@ import java.util.List;
 @RequestMapping("/api/profile/v1")
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "Hồ sơ, thống kê học tập, heatmap, từ vựng")
+/**
+ * REST controller quản lý toàn bộ chức năng hồ sơ cá nhân của người dùng.
+ * Bao gồm thông tin profile, thống kê học tập, heatmap, lịch sử hoạt động,
+ * danh sách từ vựng đã học và lịch sử lỗi được phát hiện từ AI Chat.
+ */
 public class ProfileController {
 
     private final Util util;

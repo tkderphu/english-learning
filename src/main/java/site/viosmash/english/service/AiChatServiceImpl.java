@@ -60,6 +60,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AiChatServiceImpl implements AiChatService {
 
+    /**
+     * Service xử lý toàn bộ nghiệp vụ chat với AI.
+     * Bao gồm tạo session, gửi message text/voice, sinh phản hồi, lưu feedback,
+     * lưu summary cuối phiên và ghi nhận session vào thống kê học tập của profile.
+     */
+
     private static final String STATUS_ACTIVE = "ACTIVE";
     private static final String STATUS_ENDED = "ENDED";
     private static final String SENDER_USER = "USER";
