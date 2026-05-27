@@ -19,6 +19,9 @@ import site.viosmash.english.util.Util;
 @RequiredArgsConstructor
 @RequestMapping("/api/onboarding")
 @Tag(name = "Onboarding", description = "After-login onboarding status")
+/**
+ * Expose APIs to read/update after-login onboarding state.
+ */
 public class OnboardingController {
 
     private final OnboardingService onboardingService;
@@ -27,6 +30,7 @@ public class OnboardingController {
     @Operation(summary = "Whether the current user completed after-login onboarding", security = {
             @SecurityRequirement(name = "bearerAuth") })
     @GetMapping("/v1/after-login")
+    /** Return completion flag for current user onboarding-after-login flow. */
     public ResponseEntity<BaseResponse<Boolean>> hasCompletedAfterLoginOnboarding() {
         Integer userId = util.getCurrentUser().getId();
         boolean value = onboardingService.hasCompletedAfterLogin(userId);
@@ -36,6 +40,7 @@ public class OnboardingController {
     @Operation(summary = "Set after-login onboarding completed flag", security = {
             @SecurityRequirement(name = "bearerAuth") })
     @PutMapping("/v1/update/{completed}")
+    /** Update completion flag for current user onboarding-after-login flow. */
     public ResponseEntity<BaseResponse<Boolean>> setAfterLoginOnboardingCompleted(
             @PathVariable boolean completed) {
         Integer userId = util.getCurrentUser().getId();

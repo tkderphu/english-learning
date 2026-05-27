@@ -8,6 +8,9 @@ import lombok.experimental.Accessors;
 @Table(name = "user_profile")
 @Entity
 @Accessors(chain = true)
+/**
+ * Persist profile data and onboarding-after-login completion state per user.
+ */
 public class UserProfile {
 
     @Id
