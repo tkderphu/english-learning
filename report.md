@@ -433,15 +433,19 @@ Source code: https://github.com/MADLearningEnglish/english_mobile.git
 
 ## 2.2 Quy tắc comment code
 
-Để đảm bảo tính nhất quán và dễ bảo trì cho dự án, toàn bộ các file cá nhân của tôi đều tuân thủ chặt chẽ chuẩn comment sau:
+Để đảm bảo tính nhất quán, dễ đọc và thuận tiện cho việc bảo trì dự án trong dài hạn, toàn bộ các tệp mã nguồn thuộc phân hệ tôi đảm nhiệm đều tuân thủ chặt chẽ các tiêu chuẩn tài liệu hóa (documentation) sau:
 
-1. **Java (Backend) – Javadoc cho class và method:** Được áp dụng tại các tầng Controller và Service (ví dụ: `AuthService.java`). Javadoc mô tả mục đích hàm, các tham số (`@param`), giá trị trả về (`@return`) và các ngoại lệ có thể xảy ra.
+1. **Chuẩn Javadoc đối với Java (Backend):** 
+   - **Phạm vi áp dụng:** Các tầng xử lý nghiệp vụ chính như `Controller` và `Service` (VD: `AuthService.java`, `BookController.java`). 
+   - **Nội dung:** Mỗi lớp (class) và phương thức (method) trọng tâm đều có block comment Javadoc giải thích rõ mục đích, ý nghĩa các tham số đầu vào (`@param`), kết quả trả về (`@return`) cũng như các ngoại lệ (`@throws`) có thể phát sinh.
 
-2. **Kotlin (Android) – KDoc cho ViewModel và Repository:** Áp dụng tại tầng UI (ViewModel) và Data (Repository). KDoc mô tả cách thức hàm tác động đến trạng thái giao diện (UI State) hoặc nguồn truy xuất dữ liệu.
+2. **Chuẩn KDoc đối với Kotlin (Android Mobile):**
+   - **Phạm vi áp dụng:** Tầng giao diện `ViewModel`, tầng dữ liệu `Repository` và các `UseCase`. 
+   - **Nội dung:** Mô tả chi tiết cách các hàm tương tác với trạng thái luồng dữ liệu (`UI State`/`StateFlow`), cách điều phối logic bất đồng bộ và xử lý sự kiện giao diện (Event).
 
-3. **Comment inline cho logic phức tạp:**
-- Giải thích luồng sinh OTP: Tại `AuthService.java`, comment lý do tại sao OTP chỉ có thời hạn 5 phút và cách xóa OTP cũ đi trước khi sinh mới.
-- Xử lý JWT Token: Comment về cách cấu hình Claims và bước kiểm tra chữ ký ở Filter bảo mật.
-- Gọi AI Tra từ: Comment tại `AiLookupService` về việc tạo system prompt như thế nào để ép AI trả về dữ liệu chuẩn JSON.
-- Coroutines (Android): Giải thích lý do sử dụng `viewModelScope.launch(Dispatchers.IO)` để đảm bảo luồng I/O mạng (Gọi API đăng nhập, tra từ) không bị giật lag trên Main Thread giao diện.
+3. **Chú thích nội tuyến (Inline Comments) cho các đoạn logic phức tạp:**
+   - **Cấp phát và xác thực OTP:** Tại `ForgotPasswordService.java`, chú thích rõ lý do thiết lập vòng đời mã OTP (5 phút) và cơ chế vô hiệu hóa mã cũ để đảm bảo an toàn bảo mật.
+   - **Xử lý JWT Token:** Ghi chú chi tiết cách thiết lập Payload Claims và quy trình xác thực chữ ký (Signature) bằng `HS256` tại `JwtService.java`.
+   - **Tích hợp Groq AI (Tra từ):** Tại `AiLookupServiceImpl.java`, làm rõ cách thiết kế *System Prompt* để ép AI trả về dữ liệu tuân thủ định dạng JSON, cùng cơ chế fallback xử lý lỗi ngoại lệ.
+   - **Tối ưu hóa đa luồng (Coroutines):** Chú thích rõ việc sử dụng `viewModelScope.launch(Dispatchers.IO)` tại các ViewModel Android để đẩy các tác vụ nặng (gọi API mạng) ra khỏi Main Thread, tránh hiện tượng giật lag (ANR).
 
