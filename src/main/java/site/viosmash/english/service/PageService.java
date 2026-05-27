@@ -23,6 +23,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * PageService – Xử lý logic nghiệp vụ cho Trang sách.
+ */
 @RequiredArgsConstructor
 @Service
 public class PageService {
@@ -44,8 +47,20 @@ public class PageService {
         return result;
     }
 
+    /**
+     * Tạo trang sách mới.
+     *
+     * Lưu entity Page, sau đó gọi whisperService.loadSamplePage() (hoặc transcribe)
+     * để lấy danh sách câu tương ứng với audio, rồi dùng sentenceRepository.saveAll()
+     * để lưu toàn bộ các câu (Sentence) của trang đó (phục vụ chức năng đọc theo câu).
+     *
+     * @param request Dữ liệu đầu vào gồm chapterId, audioId, number...
+     * @return ID của trang sách vừa tạo
+     * @throws IOException Nếu có lỗi thao tác với file
+     * @throws UnsupportedAudioFileException Nếu file audio không được hỗ trợ
+     */
     @Transactional
-    public int  create(PageRequest request) throws IOException, UnsupportedAudioFileException {
+    public int create(PageRequest request) throws IOException, UnsupportedAudioFileException {
         Page page = new Page();
         page.setContent(request.getContent());
         page.setAudioId(request.getAudioId());

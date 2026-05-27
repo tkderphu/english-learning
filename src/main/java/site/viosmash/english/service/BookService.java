@@ -23,6 +23,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+/**
+ * BookService – Xử lý logic nghiệp vụ cho Sách.
+ *
+ * Bao gồm các logic phức tạp như tạo sách (liên kết tác giả, thể loại),
+ * ghi nhận lịch sử đọc, và đề xuất sách dựa trên heatmap.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -49,6 +55,16 @@ public class BookService {
         return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, genreId));
     }
 
+    /**
+     * Tạo sách mới kèm theo liên kết tác giả và thể loại.
+     *
+     * Lưu đối tượng Book vào CSDL. Sau đó, lặp qua danh sách authorIds
+     * để lưu vào AuthorBookRepository (bảng author_book) và genreIds
+     * để lưu vào BookGenreRepository (bảng book_genre).
+     *
+     * @param req DTO chứa thông tin metadata của sách
+     * @return ID của sách vừa tạo
+     */
     public int create(BookCreateRequest req) {
         Book b = new Book();
         b.setTitle(req.getTitle());
@@ -157,6 +173,10 @@ public class BookService {
 
     /**
      * Cập nhật tiến độ đọc và (nếu đủ thời gian) ghi nhật ký hoạt động BOOK cho heatmap.
+     *
+     * @param userId ID người dùng
+     * @param bookId ID cuốn sách đang đọc
+     * @param req Thông tin tiến độ
      */
     @org.springframework.transaction.annotation.Transactional
     public void recordReadingProgress(int userId, int bookId, BookReadingProgressRequest req) {

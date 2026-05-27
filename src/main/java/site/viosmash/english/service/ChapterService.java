@@ -7,6 +7,9 @@ import site.viosmash.english.dto.request.ChapterCreateRequest;
 import site.viosmash.english.entity.Chapter;
 import site.viosmash.english.repository.ChapterRepository;
 
+/**
+ * ChapterService – Xử lý logic nghiệp vụ cho Chương sách.
+ */
 @RequiredArgsConstructor
 @Service
 public class ChapterService {
@@ -15,6 +18,15 @@ public class ChapterService {
 
     private final site.viosmash.english.util.Util util;
 
+    /**
+     * Tạo một chương mới.
+     *
+     * Set các field title, description, bookId, number vào entity Chapter
+     * rồi gọi chapterRepository.save().
+     *
+     * @param request Thông tin tạo chương (bookId, title, description, number)
+     * @return ID của chương vừa được tạo
+     */
     @Transactional
     public int create(ChapterCreateRequest request) {
         Chapter chapter = new Chapter();

@@ -13,6 +13,23 @@ import site.viosmash.english.groqapi.GroqAiClient;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AiLookupServiceImpl – Triển khai dịch vụ tra cứu từ vựng bằng Groq AI.
+ *
+ * <p>Luồng xử lý khi nhận một đoạn text cần tra cứu:
+ * <ol>
+ *   <li>Build system prompt yêu cầu AI trả về <b>JSON thuần tuý</b>
+ *       (không markdown, không giải thích thêm).</li>
+ *   <li>Xác định model sẽ dùng: ưu tiên {@code openai.model.lookup},
+ *       fallback sang {@code openai.model.roleplay} nếu chưa cấu hình.</li>
+ *   <li>Gọi {@link GroqAiClient#createTextResponse(OpenAiTextRequest)}
+ *       qua Spring WebClient.</li>
+ *   <li>Parse chuỗi JSON trả về thành {@link TextLookupResponse}.</li>
+ *   <li>Nếu AI trả về JSON bọc trong markdown code block, dùng
+ *       {@link #extractJson(String)} để bóc tách trước khi parse.</li>
+ *   <li>Tự động điền {@code audioUrl} bằng Google TTS URL.</li>
+ * </ol>
+ */
 @Service
 @RequiredArgsConstructor
 public class AiLookupServiceImpl implements AiLookupService {
@@ -20,12 +37,35 @@ public class AiLookupServiceImpl implements AiLookupService {
     private final GroqAiClient groqAiClient;
     private final ObjectMapper objectMapper;
 
+    /** Model AI dùng riêng cho tra cứu từ (ưu tiên). */
     @Value("${openai.model.lookup:}")
     private String lookupModel;
 
+    /** Model AI dùng cho roleplay, dùng làm fallback khi lookupModel chưa cấu hình. */
     @Value("${openai.model.roleplay:}")
     private String roleplayModel;
 
+    /**
+     * Tra cứu nghĩa, phiên âm và ví dụ của một từ/cụm từ tiếng Anh bằng Groq AI.
+     *
+     * <p>Build prompt yêu cầu AI trả về đúng định dạng JSON với 5 trường:
+     * {@code selectedText}, {@code meaning} (tiếng Việt), {@code phonetic},
+     * {@code audioUrl}, {@code examples}. Sau khi nhận response, tự động
+     * gắn {@code audioUrl} bằng Google TTS để Android client phát âm trực tiếp.</p>
+     *
+     * <p>Có hai lớp xử lý response:
+     * <ol>
+     *   <li><b>Primary</b>: {@code objectMapper.readValue(aiRaw, TextLookupResponse.class)}
+     *       – parse trực tiếp nếu AI trả về JSON thuần.</li>
+     *   <li><b>Fallback</b>: {@link #extractJson(String)} để tách JSON ra khỏi
+     *       markdown block (```json ... ```) trước khi parse lại.</li>
+     * </ol>
+     *
+     * @param text Từ hoặc cụm từ tiếng Anh cần tra cứu (không được rỗng)
+     * @return {@link TextLookupResponse} chứa nghĩa, phiên âm, ví dụ và URL phát âm
+     * @throws ServiceException {@code 400} nếu text rỗng;
+     *                          {@code 502 Bad Gateway} nếu AI gặp lỗi hoặc trả về không hợp lệ
+     */
     @Override
     public TextLookupResponse lookupText(String text) {
         if (text == null || text.isBlank()) {
@@ -76,7 +116,7 @@ public class AiLookupServiceImpl implements AiLookupService {
         }
 
         try {
-            // Parse trực tiếp
+            // Parse trực tiếp nếu AI trả về JSON thuần
             TextLookupResponse res = objectMapper.readValue(aiRaw, TextLookupResponse.class);
             res.setAudioUrl(String.format(
                     "https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=en&client=tw-ob",
@@ -85,7 +125,7 @@ public class AiLookupServiceImpl implements AiLookupService {
             return res;
 
         } catch (Exception ex) {
-            // Fallback: extract JSON
+            // Fallback: bóc tách JSON ra khỏi markdown code block rồi parse lại
             try {
                 String json = extractJson(aiRaw);
                 if (json == null) {
@@ -108,6 +148,20 @@ public class AiLookupServiceImpl implements AiLookupService {
         }
     }
 
+    /**
+     * Tách phần JSON ra khỏi chuỗi text (thường là markdown code block).
+     *
+     * <p>Tìm ký tự '{' đầu tiên và '}' cuối cùng trong chuỗi để
+     * cắt lấy đúng phần JSON object. Dùng khi AI trả về dạng:
+     * <pre>
+     *   ```json
+     *   { "meaning": "..." }
+     *   ```
+     * </pre>
+     *
+     * @param text Chuỗi thô từ AI response
+     * @return Chuỗi JSON thuần hoặc {@code null} nếu không tìm thấy
+     */
     private String extractJson(String text) {
         if (text == null) return null;
         int start = text.indexOf('{');

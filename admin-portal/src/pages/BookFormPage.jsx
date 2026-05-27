@@ -1,3 +1,10 @@
+/**
+ * BookFormPage - Trang giao diện thêm/sửa sách
+ *
+ * Cho phép Admin nhập các thông tin cơ bản của sách (Tiêu đề, ngôn ngữ, tác giả, thể loại).
+ * Bao gồm chức năng upload ảnh bìa thông qua API `POST /file/v1/upload` (handleImageUpload).
+ * Sau khi điền đủ dữ liệu, hàm `handleSubmit` sẽ gọi `POST /book/v1` để lưu sách vào hệ thống.
+ */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {

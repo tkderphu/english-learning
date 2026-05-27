@@ -17,6 +17,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 
+/**
+ * PageController – Bộ điều khiển quản lý Trang sách.
+ *
+ * Cung cấp các endpoint để tạo trang (chứa nội dung text và audio) thuộc
+ * về một chương sách, cũng như lấy danh sách các trang.
+ *
+ * Base path: /api/page
+ */
 @RestController
 @RequestMapping("/api/page")
 @RequiredArgsConstructor
@@ -37,6 +45,15 @@ public class PageController {
         return ResponseEntity.ok(BaseResponse.success(pageService.getListByChapterId(chapterId, page, limit)));
     }
 
+    /**
+     * Tạo trang mới – POST /api/page/v1
+     *
+     * Nhận chapterId, content, audioId, number, gọi pageService.create().
+     * Nếu có lỗi I/O (ví dụ khi xử lý audio bằng Whisper), sẽ ném ServiceException.
+     *
+     * @param req Request chứa thông tin trang (chương ID, âm thanh ID, số thứ tự)
+     * @return BaseResponse
+     */
     @Operation(summary = "Create a page (multipart/form-data)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Page created", content = @Content),

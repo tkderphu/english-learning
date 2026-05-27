@@ -1,3 +1,10 @@
+/**
+ * ChapterFormPage - Trang giao diện thêm/sửa chương sách
+ *
+ * Cho phép Admin tạo hoặc cập nhật thông tin của một chương (number, title, description)
+ * thuộc về một cuốn sách cụ thể.
+ * Hàm `handleSubmit` sẽ gọi `POST /chapter/v1` (kèm bookId từ params) để lưu chương.
+ */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {

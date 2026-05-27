@@ -1,3 +1,11 @@
+/**
+ * PageFormPage - Trang giao diện thêm/sửa phân đoạn trang sách
+ *
+ * Xử lý logic tạo một trang nội dung thuộc chương sách. Điểm quan trọng là
+ * hàm `handleAudioUpload` gọi `POST /audio/v1/upload` (sử dụng FormData)
+ * để lấy `audioId`.
+ * Khi Submit, form sẽ gọi `POST /page/v1` kèm theo `chapterId`, `number` và `audioId`.
+ */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
