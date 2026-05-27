@@ -47,6 +47,15 @@ public class DeckController {
         return ResponseEntity.ok(BaseResponse.success(deckService.getDeckResponseById(userId, id)));
     }
 
+    /**
+     * Cập nhật bộ thẻ (thêm hoặc sửa flashcard) – PUT /api/deck/v1/{id}
+     *
+     * Client Android gọi API này với danh sách flashcard đầy đủ (cũ + thẻ mới vừa tra).
+     *
+     * @param id ID của deck
+     * @param req DTO chứa danh sách thẻ cập nhật
+     * @return BaseResponse chứa deck đã cập nhật
+     */
     @Operation(summary = "Update deck information", security = { @SecurityRequirement(name = "bearerAuth") })
     @PutMapping("/v1/{id}")
     public ResponseEntity<BaseResponse<?>> updateDeck(

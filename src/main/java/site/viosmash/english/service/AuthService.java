@@ -8,23 +8,31 @@ import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.LoginRequest;
 import site.viosmash.english.dto.response.AuthResponse;
 import site.viosmash.english.entity.User;
-import site.viosmash.english.entity.UserSession;
 import site.viosmash.english.exception.ServiceException;
 import site.viosmash.english.repository.UserRepository;
-import site.viosmash.english.repository.UserSessionRepository;
 import site.viosmash.english.util.enums.JwtClaims;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * AuthService – Xử lý logic xác thực người dùng và tạo JWT Token.
+ *
+ * <p>Luồng đăng nhập:
+ * <ol>
+ *   <li>Tìm user theo email trong CSDL qua {@link UserRepository#findByEmail(String)}.</li>
+ *   <li>So khớp mật khẩu bằng {@code PasswordEncoder.matches()} (BCrypt).</li>
+ *   <li>Sinh {@code refreshToken} (chứa {@code idToken}, {@code expired}, {@code sub}).</li>
+ *   <li>Sinh {@code accessToken} (chứa đầy đủ claim: email, role, fullName, refreshToken).</li>
+ *   <li>Trả về {@link AuthResponse} gồm cả hai token và thông tin user.</li>
+ * </ol>
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-
-    private final UserSessionRepository userSessionRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -36,6 +44,16 @@ public class AuthService {
     @Value("${spring.security.jwt.refresh-token.minutes}")
     private int refreshToken;
 
+    /**
+     * Thực hiện xác thực người dùng và trả về cặp JWT token.
+     *
+     * <p>Nếu email không tồn tại hoặc mật khẩu sai, ném {@code 404 Not Found}
+     * với thông báo chung để tránh lộ thông tin (email enumeration).</p>
+     *
+     * @param loginRequest DTO chứa {@code email} và {@code password}
+     * @return {@link AuthResponse} với {@code accessToken}, {@code refreshToken}
+     *         và thông tin cơ bản của người dùng
+     */
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository
                 .findByEmail(loginRequest.getEmail())
@@ -48,16 +66,19 @@ public class AuthService {
         String refreshToken = buildRefreshToken(user);
         String accessToken = buildAccessToken(user, refreshToken);
 
-        UserSession session = new UserSession()
-                .setUserId(user.getId())
-                .setRefreshToken(refreshToken);
-        session.setStatus(1);
-
-        this.userSessionRepository.save(session);
-
         return new AuthResponse(accessToken, refreshToken, (Long) jwtService.extractClaim(JwtClaims.EXPIRED, accessToken), user);
     }
 
+    /**
+     * Tạo Refresh Token cho người dùng.
+     *
+     * <p>Refresh Token chứa các claim: {@code idToken} (UUID ngẫu nhiên),
+     * {@code expired} (timestamp hết hạn), {@code sub} (userId).
+     * Token được ký bằng HS256 với secret key cấu hình trong {@code application.yml}.</p>
+     *
+     * @param user Đối tượng User đã xác thực
+     * @return Chuỗi JWT Refresh Token
+     */
     private String buildRefreshToken(User user) {
         String idToken = UUID.randomUUID().toString();
         Map<String, Object> claimsProperties = new HashMap<>();
@@ -67,6 +88,18 @@ public class AuthService {
         return this.jwtService.generateToken(claimsProperties);
     }
 
+    /**
+     * Tạo Access Token cho người dùng.
+     *
+     * <p>Access Token chứa đầy đủ claim cần thiết để phân quyền:
+     * {@code email}, {@code preferredName} (họ tên), {@code roleType},
+     * {@code expired}, {@code sub} (userId) và {@code refreshToken} (để server
+     * có thể thu hồi khi cần). Token có thời hạn ngắn hơn Refresh Token.</p>
+     *
+     * @param user         Đối tượng User đã xác thực
+     * @param refreshToken Refresh Token đã được tạo trước đó (nhúng vào claim)
+     * @return Chuỗi JWT Access Token
+     */
     private String buildAccessToken(User user, String refreshToken) {
 
         String idToken = UUID.randomUUID().toString();

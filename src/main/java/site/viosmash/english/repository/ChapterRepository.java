@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
 
-    @Query("""
+    @Query(value = """
     SELECT new site.viosmash.english.dto.response.ChapterResponse(
-        c.id, b.id, c.title, c.description, c.number,
+        c.id, c.bookId, c.title, c.description, c.number,
         (SELECT COUNT(p.id) FROM Page p WHERE p.chapterId = c.id),
         (
             SELECT SUM(COALESCE(a.duration, 0))
@@ -23,8 +23,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
         )
     )
     FROM Chapter c
-    JOIN Book b ON c.bookId = b.id
-    WHERE b.id = :id
-""")
+    WHERE c.bookId = :bookId
+""", countQuery = "SELECT COUNT(c) FROM Chapter c WHERE c.bookId = :bookId")
+    org.springframework.data.domain.Page<ChapterResponse> findByBookIdPaginated(@Param("bookId") int bookId, org.springframework.data.domain.Pageable pageable);
+
     List<ChapterResponse> findAllByBookId(@Param("id") int id);
 }

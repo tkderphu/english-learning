@@ -22,6 +22,14 @@ import site.viosmash.english.util.Util;
 
 import java.util.List;
 
+/**
+ * BookController – Bộ điều khiển quản lý Sách.
+ *
+ * Cung cấp các endpoint để lấy danh sách sách, tạo sách mới, xem lịch sử đọc,
+ * gợi ý sách, và quản lý danh sách yêu thích.
+ *
+ * Base path: /api/book
+ */
 @RestController
 @RequestMapping("/api/book")
 @RequiredArgsConstructor
@@ -64,6 +72,14 @@ public class BookController {
         return ResponseEntity.ok(BaseResponse.success(bookService.getList(page, limit, null, genreId)));
     }
 
+    /**
+     * Tạo sách mới – POST /api/book/v1
+     *
+     * Nhận request tạo sách, gọi bookService.create(). Không yêu cầu xác thực (public endpoint).
+     *
+     * @param req Thông tin sách mới (tiêu đề, tác giả, thể loại, coverUrl...)
+     * @return BaseResponse
+     */
     @Operation(summary = "Create a book")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Book created", content = @Content),
@@ -187,9 +203,20 @@ public class BookController {
         return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, offset, limit)));
     }
 
+    /**
+     * Cập nhật tiến độ đọc sách – PATCH /api/book/v1/{bookId}/progress
+     *
+     * Cập nhật trang đang đọc vào bảng book_progress.
+     * Nếu thời lượng đọc (durationSeconds) >= 30s, gọi logBookReadingSession
+     * để ghi nhận hoạt động vào biểu đồ heatmap.
+     *
+     * @param bookId ID của sách
+     * @param req Thông tin tiến độ (trang cuối cùng, thời gian bắt đầu, thời lượng)
+     * @return BaseResponse "OK"
+     */
     @Operation(
             summary = "Cập nhật tiến độ đọc sách",
-            description = "Lưu trang đang đọc; nếu durationSeconds ≥ 30s thì ghi thêm hoạt động BOOK cho heatmap.",
+            description = "Lưu trang đang đọc; nếu durationSeconds >= 30s thì ghi thêm hoạt động BOOK cho heatmap.",
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @PatchMapping("/v1/{bookId}/progress")

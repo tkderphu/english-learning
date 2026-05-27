@@ -190,5 +190,5 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
             )
         WHERE b.id = :id
     """, nativeQuery = true)
-    BookResponse findOneById(@Param("id") int id, @Param("userId") int userId);
+    BookResponse findOneById(@Param("id") int id, @Param("userId") Integer userId);
 }

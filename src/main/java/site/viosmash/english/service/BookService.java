@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
@@ -22,12 +23,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+/**
+ * BookService – Xử lý logic nghiệp vụ cho Sách.
+ *
+ * Bao gồm các logic phức tạp như tạo sách (liên kết tác giả, thể loại),
+ * ghi nhận lịch sử đọc, và đề xuất sách dựa trên heatmap.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-/**
- * Business logic for book listing, detail, recommendation and reading progress.
- */
 public class BookService {
 
     private static final int MIN_SECONDS_TO_LOG_READING = 30;
@@ -52,7 +56,16 @@ public class BookService {
         return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, genreId));
     }
 
-    /** Create a book and persist mapping records for authors and genres. */
+    /**
+     * Tạo sách mới kèm theo liên kết tác giả và thể loại.
+     *
+     * Lưu đối tượng Book vào CSDL. Sau đó, lặp qua danh sách authorIds
+     * để lưu vào AuthorBookRepository (bảng author_book) và genreIds
+     * để lưu vào BookGenreRepository (bảng book_genre).
+     *
+     * @param req DTO chứa thông tin metadata của sách
+     * @return ID của sách vừa tạo
+     */
     public int create(BookCreateRequest req) {
         Book b = new Book();
         b.setTitle(req.getTitle());
@@ -142,9 +155,13 @@ public class BookService {
 
     /** Return book detail with chapter list. */
     public BookResponse getDetail(int id) {
-        Integer userId = util.getCurrentUser().getId();
+        Integer userId = null;
+        if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String)) {
+            userId = util.getCurrentUser().getId();
+        }
+
         BookResponse bookResponse = bookRepository.findOneById(id, userId);
-        bookResponse.setChapters(chapterRepository.findAllByBookId(id));
+        bookResponse.setChapters(chapterRepository.findByBookIdPaginated(id, PageRequest.of(0, 100)).getContent());
         return bookResponse;
     }
 
