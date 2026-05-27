@@ -20,6 +20,10 @@ import site.viosmash.english.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service xử lý các nghiệp vụ liên quan đến Bộ thẻ (Deck) và Flashcard.
+ * Đóng vai trò là lớp nghiệp vụ trung tâm kết nối giữa Controller và Repository.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,6 +38,15 @@ public class DeckService {
     // ==========================================
     // 1. CREATE: Tạo Deck và Flashcards đồng thời
     // ==========================================
+
+    /**
+     * Tạo một bộ thẻ mới kèm theo danh sách các thẻ từ vựng (nếu có).
+     * Hàm này thực thi trong một transaction duy nhất.
+     *
+     * @param userId  ID của người dùng tạo bộ thẻ.
+     * @param request Dữ liệu đầu vào để tạo bộ thẻ.
+     * @return DTO chứa thông tin bộ thẻ vừa tạo thành công.
+     */
     @Transactional
     public DeckResponse createDeckWithFlashcards(Integer userId, DeckCreateRequest request) {
         User user = userRepository.findById(userId)
@@ -72,19 +85,40 @@ public class DeckService {
     // 2. READ: Lấy danh sách hoặc chi tiết
     // ==========================================
     
-    // Lấy tất cả Deck đang Active của user
+    /**
+     * Lấy danh sách toàn bộ các bộ thẻ đang hoạt động của một người dùng.
+     * Hỗ trợ lọc theo từ khóa tìm kiếm.
+     *
+     * @param userId      ID của người dùng cần lấy bộ thẻ.
+     * @param searchParam (Tuỳ chọn) Từ khóa tìm kiếm tiêu đề bộ thẻ.
+     * @return Danh sách các bộ thẻ dưới dạng DTO.
+     */
     public List<DeckResponse> getAllActiveDecks(Integer userId, String searchParam) {
         return deckRepository.findByUserIdAndStatusAndTitleContainingIgnoreCase(userId, 1, searchParam).stream()
                 .map(deckMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    // Lấy chi tiết 1 Deck
+    /**
+     * Tìm bộ thẻ theo ID trong cơ sở dữ liệu. 
+     * Ném ngoại lệ nếu không tìm thấy.
+     *
+     * @param deckId ID của bộ thẻ.
+     * @return Entity Deck chứa thông tin bộ thẻ.
+     */
     public Deck getDeckById(int deckId) {
         return deckRepository.findById(deckId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bộ thẻ với ID: " + deckId));
     }
 
+    /**
+     * Lấy thông tin chi tiết của một bộ thẻ kèm kiểm tra quyền sở hữu.
+     *
+     * @param userId ID người dùng yêu cầu (dùng để xác thực quyền).
+     * @param deckId ID bộ thẻ cần lấy.
+     * @return DTO chứa thông tin chi tiết bộ thẻ.
+     * @throws RuntimeException nếu người dùng không có quyền truy cập.
+     */
     public DeckResponse getDeckResponseById(Integer userId, int deckId) {
         Deck deck = getDeckById(deckId);
         if (deck.getUser() == null || deck.getUser().getId() != userId) {
@@ -96,6 +130,15 @@ public class DeckService {
     // ==========================================
     // 3. UPDATE: Cập nhật thông tin cơ bản của Deck
     // ==========================================
+
+    /**
+     * Cập nhật thông tin tiêu đề bộ thẻ và danh sách flashcard (thêm mới, cập nhật, hoặc xóa mềm).
+     *
+     * @param userId  ID người dùng đang thực hiện cập nhật.
+     * @param deckId  ID của bộ thẻ cần cập nhật.
+     * @param request Dữ liệu cập nhật.
+     * @return DTO chứa thông tin bộ thẻ sau khi đã cập nhật thành công.
+     */
     @Transactional
     public DeckResponse updateDeck(Integer userId, int deckId, DeckUpdateRequest request) {
         Deck deck = getDeckById(deckId);
@@ -178,6 +221,14 @@ public class DeckService {
     // ==========================================
     // 4. DELETE: Xóa mềm (Soft Delete)
     // ==========================================
+
+    /**
+     * Thực hiện xóa mềm một bộ thẻ. Chuyển trạng thái bộ thẻ về 0 (Inactive) 
+     * thay vì xóa vật lý khỏi database để tránh lỗi khóa ngoại đối với thống kê.
+     *
+     * @param userId ID của người dùng.
+     * @param deckId ID của bộ thẻ cần xóa.
+     */
     @Transactional
     public void deleteDeck(int userId, int deckId) {
         Deck deck = getDeckById(deckId);
@@ -192,7 +243,12 @@ public class DeckService {
     }
 
     /**
-     * Ghi nhận hoàn thành phiên học flashcard (client gọi sau khi học xong bộ thẻ).
+     * Ghi nhận việc hoàn thành một phiên học flashcard.
+     * Gọi qua service Activity để ghi log và tính điểm heatmap.
+     *
+     * @param userId ID người dùng hoàn thành học.
+     * @param deckId ID của bộ thẻ vừa học.
+     * @param req    Dữ liệu báo cáo (thời gian học, điểm số).
      */
     @Transactional
     public void recordStudySessionComplete(Integer userId, int deckId, DeckStudyCompleteRequest req) {
