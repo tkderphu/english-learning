@@ -7,22 +7,40 @@ import site.viosmash.english.dto.request.ChapterCreateRequest;
 import site.viosmash.english.entity.Chapter;
 import site.viosmash.english.repository.ChapterRepository;
 
+/**
+ * ChapterService – Xử lý logic nghiệp vụ cho Chương sách.
+ */
 @RequiredArgsConstructor
 @Service
 public class ChapterService {
 
     private final ChapterRepository chapterRepository;
 
-    private final PageService pageService;
+    private final site.viosmash.english.util.Util util;
 
+    /**
+     * Tạo một chương mới.
+     *
+     * Set các field title, description, bookId, number vào entity Chapter
+     * rồi gọi chapterRepository.save().
+     *
+     * @param request Thông tin tạo chương (bookId, title, description, number)
+     * @return ID của chương vừa được tạo
+     */
     @Transactional
     public int create(ChapterCreateRequest request) {
         Chapter chapter = new Chapter();
         chapter.setTitle(request.getTitle());
         chapter.setDescription(request.getDescription());
         chapter.setBookId(request.getBookId());
+        chapter.setNumber(request.getNumber()); // Ensure number is set
         this.chapterRepository.save(chapter);
         return chapter.getId();
+    }
+
+    public site.viosmash.english.dto.response.PageResponse<site.viosmash.english.dto.response.ChapterResponse> getList(int bookId, int page, int limit) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page - 1, limit, org.springframework.data.domain.Sort.by("number").ascending());
+        return util.convert(chapterRepository.findByBookIdPaginated(bookId, pageable));
     }
 
 }

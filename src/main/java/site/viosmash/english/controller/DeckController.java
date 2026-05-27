@@ -89,7 +89,7 @@ public class DeckController {
     }
 
     /**
-     * Xóa mềm (Soft delete) một bộ thẻ. Bộ thẻ sẽ bị ẩn khỏi danh sách 
+     * Xóa mềm (Soft delete) một bộ thẻ. Bộ thẻ sẽ bị ẩn khỏi danh sách
      * nhưng vẫn giữ lại trong cơ sở dữ liệu để đảm bảo toàn vẹn dữ liệu thống kê.
      *
      * @param id ID của bộ thẻ cần xóa.
@@ -121,7 +121,7 @@ public class DeckController {
     }
 
     /**
-     * Ghi nhận kết quả của một phiên học Flashcard. 
+     * Ghi nhận kết quả của một phiên học Flashcard.
      * Hệ thống sẽ lưu trữ thời gian học và điểm số (nếu có) vào lịch sử học tập (Heatmap).
      *
      * @param deckId ID của bộ thẻ vừa học xong.

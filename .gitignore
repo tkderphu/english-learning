@@ -17,6 +17,8 @@ application-local.properties
 # App file storage (voice uploads, assets)
 uploads/
 
+node_modules
+
 # OS
 Thumbs.db
 Desktop.ini

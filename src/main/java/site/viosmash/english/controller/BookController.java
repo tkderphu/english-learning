@@ -22,10 +22,21 @@ import site.viosmash.english.util.Util;
 
 import java.util.List;
 
+/**
+ * BookController – Bộ điều khiển quản lý Sách.
+ *
+ * Cung cấp các endpoint để lấy danh sách sách, tạo sách mới, xem lịch sử đọc,
+ * gợi ý sách, và quản lý danh sách yêu thích.
+ *
+ * Base path: /api/book
+ */
 @RestController
 @RequestMapping("/api/book")
 @RequiredArgsConstructor
 @Tag(name = "Book", description = "Book endpoints")
+/**
+ * Handle book-related APIs for home, detail, search and reading flows.
+ */
 public class BookController {
 
     private final BookService bookService;
@@ -37,6 +48,7 @@ public class BookController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1")
+    /** Return paginated books with optional keyword filter. */
     public ResponseEntity<BaseResponse<?>> getList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
@@ -51,6 +63,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/genre/{id}")
+    /** Return paginated books by genre for books-by-genre screen. */
     public ResponseEntity<BaseResponse<?>> getListByGenre(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
@@ -59,12 +72,21 @@ public class BookController {
         return ResponseEntity.ok(BaseResponse.success(bookService.getList(page, limit, null, genreId)));
     }
 
+    /**
+     * Tạo sách mới – POST /api/book/v1
+     *
+     * Nhận request tạo sách, gọi bookService.create(). Không yêu cầu xác thực (public endpoint).
+     *
+     * @param req Thông tin sách mới (tiêu đề, tác giả, thể loại, coverUrl...)
+     * @return BaseResponse
+     */
     @Operation(summary = "Create a book")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Book created", content = @Content),
         @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
     })
     @PostMapping("/v1")
+    /** Create a new book with author/genre relations. */
     public ResponseEntity<BaseResponse<?>> create(@RequestBody BookCreateRequest req) {
         bookService.create(req);
         return ResponseEntity.ok(BaseResponse.success(null));
@@ -76,6 +98,7 @@ public class BookController {
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
     @GetMapping("/v1/history")
+    /** Return reading history of current user. */
     public ResponseEntity<BaseResponse<?>>history(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
@@ -89,6 +112,7 @@ public class BookController {
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
     @GetMapping("/v1/recommend")
+    /** Return recommendation list for current user home feed. */
     public ResponseEntity<BaseResponse<?>> recommend(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
@@ -102,6 +126,7 @@ public class BookController {
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/authors")
+    /** Return paginated active authors for author listing screens. */
     public ResponseEntity<BaseResponse<PageResponse<AuthorResponse>>> getAuthors(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
@@ -115,6 +140,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/authors/{authorId}/books")
+    /** Return paginated books by selected author. */
     public ResponseEntity<BaseResponse<PageResponse<BookResponse>>> getBooksByAuthor(
             @PathVariable("authorId") int authorId,
             @RequestParam(defaultValue = "1") int page,
@@ -129,6 +155,7 @@ public class BookController {
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
     @GetMapping("/v1/favorites")
+    /** Return current user's favorite books. */
     public ResponseEntity<BaseResponse<PageResponse<BookResponse>>> getFavorites(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
@@ -142,6 +169,7 @@ public class BookController {
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
     @PutMapping("/v1/favorite/{bookId}")
+    /** Mark or unmark a book as favorite for current user. */
     public ResponseEntity<BaseResponse<Boolean>> favorite(
             @PathVariable("bookId") int bookId,
             @RequestParam("isFavorite") boolean isFavorite
@@ -155,6 +183,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/{id}")
+    /** Return detail information of a book by id. */
     public ResponseEntity<BaseResponse<BookResponse>> getDetail(@PathVariable("id") int id) {
         return ResponseEntity.ok(BaseResponse.success(bookService.getDetail(id)));
     }
@@ -165,6 +194,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Server error", content = @Content)
     })
     @GetMapping("/v1/{bookId}/pages")
+    /** Return chunked pages to support reading screen pagination. */
     public ResponseEntity<BaseResponse<List<BookPageResponse>>> getPagesByBook(
             @PathVariable("bookId") int bookId,
             @RequestParam("offset") int offset,
@@ -173,12 +203,24 @@ public class BookController {
         return ResponseEntity.ok(BaseResponse.success(bookService.getPagesByBook(bookId, offset, limit)));
     }
 
+    /**
+     * Cập nhật tiến độ đọc sách – PATCH /api/book/v1/{bookId}/progress
+     *
+     * Cập nhật trang đang đọc vào bảng book_progress.
+     * Nếu thời lượng đọc (durationSeconds) >= 30s, gọi logBookReadingSession
+     * để ghi nhận hoạt động vào biểu đồ heatmap.
+     *
+     * @param bookId ID của sách
+     * @param req Thông tin tiến độ (trang cuối cùng, thời gian bắt đầu, thời lượng)
+     * @return BaseResponse "OK"
+     */
     @Operation(
             summary = "Cập nhật tiến độ đọc sách",
-            description = "Lưu trang đang đọc; nếu durationSeconds ≥ 30s thì ghi thêm hoạt động BOOK cho heatmap.",
+            description = "Lưu trang đang đọc; nếu durationSeconds >= 30s thì ghi thêm hoạt động BOOK cho heatmap.",
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @PatchMapping("/v1/{bookId}/progress")
+    /** Save reading progress and optional activity log for heatmap. */
     public ResponseEntity<BaseResponse<String>> updateReadingProgress(
             @PathVariable("bookId") int bookId,
             @Valid @RequestBody BookReadingProgressRequest req

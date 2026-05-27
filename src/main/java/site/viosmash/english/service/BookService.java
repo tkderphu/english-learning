@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.viosmash.english.dto.request.BookCreateRequest;
 import site.viosmash.english.dto.request.BookReadingProgressRequest;
@@ -22,6 +23,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+/**
+ * BookService – Xử lý logic nghiệp vụ cho Sách.
+ *
+ * Bao gồm các logic phức tạp như tạo sách (liên kết tác giả, thể loại),
+ * ghi nhận lịch sử đọc, và đề xuất sách dựa trên heatmap.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,12 +49,23 @@ public class BookService {
     private final Util util;
     private final ProfileLearningActivityService profileLearningActivityService;
 
+    /** Query paginated books with optional keyword and genre filters. */
     public PageResponse<BookResponse> getList(int page, int limit, String keyword, Integer genreId) {
         String kw = (keyword == null || keyword.isBlank()) ? null : "%" + keyword.toLowerCase() + "%";
         Pageable pageable = PageRequest.of(page - 1, limit);
         return util.convert(bookRepository.findAllByKeyword(pageable, kw, null, null, genreId));
     }
 
+    /**
+     * Tạo sách mới kèm theo liên kết tác giả và thể loại.
+     *
+     * Lưu đối tượng Book vào CSDL. Sau đó, lặp qua danh sách authorIds
+     * để lưu vào AuthorBookRepository (bảng author_book) và genreIds
+     * để lưu vào BookGenreRepository (bảng book_genre).
+     *
+     * @param req DTO chứa thông tin metadata của sách
+     * @return ID của sách vừa tạo
+     */
     public int create(BookCreateRequest req) {
         Book b = new Book();
         b.setTitle(req.getTitle());
@@ -79,12 +97,14 @@ public class BookService {
         return b.getId();
     }
 
+    /** Return paginated reading history for current user. */
     public PageResponse<BookResponse> getHistory(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
         return util.convert(bookRepository.findHistory(pageable, userId));
     }
 
+    /** Return personalized recommendations, fallback to general list if empty. */
     public PageResponse<BookResponse> recommend(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
@@ -97,16 +117,19 @@ public class BookService {
         return util.convert(bookRepository.findAllByKeyword(pageable, null, null, null, null));
     }
 
+    /** Return paginated active authors. */
     public PageResponse<AuthorResponse> getAuthors(int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         return util.convert(authorRepository.findAllActive(pageable));
     }
 
+    /** Return paginated books of a given author. */
     public PageResponse<BookResponse> getBooksByAuthor(int authorId, int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         return util.convert(bookRepository.findAllByAuthorId(pageable, authorId));
     }
 
+    /** Return paginated favorites of current user. */
     public PageResponse<BookResponse> getFavorites(int page, int limit) {
         Integer userId = util.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(page - 1, limit);
@@ -114,6 +137,7 @@ public class BookService {
     }
 
     @org.springframework.transaction.annotation.Transactional
+    /** Update favorite state for a book of current user. */
     public boolean favorite(int bookId, boolean isFavorite) {
         Integer userId = util.getCurrentUser().getId();
         int favoriteValue = isFavorite ? 1 : 0;
@@ -129,13 +153,19 @@ public class BookService {
         return favoriteValue == 1;
     }
 
+    /** Return book detail with chapter list. */
     public BookResponse getDetail(int id) {
-        Integer userId = util.getCurrentUser().getId();
+        Integer userId = null;
+        if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String)) {
+            userId = util.getCurrentUser().getId();
+        }
+
         BookResponse bookResponse = bookRepository.findOneById(id, userId);
-        bookResponse.setChapters(chapterRepository.findAllByBookId(id));
+        bookResponse.setChapters(chapterRepository.findByBookIdPaginated(id, PageRequest.of(0, 100)).getContent());
         return bookResponse;
     }
 
+    /** Return page slice and attach sentence data for read-book screen. */
     public List<BookPageResponse> getPagesByBook(int bookId, int offset, int limit) {
         Pageable pageable = new site.viosmash.english.util.OffsetPageRequest(offset, limit);
         List<BookPageResponse> pages = pageRepository.findByBookId(pageable, bookId);
@@ -154,6 +184,7 @@ public class BookService {
      * Cập nhật tiến độ đọc và (nếu đủ thời gian) ghi nhật ký hoạt động BOOK cho heatmap.
      */
     @org.springframework.transaction.annotation.Transactional
+    /** Persist reading progress and optionally log long reading sessions. */
     public void recordReadingProgress(int userId, int bookId, BookReadingProgressRequest req) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Book not found"));
@@ -188,6 +219,7 @@ public class BookService {
         }
     }
 
+    /** Parse ISO datetime from client payload for last-read timestamp. */
     private LocalDateTime parseLastRead(String rawLastRead) {
         try {
             return LocalDateTime.parse(rawLastRead, ISO_LOCAL_DATE_TIME_FORMATTER);
