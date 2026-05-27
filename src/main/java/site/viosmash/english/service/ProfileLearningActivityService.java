@@ -38,6 +38,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProfileLearningActivityService {
 
+    /**
+     * Service xử lý việc ghi nhận và thống kê hoạt động học tập của người dùng.
+     * Bao gồm log hoạt động, overview, heatmap, chi tiết từng ngày
+     * và ghi nhận các phiên học từ AI Chat / Flashcard / Book.
+     */
+
     private static final int HEATMAP_LOW_MAX_MIN = 14;
     private static final int HEATMAP_MED_MAX_MIN = 44;
 

@@ -18,6 +18,11 @@ import site.viosmash.english.repository.UserRepository;
 @RequiredArgsConstructor
 public class ProfileService {
 
+    /**
+     * Service xử lý thông tin hồ sơ người dùng.
+     * Bao gồm lấy thông tin profile, cập nhật hồ sơ và cập nhật avatar.
+     */
+
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final LevelRepository levelRepository;

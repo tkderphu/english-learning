@@ -14,6 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/**
+ * Contract cho toàn bộ nghiệp vụ AI Chat.
+ * Bao gồm tạo session, gửi tin nhắn text/voice, kết thúc session,
+ * lấy lịch sử, transcript và xóa session.
+ */
 public interface AiChatService {
     CreateChatSessionResponse createSession(CreateChatSessionRequest request);
 

@@ -23,13 +23,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Lịch sử lỗi ngôn ngữ chỉ từ <strong>AI Chat</strong>: bảng {@code ai_message_errors}
- * gắn với tin nhắn trong {@code ai_chat_sessions} (phiên SCENARIO / FREE_CHAT).
- */
 @Service
 @RequiredArgsConstructor
 public class ProfileCorrectionService {
+
+    /**
+     * Service xử lý lịch sử lỗi ngôn ngữ được phát hiện từ AI Chat.
+     * Chỉ lấy dữ liệu từ bảng lỗi của session AI Chat, không bao gồm lesson hay book.
+     */
 
     /** Chỉ phiên AI Chat do app tạo ({@code SCENARIO} / {@code FREE_CHAT}); {@code NULL} = dữ liệu cũ. */
     private static final String AI_CHAT_SESSION_TYPE_FILTER =
